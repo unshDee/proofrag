@@ -20,8 +20,6 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   slash command, `AGENTS.md`, and skill-discovery layout under `skills/proofrag/`.
 
 ### Changed
-
-
 - Unanswerable cases skip retrieval scoring so they don't skew the averages.
 
 ## [0.1.0] - 2026-05-31
