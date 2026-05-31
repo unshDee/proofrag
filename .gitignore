@@ -12,4 +12,7 @@ results.json
 predictions.jsonl
 scorecard.html
 !docs/scorecard.png
+# secrets — never commit
+.env
+.env.*
 .venv/

@@ -31,7 +31,7 @@ Reference (gold) answer: {gold}
 Context the system retrieved:
 """{ctx}"""
 
-System's answer: {and}
+System's answer: {ans}
 
 Score 0.0-1.0:
 - groundedness: is the answer supported by the retrieved context (no hallucination)?
