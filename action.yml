@@ -1,0 +1,84 @@
+name: "proofrag"
+description: "Evaluate a RAG/LLM app and gate CI on answer quality + retrieval regressions."
+branding:
+  icon: "check-circle"
+  color: "green"
+
+inputs:
+  goldenset:
+    description: "Path to the golden set JSONL."
+    required: true
+  predictions:
+    description: "Path to predictions JSONL ({id, answer, retrieved_contexts}) from your RAG."
+    required: true
+  results:
+    description: "Where to write results.json."
+    default: "results.json"
+  scorecard:
+    description: "Where to write the HTML scorecard."
+    default: "scorecard.html"
+  fail-under:
+    description: "Fail if overall generation score drops below this (0-1). Empty = no absolute gate."
+    default: ""
+  baseline:
+    description: "Baseline results.json to diff against. Empty = no regression check."
+    default: ""
+  tolerance:
+    description: "Allowed metric drop vs baseline before it counts as a regression."
+    default: "0.02"
+  k:
+    description: "Cutoff k for retrieval metrics (Recall@k, NDCG@k, ...)."
+    default: "5"
+  semantic:
+    description: "Use embedding cosine for chunk relevance (needs the openai extra + key)."
+    default: "false"
+  extra:
+    description: "proofrag extra to install: anthropic or openai."
+    default: "anthropic"
+  version:
+    description: "Pin a proofrag version (e.g. 0.3.0). Empty = latest."
+    default: ""
+
+outputs:
+  results:
+    description: "Path to the written results.json."
+    value: ${{ inputs.results }}
+  scorecard:
+    description: "Path to the written HTML scorecard."
+    value: ${{ inputs.scorecard }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+    - name: Evaluate, report, and gate
+      shell: bash
+      env:
+        GOLDENSET: ${{ inputs.goldenset }}
+        PREDICTIONS: ${{ inputs.predictions }}
+        RESULTS: ${{ inputs.results }}
+        SCORECARD: ${{ inputs.scorecard }}
+        FAIL_UNDER: ${{ inputs.fail-under }}
+        BASELINE: ${{ inputs.baseline }}
+        TOLERANCE: ${{ inputs.tolerance }}
+        K: ${{ inputs.k }}
+        SEMANTIC: ${{ inputs.semantic }}
+        EXTRA: ${{ inputs.extra }}
+        VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+        SPEC="proofrag[$EXTRA]"
+        [ -n "$VERSION" ] && SPEC="proofrag[$EXTRA]==$VERSION"
+        RUN=(uvx --from "$SPEC" proofrag)
+
+        ARGS=(--goldenset "$GOLDENSET" --predictions "$PREDICTIONS" --out "$RESULTS" --k "$K")
+        [ "$SEMANTIC" = "true" ] && ARGS+=(--semantic)
+        [ -n "$FAIL_UNDER" ] && ARGS+=(--fail-under "$FAIL_UNDER")
+        "${RUN[@]}" evaluate "${ARGS[@]}"
+
+        "${RUN[@]}" report --results "$RESULTS" --out "$SCORECARD"
+
+        if [ -n "$BASELINE" ]; then
+          "${RUN[@]}" diff --baseline "$BASELINE" --candidate "$RESULTS" --tolerance "$TOLERANCE"
+        fi

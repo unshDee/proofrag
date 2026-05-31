@@ -1,0 +1,45 @@
+# Example: gate your RAG on quality in CI with the proofrag action.
+# Copy to .github/workflows/ in your own repo and adapt the "produce predictions" step.
+
+name: RAG eval
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Run YOUR RAG over the committed golden set to produce predictions.jsonl
+      #    ({"id": ..., "answer": ..., "retrieved_contexts": [...]} per line).
+      #    Replace this with however your app answers questions.
+      - name: Produce predictions
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/run_rag.py --goldenset eval/goldenset.jsonl --out predictions.jsonl
+
+      # 2. Evaluate + score + gate. Fails the build on a low score OR a regression
+      #    vs the committed baseline.
+      - name: proofrag
+        id: proofrag
+        uses: unshDee/proofrag@v0
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        with:
+          goldenset: eval/goldenset.jsonl
+          predictions: predictions.jsonl
+          baseline: eval/baseline.json       # a committed known-good results.json
+          fail-under: "0.7"
+          tolerance: "0.02"
+          k: "5"
+
+      # 3. Keep the scorecard as a downloadable artifact.
+      - name: Upload scorecard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proofrag-scorecard
+          path: ${{ steps.proofrag.outputs.scorecard }}
