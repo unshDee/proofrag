@@ -14,9 +14,15 @@ It's an [Agent Skill](https://agentskills.io) (works in Claude Code, Codex, Curs
 **and** a plain Python CLI — wrapping the eval loop, not reinventing the metrics.
 
 <p align="center">
-  <img src="docs/scorecard.png" alt="RAG eval scorecard" width="760">
-  <br><em>Try it now — no API key needed:</em>
+  <img src="docs/demo.gif" alt="proofrag — generate a golden set, judge, and score in one loop" width="820">
 </p>
+
+<p align="center"><em>…and the scorecard it produces:</em></p>
+<p align="center">
+  <img src="docs/scorecard.png" alt="RAG eval scorecard" width="760">
+</p>
+
+<p align="center"><em>Try it now — no API key needed:</em></p>
 
 ```bash
 git clone https://github.com/unshDee/proofrag && cd proofrag
