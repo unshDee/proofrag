@@ -1,0 +1,20 @@
+{
+  "name": "proofrag",
+  "owner": { "name": "Ansh Dawda", "url": "https://github.com/unshDee" },
+  "metadata": {
+    "description": "RAG/LLM evaluation skill — golden sets, LLM-as-judge, scorecards.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "proofrag",
+      "source": "./",
+      "description": "Evaluate a RAG/LLM app: golden set from your docs + LLM-as-judge + retrieval metrics + shareable scorecard + CI gate.",
+      "version": "0.1.0",
+      "author": { "name": "Ansh Dawda" },
+      "homepage": "https://github.com/unshDee/proofrag",
+      "license": "MIT",
+      "keywords": ["rag", "llm", "evaluation", "llm-as-judge", "skill"]
+    }
+  ]
+}

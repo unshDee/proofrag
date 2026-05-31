@@ -14,14 +14,16 @@ judging, and reporting.
 - User has docs/a knowledge base but no evaluation set.
 - User wants a hallucination/groundedness number, or a CI gate on answer quality.
 
-## Install
-Uses [uv](https://docs.astral.sh/uv/). From the repo, `uv run proofrag ...` auto-creates
-the environment. Add a backend extra for real runs:
+## Install the engine
+This skill drives the `proofrag` CLI. Make sure it's on PATH (install once), or run
+it ad-hoc with `uvx`:
 ```bash
-uv sync --extra anthropic     # or: --extra openai
+uv tool install "proofrag[anthropic]"     # or: pipx install "proofrag[anthropic]"
+# no install needed: uvx "proofrag[anthropic]" demo
 ```
+Use `[openai]` instead of `[anthropic]` for an OpenAI-compatible/local backend.
 Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY`
-(`OPENAI_BASE_URL` for local/Ollama). No key? `uv run proofrag demo` renders a sample scorecard.
+(`OPENAI_BASE_URL` for local/Ollama). No key? `proofrag demo` renders a sample scorecard.
 
 ## The loop
 1. **Generate a golden set from the user's corpus.**
@@ -73,6 +75,7 @@ models — the fingerprint in each scorecard tells you whether that's safe.
   retrieval_recall metric is deterministic and separates retriever from generator faults.
 - A low score on `unanswerable` cases means the system hallucinates instead of refusing.
 
-## Files
-- `src/proofrag/` — `corpus`, `goldenset`, `judge`, `metrics`, `scorecard`, `llm`, `cli`.
-- `examples/docs-rag/` — a runnable end-to-end example (corpus + naive RAG driver).
+## Reference
+- Engine + source: https://github.com/unshDee/proofrag (`src/proofrag/`).
+- Runnable end-to-end example: `examples/docs-rag/` in that repo (corpus + naive RAG driver).
+- `proofrag --help` lists all commands and flags.

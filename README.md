@@ -26,6 +26,24 @@ uv run proofrag demo --out scorecard.html && open scorecard.html
 > Uses [uv](https://docs.astral.sh/uv/). `uv run` auto-creates the environment on
 > first call — nothing else to install. Prefer pip? `pipx install proofrag`.
 
+## Install as an Agent Skill
+
+`proofrag` is a skill (the [agentskills.io](https://agentskills.io) open standard) backed
+by a real CLI — so any agent can run *"evaluate my RAG"* and get a reproducible scorecard.
+
+**Claude Code (plugin):**
+```
+/plugin marketplace add unshDee/proofrag
+/plugin install proofrag@proofrag
+```
+Then ask *"evaluate my RAG"* (auto-triggered) or type `/proofrag`.
+
+**Claude Code (manual)** — `cp -r skills/proofrag ~/.claude/skills/`
+**Codex / other agents** — `cp -r skills/proofrag .agents/skills/`
+
+The skill drives the `proofrag` CLI; install it with `uv tool install "proofrag[anthropic]"`
+(or `pipx install`, or run ad-hoc via `uvx`). See [AGENTS.md](AGENTS.md) for details.
+
 ## Why this exists
 
 > "Running evals aren't the problem — the problem is acquiring or building a
