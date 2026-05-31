@@ -454,7 +454,7 @@ wheels = [
 ]
 
 [[package]]
-name = "ragproof"
+name = "proofrag"
 source = { editable = "." }
 
 [package.optional-dependencies]

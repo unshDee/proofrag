@@ -1,9 +1,9 @@
 ---
-name: ragproof
+name: proofrag
 description: Evaluate a RAG or LLM app. Use when the user wants to test, score, benchmark, or catch regressions in a retrieval/RAG/LLM system, generate an evaluation/golden dataset from their docs, measure hallucination/groundedness/correctness, or gate CI on answer quality. Generates a golden set from the user's own corpus, runs LLM-as-judge plus retrieval metrics, and produces a shareable HTML scorecard.
 ---
 
-# ragproof
+# proofrag
 
 Turn "did my change make the RAG better or worse?" into one reproducible command.
 You (the agent) wire the user's app to the kit; the kit does dataset generation,
@@ -15,20 +15,20 @@ judging, and reporting.
 - User wants a hallucination/groundedness number, or a CI gate on answer quality.
 
 ## Install the engine
-This skill drives the `ragproof` CLI. Make sure it's on PATH (install once), or run
+This skill drives the `proofrag` CLI. Make sure it's on PATH (install once), or run
 it ad-hoc with `uvx`:
 ```bash
-uv tool install "ragproof[anthropic]"     # or: pipx install "ragproof[anthropic]"
-# no install needed: uvx "ragproof[anthropic]" demo
+uv tool install "proofrag[anthropic]"     # or: pipx install "proofrag[anthropic]"
+# no install needed: uvx "proofrag[anthropic]" demo
 ```
 Use `[openai]` instead of `[anthropic]` for an OpenAI-compatible/local backend.
 Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY`
-(`OPENAI_BASE_URL` for local/Ollama). No key? `ragproof demo` renders a sample scorecard.
+(`OPENAI_BASE_URL` for local/Ollama). No key? `proofrag demo` renders a sample scorecard.
 
 ## The loop
 1. **Generate a golden set from the user's corpus.**
    ```bash
-   ragproof generate --corpus ./docs --out goldenset.jsonl --n 20
+   proofrag generate --corpus ./docs --out goldenset.jsonl --n 20
    ```
    Produces JSONL: `{id, question, gold_answer, gold_contexts[], difficulty, sources[]}`
    with tiers `single_doc` / `multi_doc` / `unanswerable`. Commit this file — it is versioned.
@@ -45,7 +45,7 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
 
 3. **Judge.**
    ```bash
-   ragproof evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
+   proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
    ```
    Scores groundedness, correctness, completeness, citation_quality (LLM-as-judge,
    pinned + fingerprinted) and rank-aware retrieval metrics — Recall@k, Precision@k,
@@ -53,14 +53,14 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
 
 4. **Report.**
    ```bash
-   ragproof report --results results.json --out scorecard.html
+   proofrag report --results results.json --out scorecard.html
    ```
    Self-contained HTML — open it, attach it to a PR, screenshot it. Surfaces overall
    score, per-metric bars, and the weakest cases with the judge's rationale.
 
 ## CI gate
 ```bash
-ragproof evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
+proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
   --out results.json --fail-under 0.7      # exits 1 if overall generation score < 0.7
 ```
 
@@ -77,6 +77,6 @@ models — the fingerprint in each scorecard tells you whether that's safe.
 - A low score on `unanswerable` cases means the system hallucinates instead of refusing.
 
 ## Reference
-- Engine + source: https://github.com/unshDee/ragproof (`src/ragproof/`).
+- Engine + source: https://github.com/unshDee/proofrag (`src/proofrag/`).
 - Runnable end-to-end example: `examples/docs-rag/` in that repo (corpus + naive RAG driver).
-- `ragproof --help` lists all commands and flags.
+- `proofrag --help` lists all commands and flags.

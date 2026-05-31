@@ -34,11 +34,11 @@ def embedding_matcher(threshold: float = 0.75, model: str | None = None) -> Matc
     try:
         import openai
     except ImportError as e:
-        raise RuntimeError("embedding_matcher needs: pip install 'ragproof[openai]'") from e
+        raise RuntimeError("embedding_matcher needs: pip install 'proofrag[openai]'") from e
 
     base = os.environ.get("OPENAI_BASE_URL")
     client = openai.OpenAI(base_url=base) if base else openai.OpenAI()
-    model = model or os.environ.get("RAGPROOF_EMBED_MODEL") or DEFAULT_EMBED_MODEL
+    model = model or os.environ.get("PROOFRAG_EMBED_MODEL") or DEFAULT_EMBED_MODEL
     cache: dict[str, list[float]] = {}
 
     def embed(text: str) -> list[float]:

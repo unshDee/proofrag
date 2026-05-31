@@ -12,7 +12,7 @@ import os
 import re
 from typing import Any
 
-# Cheap-by-default. Override with RAGPROOF_MODEL.
+# Cheap-by-default. Override with PROOFRAG_MODEL.
 DEFAULT_ANTHROPIC_MODEL = "claude-haiku-4-5-20251001"
 DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
 
@@ -25,8 +25,8 @@ class LLM:
     """Thin wrapper over Anthropic / OpenAI-compatible chat completions."""
 
     def __init__(self, provider: str | None = None, model: str | None = None):
-        self.provider = provider or os.environ.get("RAGPROOF_PROVIDER") or self._autodetect()
-        self.model = model or os.environ.get("RAGPROOF_MODEL") or self._default_model()
+        self.provider = provider or os.environ.get("PROOFRAG_PROVIDER") or self._autodetect()
+        self.model = model or os.environ.get("PROOFRAG_MODEL") or self._default_model()
         self._client: Any = None  # one of several backend SDK clients, set lazily
 
     @staticmethod
@@ -37,7 +37,7 @@ class LLM:
             return "openai"
         raise LLMError(
             "No LLM credentials found. Set ANTHROPIC_API_KEY or OPENAI_API_KEY "
-            "(or run `ragproof demo` to see a scorecard with no API key)."
+            "(or run `proofrag demo` to see a scorecard with no API key)."
         )
 
     def _default_model(self) -> str:
@@ -65,7 +65,7 @@ class LLM:
         try:
             import anthropic
         except ImportError as e:
-            raise LLMError("Anthropic backend needs: pip install 'ragproof[anthropic]'") from e
+            raise LLMError("Anthropic backend needs: pip install 'proofrag[anthropic]'") from e
         if self._client is None:
             self._client = anthropic.Anthropic()
         msg = self._client.messages.create(
@@ -82,7 +82,7 @@ class LLM:
         try:
             import openai
         except ImportError as e:
-            raise LLMError("OpenAI backend needs: pip install 'ragproof[openai]'") from e
+            raise LLMError("OpenAI backend needs: pip install 'proofrag[openai]'") from e
         if self._client is None:
             base = os.environ.get("OPENAI_BASE_URL")
             self._client = openai.OpenAI(base_url=base) if base else openai.OpenAI()

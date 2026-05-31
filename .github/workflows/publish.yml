@@ -1,8 +1,8 @@
 name: Publish
 
-# Publishes ragproof to PyPI when a GitHub Release is published.
+# Publishes proofrag to PyPI when a GitHub Release is published.
 # Uses PyPI Trusted Publishing (OIDC) — configure the publisher once at
-# https://pypi.org/manage/project/ragproof/settings/publishing/ (no token needed).
+# https://pypi.org/manage/project/proofrag/settings/publishing/ (no token needed).
 
 on:
   release:

@@ -20,7 +20,7 @@ Show
 
 Type "# 1. generate a golden eval set from YOUR docs" Sleep 400ms Enter
 Sleep 400ms
-Type "ragproof generate --corpus examples/docs-rag/corpus --n 6 --chunk-chars 400 --out goldenset.jsonl" Sleep 400ms Enter
+Type "proofrag generate --corpus examples/docs-rag/corpus --n 6 --chunk-chars 400 --out goldenset.jsonl" Sleep 400ms Enter
 Sleep 8s
 
 Type "# 2. run your RAG over each question -> predictions.jsonl" Sleep 400ms Enter
@@ -30,10 +30,10 @@ Sleep 8s
 
 Type "# 3. judge generation + score retrieval (pinned judge, CI gate)" Sleep 400ms Enter
 Sleep 300ms
-Type "ragproof evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --k 3 --fail-under 0.6" Sleep 400ms Enter
+Type "proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --k 3 --fail-under 0.6" Sleep 400ms Enter
 Sleep 9s
 
 Type "# 4. shareable HTML scorecard" Sleep 400ms Enter
 Sleep 300ms
-Type "ragproof report --results results.json --out scorecard.html" Sleep 400ms Enter
+Type "proofrag report --results results.json --out scorecard.html" Sleep 400ms Enter
 Sleep 3s

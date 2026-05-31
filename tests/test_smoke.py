@@ -1,10 +1,10 @@
 """Offline smoke tests — no API key, no network."""
 
-from ragproof.corpus import _split
-from ragproof.demo import DEMO_RESULTS
-from ragproof.judge import JUDGE_DIMENSIONS, _aggregate
-from ragproof.llm import _extract_json
-from ragproof.metrics import (
+from proofrag.corpus import _split
+from proofrag.demo import DEMO_RESULTS
+from proofrag.judge import JUDGE_DIMENSIONS, _aggregate
+from proofrag.llm import _extract_json
+from proofrag.metrics import (
     RETRIEVAL_METRICS,
     lexical_matcher,
     mrr,
@@ -13,7 +13,7 @@ from ragproof.metrics import (
     recall_at_k,
     retrieval_recall,
 )
-from ragproof.scorecard import render
+from proofrag.scorecard import render
 
 M = lexical_matcher()
 
