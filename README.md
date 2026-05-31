@@ -88,10 +88,38 @@ uv run proofrag report --results results.json --out scorecard.html
 
 ## CI gate
 
+Two kinds of gate. An **absolute** floor:
+
 ```bash
 proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
   --out results.json --fail-under 0.7      # non-zero exit if overall score drops below 0.7
 ```
+
+…and a **regression** gate against a committed baseline (a known-good results.json):
+
+```bash
+proofrag diff --baseline baseline.json --candidate results.json --tolerance 0.02
+# prints a per-metric delta table; exits 1 if any metric dropped > tolerance.
+# Refuses to compare across different judge models unless --allow-judge-mismatch.
+```
+
+### GitHub Action
+
+Drop proofrag into any repo's CI in a few lines — it installs the CLI, evaluates,
+writes the scorecard, and gates on both the floor and the baseline:
+
+```yaml
+- uses: unshDee/proofrag@v0
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  with:
+    goldenset: eval/goldenset.jsonl
+    predictions: predictions.jsonl     # produced by your RAG earlier in the job
+    baseline: eval/baseline.json        # optional regression gate
+    fail-under: "0.7"                   # optional absolute gate
+```
+
+Full runnable workflow (with artifact upload): [`examples/ci/proofrag-eval.yml`](examples/ci/proofrag-eval.yml).
 
 ## What makes it different
 

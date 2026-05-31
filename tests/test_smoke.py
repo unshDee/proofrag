@@ -2,6 +2,7 @@
 
 from proofrag.corpus import _split
 from proofrag.demo import DEMO_RESULTS
+from proofrag.diffing import diff
 from proofrag.judge import JUDGE_DIMENSIONS, _aggregate
 from proofrag.llm import _extract_json
 from proofrag.metrics import (
@@ -16,6 +17,10 @@ from proofrag.metrics import (
 from proofrag.scorecard import render
 
 M = lexical_matcher()
+
+
+def _res(judge, **agg):
+    return {"judge_fingerprint": judge, "aggregate": agg}
 
 
 def test_split_packs_paragraphs():
@@ -80,3 +85,22 @@ def test_scorecard_renders_self_contained():
     assert "NDCG@5" in out  # new retrieval metric surfaced
     assert "http://" not in out.replace("http://www.w3", "")  # no external assets
     assert "claude-haiku" in out  # judge fingerprint shown
+
+
+def test_diff_flags_regression_not_improvement():
+    base = _res("j", groundedness=0.9, recall_at_k=0.80)
+    cand = _res("j", groundedness=0.6, recall_at_k=0.82)
+    r = diff(base, cand, tolerance=0.02)
+    assert "groundedness" in r["regressed"]  # dropped 0.3
+    assert "recall_at_k" not in r["regressed"]  # improved
+    assert r["judge_mismatch"] is False
+
+
+def test_diff_respects_tolerance():
+    r = diff(_res("j", groundedness=0.80), _res("j", groundedness=0.79), tolerance=0.02)
+    assert r["regressed"] == []  # 0.01 drop is within tolerance
+
+
+def test_diff_detects_judge_mismatch():
+    r = diff(_res("judge-a", groundedness=0.9), _res("judge-b", groundedness=0.9))
+    assert r["judge_mismatch"] is True

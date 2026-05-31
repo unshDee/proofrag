@@ -59,10 +59,18 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
    score, per-metric bars, and the weakest cases with the judge's rationale.
 
 ## CI gate
+Absolute floor:
 ```bash
 proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
   --out results.json --fail-under 0.7      # exits 1 if overall generation score < 0.7
 ```
+Regression vs a committed baseline (a known-good results.json):
+```bash
+proofrag diff --baseline baseline.json --candidate results.json --tolerance 0.02
+```
+To wire this into GitHub Actions, use the bundled composite action
+`uses: unshDee/proofrag@v0` (see the repo README / `examples/ci/`). Tell the user to
+commit a baseline results.json from a good run, then diff every PR against it.
 
 ## A/B comparison
 Run steps 2–4 for variant A and variant B (e.g. vector vs GraphRAG, or two prompts),

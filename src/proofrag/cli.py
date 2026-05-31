@@ -3,6 +3,7 @@
 proofrag generate --corpus DIR     # docs  -> goldenset.jsonl
 proofrag evaluate --goldenset ...  # +preds -> results.json  (+ optional CI gate)
 proofrag report   --results ...    # results -> scorecard.html
+proofrag diff      --baseline ...  # compare vs a baseline; fail on regression
 proofrag demo                      # canned scorecard, no API key
 """
 
@@ -83,6 +84,34 @@ def cmd_report(args) -> int:
     return 0
 
 
+def cmd_diff(args) -> int:
+    from .diffing import diff, format_table
+    from .judge import read_results
+
+    baseline = read_results(args.baseline)
+    candidate = read_results(args.candidate)
+    res = diff(baseline, candidate, tolerance=args.tolerance)
+    _eprint(format_table(res))
+
+    if res["judge_mismatch"]:
+        msg = (
+            f"judge mismatch: baseline={res['baseline_judge']} vs "
+            f"candidate={res['candidate_judge']} — scores are not comparable across judges"
+        )
+        if not args.allow_judge_mismatch:
+            _eprint(
+                f"error: {msg} (re-run both with the same judge, or pass --allow-judge-mismatch)"
+            )
+            return 2
+        _eprint(f"warning: {msg}")
+
+    if res["regressed"]:
+        _eprint(f"REGRESSION: {', '.join(res['regressed'])} dropped more than {args.tolerance}")
+        return 1
+    _eprint(f"OK: no metric regressed beyond {args.tolerance}")
+    return 0
+
+
 def cmd_demo(args) -> int:
     from .demo import DEMO_RESULTS
     from .scorecard import write_html
@@ -131,6 +160,17 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--results", required=True)
     r.add_argument("--out", default="scorecard.html")
     r.set_defaults(func=cmd_report)
+
+    df = sub.add_parser("diff", help="compare results against a baseline; fail on regression")
+    df.add_argument("--baseline", required=True, help="baseline results.json (a known-good run)")
+    df.add_argument("--candidate", required=True, help="new results.json to compare")
+    df.add_argument(
+        "--tolerance", type=float, default=0.02, help="allowed drop before flagging a regression"
+    )
+    df.add_argument(
+        "--allow-judge-mismatch", action="store_true", help="compare even if judge models differ"
+    )
+    df.set_defaults(func=cmd_diff)
 
     d = sub.add_parser("demo", help="render a sample scorecard (no API key needed)")
     d.add_argument("--out", default="scorecard.html")
