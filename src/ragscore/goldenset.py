@@ -56,8 +56,15 @@ def generate(chunks: list[dict], n: int = 20, seed: int = 0, llm: LLM | None = N
     for c in pool[:n_single]:
         out = _try(llm, _SINGLE.format(source=c["source"], text=c["text"][:1500]))
         if out and out.get("question"):
-            records.append(_record(out["question"], out.get("gold_answer", ""),
-                                    [c["text"]], "single_doc", [c["source"]]))
+            records.append(
+                _record(
+                    out["question"],
+                    out.get("gold_answer", ""),
+                    [c["text"]],
+                    "single_doc",
+                    [c["source"]],
+                )
+            )
     cursor = n_single
 
     for _ in range(n_multi):
@@ -65,14 +72,24 @@ def generate(chunks: list[dict], n: int = 20, seed: int = 0, llm: LLM | None = N
             break
         a, b = pool[cursor], pool[cursor + 1]
         cursor += 2
-        out = _try(llm, _MULTI.format(src_a=a["source"], text_a=a["text"][:900],
-                                      src_b=b["source"], text_b=b["text"][:900]))
+        out = _try(
+            llm,
+            _MULTI.format(
+                src_a=a["source"], text_a=a["text"][:900], src_b=b["source"], text_b=b["text"][:900]
+            ),
+        )
         if out and out.get("question"):
-            records.append(_record(out["question"], out.get("gold_answer", ""),
-                                    [a["text"], b["text"]], "multi_doc",
-                                    [a["source"], b["source"]]))
+            records.append(
+                _record(
+                    out["question"],
+                    out.get("gold_answer", ""),
+                    [a["text"], b["text"]],
+                    "multi_doc",
+                    [a["source"], b["source"]],
+                )
+            )
 
-    for c in pool[cursor:cursor + n_unans]:
+    for c in pool[cursor : cursor + n_unans]:
         out = _try(llm, _UNANS.format(text=c["text"][:1500]))
         if out and out.get("question"):
             records.append(_record(out["question"], _REFUSAL, [], "unanswerable", []))

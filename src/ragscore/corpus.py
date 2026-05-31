@@ -5,8 +5,19 @@ from __future__ import annotations
 from pathlib import Path
 
 TEXT_EXT = {
-    ".md", ".markdown", ".txt", ".rst", ".mdx",
-    ".py", ".js", ".ts", ".tsx", ".java", ".go", ".rb", ".rs",
+    ".md",
+    ".markdown",
+    ".txt",
+    ".rst",
+    ".mdx",
+    ".py",
+    ".js",
+    ".ts",
+    ".tsx",
+    ".java",
+    ".go",
+    ".rb",
+    ".rs",
 }
 
 
@@ -15,8 +26,10 @@ def load_corpus(path: str, max_chars: int = 1200) -> list[dict]:
     p = Path(path)
     if not p.exists():
         raise FileNotFoundError(f"Corpus path not found: {path}")
-    files = [p] if p.is_file() else sorted(
-        f for f in p.rglob("*") if f.is_file() and f.suffix.lower() in TEXT_EXT
+    files = (
+        [p]
+        if p.is_file()
+        else sorted(f for f in p.rglob("*") if f.is_file() and f.suffix.lower() in TEXT_EXT)
     )
     chunks: list[dict] = []
     for f in files:

@@ -1,10 +1,14 @@
-# rag-eval-kit
+# ragscore
+
+[![CI](https://github.com/unshDee/ragscore/actions/workflows/ci.yml/badge.svg)](https://github.com/unshDee/ragscore/actions/workflows/ci.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 **Point your agent at your docs and your RAG app. Get a golden test set, an
 LLM-as-judge + retrieval scorecard, and a CI gate — in one command.**
 
 Evaluation is the #1 unmet pain in production RAG/LLM work, and the hardest part
-is building a good test set in the first place. `rag-eval-kit` generates one from
+is building a good test set in the first place. `ragscore` generates one from
 *your own corpus*, judges your system on it, and emits a shareable HTML scorecard.
 It's an [Agent Skill](https://agentskills.io) (works in Claude Code, Codex, Cursor)
 **and** a plain Python CLI — wrapping the eval loop, not reinventing the metrics.
@@ -15,9 +19,12 @@ It's an [Agent Skill](https://agentskills.io) (works in Claude Code, Codex, Curs
 </p>
 
 ```bash
-pip install -e .
-rag-eval demo --out scorecard.html && open scorecard.html
+git clone https://github.com/unshDee/ragscore && cd ragscore
+uv run ragscore demo --out scorecard.html && open scorecard.html
 ```
+
+> Uses [uv](https://docs.astral.sh/uv/). `uv run` auto-creates the environment on
+> first call — nothing else to install. Prefer pip? `pipx install ragscore`.
 
 ## Why this exists
 
@@ -32,33 +39,33 @@ that loop: **change something → re-run → see if quality moved → gate the m
 
 ```bash
 # 1. Generate a golden set from YOUR docs (questions + gold answers + gold contexts)
-rag-eval generate --corpus ./docs --out goldenset.jsonl --n 20
+ragscore generate --corpus ./docs --out goldenset.jsonl --n 20
 
 # 2. Run your RAG over each question -> predictions.jsonl  (one line per question)
 #    {"id": "q000", "answer": "...", "retrieved_contexts": ["...", "..."]}
 #    See examples/docs-rag/naive_rag.py for a runnable driver.
 
 # 3. Judge: groundedness, correctness, completeness, citation quality + retrieval recall
-rag-eval evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
+ragscore evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
 
 # 4. Shareable HTML scorecard
-rag-eval report --results results.json --out scorecard.html
+ragscore report --results results.json --out scorecard.html
 ```
 
 Run the whole thing end-to-end against the bundled example:
 
 ```bash
-pip install -e '.[anthropic]' && export ANTHROPIC_API_KEY=...
-rag-eval generate --corpus examples/docs-rag/corpus --out goldenset.jsonl --n 8
-python examples/docs-rag/naive_rag.py --goldenset goldenset.jsonl --corpus examples/docs-rag/corpus --out predictions.jsonl
-rag-eval evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
-rag-eval report --results results.json --out scorecard.html
+uv sync --extra anthropic && export ANTHROPIC_API_KEY=...
+uv run ragscore generate --corpus examples/docs-rag/corpus --out goldenset.jsonl --n 8
+uv run python examples/docs-rag/naive_rag.py --goldenset goldenset.jsonl --corpus examples/docs-rag/corpus --out predictions.jsonl
+uv run ragscore evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
+uv run ragscore report --results results.json --out scorecard.html
 ```
 
 ## CI gate
 
 ```bash
-rag-eval evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
+ragscore evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
   --out results.json --fail-under 0.7      # non-zero exit if overall score drops below 0.7
 ```
 

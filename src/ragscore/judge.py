@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import json
+from typing import Any
 
 from .llm import LLM
 from .metrics import retrieval_recall
@@ -30,7 +31,7 @@ Reference (gold) answer: {gold}
 Context the system retrieved:
 """{ctx}"""
 
-System's answer: {ans}
+System's answer: {and}
 
 Score 0.0-1.0:
 - groundedness: is the answer supported by the retrieved context (no hallucination)?
@@ -58,19 +59,21 @@ def evaluate(goldenset: list[dict], predictions: list[dict], llm: LLM | None = N
         scores = _judge_one(llm, g, answer, retrieved)
         recall = retrieval_recall(g.get("gold_contexts", []), retrieved)
 
-        records.append({
-            "id": g["id"],
-            "question": g["question"],
-            "difficulty": g.get("difficulty", "single_doc"),
-            "answer": answer,
-            "scores": scores,
-            "retrieval_recall": round(recall, 3),
-            "rationale": scores.pop("rationale", ""),
-        })
+        records.append(
+            {
+                "id": g["id"],
+                "question": g["question"],
+                "difficulty": g.get("difficulty", "single_doc"),
+                "answer": answer,
+                "scores": scores,
+                "retrieval_recall": round(recall, 3),
+                "rationale": scores.pop("rationale", ""),
+            }
+        )
 
     return {
         "judge_fingerprint": llm.fingerprint,
-        "created": _dt.datetime.now(_dt.timezone.utc).isoformat(timespec="seconds"),
+        "created": _dt.datetime.now(_dt.UTC).isoformat(timespec="seconds"),
         "n": len(records),
         "aggregate": _aggregate(records),
         "records": records,
@@ -80,14 +83,16 @@ def evaluate(goldenset: list[dict], predictions: list[dict], llm: LLM | None = N
 def _judge_one(llm: LLM, gold: dict, answer: str, retrieved: list[str]) -> dict:
     ctx = "\n\n---\n\n".join(retrieved) if retrieved else "(no context retrieved)"
     prompt = JUDGE_TMPL.format(
-        q=gold["question"], gold=gold.get("gold_answer", ""),
-        ctx=ctx[:4000], ans=answer or "(no answer)",
+        q=gold["question"],
+        gold=gold.get("gold_answer", ""),
+        ctx=ctx[:4000],
+        ans=answer or "(no answer)",
     )
     try:
         out = llm.complete_json(JUDGE_SYS, prompt)
     except Exception as e:  # noqa: BLE001 - record the failure, keep going
         return {d: 0.0 for d in JUDGE_DIMENSIONS} | {"rationale": f"judge error: {e}"}
-    result = {d: _clamp(out.get(d, 0.0)) for d in JUDGE_DIMENSIONS}
+    result: dict[str, Any] = {d: _clamp(out.get(d, 0.0)) for d in JUDGE_DIMENSIONS}
     result["rationale"] = str(out.get("rationale", ""))[:300]
     return result
 
