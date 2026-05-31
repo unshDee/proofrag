@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.DS_Store
+# eval artifacts (commit goldenset.jsonl deliberately, ignore the rest)
+results.json
+predictions.jsonl
+scorecard.html
+!docs/scorecard.png
+.venv/
