@@ -19,8 +19,15 @@ make test     # or: uv run pytest
 make lint     # or: uv run python devtools/lint.py   (ruff + codespell + basedpyright)
 ```
 
-No API key needed for tests — they're fully offline. For a live end-to-end run, set
-`ANTHROPIC_API_KEY` (or `OPENAI_API_KEY`) and try the example in the README.
+No API key needed for tests — they're fully offline. For a live end-to-end run, copy
+the env template and add a key, then load it:
+
+```bash
+cp .env.example .env          # then put your key in .env
+set -a && source .env && set +a
+```
+
+`.env` is gitignored; never commit real keys.
 
 ## Workflow (GitHub Flow)
 

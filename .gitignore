@@ -15,4 +15,5 @@ scorecard.html
 # secrets — never commit
 .env
 .env.*
+!.env.example
 .venv/
