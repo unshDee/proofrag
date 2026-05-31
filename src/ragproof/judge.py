@@ -1,9 +1,9 @@
-"""LLM-as-judge scoring + retrieval metrics → results.json.
+"""LLM-as-judge scoring + rank-aware retrieval metrics → results.json.
 
 Generation quality is scored by a pinned judge model on four dimensions
-(groundedness, correctness, completeness, citation_quality). Retrieval quality
-is scored separately via token-overlap recall, so a retriever miss is never
-blamed on the generator. The judge fingerprint is recorded so two scorecards
+(groundedness, correctness, completeness, citation_quality). Retrieval quality is
+scored separately (Recall@k, Precision@k, NDCG@k, MRR), so a retriever miss is
+never blamed on the generator. The judge fingerprint is recorded so two scorecards
 are only compared when they used the same judge.
 """
 
@@ -14,7 +14,7 @@ import json
 from typing import Any
 
 from .llm import LLM
-from .metrics import retrieval_recall
+from .metrics import RETRIEVAL_METRICS, Matcher, lexical_matcher, retrieval_metrics
 
 JUDGE_DIMENSIONS = ["groundedness", "correctness", "completeness", "citation_quality"]
 
@@ -43,9 +43,20 @@ Return JSON:
 {{"groundedness": 0.0, "correctness": 0.0, "completeness": 0.0, "citation_quality": 0.0, "rationale": "one short sentence"}}'''
 
 
-def evaluate(goldenset: list[dict], predictions: list[dict], llm: LLM | None = None) -> dict:
-    """Join goldenset to predictions by id, judge each, aggregate."""
+def evaluate(
+    goldenset: list[dict],
+    predictions: list[dict],
+    llm: LLM | None = None,
+    k: int = 5,
+    matcher: Matcher | None = None,
+) -> dict:
+    """Join goldenset to predictions by id, judge each, aggregate.
+
+    `k` is the cutoff for retrieval metrics. `matcher` decides chunk relevance
+    (defaults to lexical token-overlap; pass `embedding_matcher()` for semantic).
+    """
     llm = llm or LLM()
+    matcher = matcher or lexical_matcher()
     preds = {p["id"]: p for p in predictions}
 
     records: list[dict] = []
@@ -55,9 +66,13 @@ def evaluate(goldenset: list[dict], predictions: list[dict], llm: LLM | None = N
             continue
         retrieved = pred.get("retrieved_contexts", []) or []
         answer = pred.get("answer", "")
+        gold_contexts = g.get("gold_contexts", []) or []
 
         scores = _judge_one(llm, g, answer, retrieved)
-        recall = retrieval_recall(g.get("gold_contexts", []), retrieved)
+        # Unanswerable cases have no gold context to retrieve — skip retrieval scoring.
+        retrieval = (
+            retrieval_metrics(gold_contexts, retrieved, k, matcher) if gold_contexts else None
+        )
 
         records.append(
             {
@@ -66,7 +81,7 @@ def evaluate(goldenset: list[dict], predictions: list[dict], llm: LLM | None = N
                 "difficulty": g.get("difficulty", "single_doc"),
                 "answer": answer,
                 "scores": scores,
-                "retrieval_recall": round(recall, 3),
+                "retrieval": retrieval,
                 "rationale": scores.pop("rationale", ""),
             }
         )
@@ -74,6 +89,7 @@ def evaluate(goldenset: list[dict], predictions: list[dict], llm: LLM | None = N
     return {
         "judge_fingerprint": llm.fingerprint,
         "created": _dt.datetime.now(_dt.UTC).isoformat(timespec="seconds"),
+        "k": k,
         "n": len(records),
         "aggregate": _aggregate(records),
         "records": records,
@@ -104,13 +120,15 @@ def _clamp(v) -> float:
         return 0.0
 
 
+def _mean(values: list[float]) -> float:
+    return round(sum(values) / len(values), 3) if values else 0.0
+
+
 def _aggregate(records: list[dict]) -> dict:
-    if not records:
-        return {d: 0.0 for d in JUDGE_DIMENSIONS} | {"retrieval_recall": 0.0}
-    agg = {}
-    for d in JUDGE_DIMENSIONS:
-        agg[d] = round(sum(r["scores"][d] for r in records) / len(records), 3)
-    agg["retrieval_recall"] = round(sum(r["retrieval_recall"] for r in records) / len(records), 3)
+    agg = {d: _mean([r["scores"][d] for r in records]) for d in JUDGE_DIMENSIONS}
+    scored = [r["retrieval"] for r in records if r.get("retrieval")]
+    for m in RETRIEVAL_METRICS:
+        agg[m] = _mean([r[m] for r in scored])
     return agg
 
 

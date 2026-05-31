@@ -10,14 +10,23 @@ from __future__ import annotations
 import html
 
 from .judge import JUDGE_DIMENSIONS
+from .metrics import RETRIEVAL_METRICS
 
-_LABELS = {
+_GEN_LABELS = {
     "groundedness": "Groundedness",
     "correctness": "Correctness",
     "completeness": "Completeness",
     "citation_quality": "Citation Quality",
-    "retrieval_recall": "Retrieval Recall",
 }
+
+
+def _ret_labels(k: int) -> dict:
+    return {
+        "recall_at_k": f"Recall@{k}",
+        "precision_at_k": f"Precision@{k}",
+        "ndcg_at_k": f"NDCG@{k}",
+        "mrr": "MRR",
+    }
 
 
 def _grade(v: float) -> str:
@@ -46,39 +55,45 @@ def _card(label: str, value: float) -> str:
       </div>"""
 
 
-def _worst(records: list[dict], k: int = 8) -> list[dict]:
-    def mean(r):
-        s = r["scores"]
-        return sum(s[d] for d in JUDGE_DIMENSIONS) / len(JUDGE_DIMENSIONS)
+def _gen_mean(r: dict) -> float:
+    s = r["scores"]
+    return sum(s[d] for d in JUDGE_DIMENSIONS) / len(JUDGE_DIMENSIONS)
 
-    return sorted(records, key=mean)[:k]
+
+def _num_cell(value) -> str:
+    if value is None:
+        return '<td class="num mut">—</td>'
+    return f'<td class="num {_grade(value)}">{round(value * 100)}</td>'
 
 
 def render(results: dict) -> str:
     agg = results.get("aggregate", {})
     records = results.get("records", [])
-    metrics = JUDGE_DIMENSIONS + ["retrieval_recall"]
+    k = results.get("k", 5)
+    ret_labels = _ret_labels(k)
 
     overall = (
         round(sum(agg.get(d, 0.0) for d in JUDGE_DIMENSIONS) / len(JUDGE_DIMENSIONS) * 100)
         if records
         else 0
     )
-    cards = "".join(_card(_LABELS[m], agg.get(m, 0.0)) for m in metrics)
-    bars = "".join(_bar(_LABELS[m], agg.get(m, 0.0)) for m in metrics)
+    # Headline cards: 4 generation dims + NDCG@k as the single best retrieval signal.
+    cards = "".join(_card(_GEN_LABELS[d], agg.get(d, 0.0)) for d in JUDGE_DIMENSIONS)
+    cards += _card(ret_labels["ndcg_at_k"], agg.get("ndcg_at_k", 0.0))
+
+    gen_bars = "".join(_bar(_GEN_LABELS[d], agg.get(d, 0.0)) for d in JUDGE_DIMENSIONS)
+    ret_bars = "".join(_bar(ret_labels[m], agg.get(m, 0.0)) for m in RETRIEVAL_METRICS)
 
     rows = []
-    for r in _worst(records):
+    for r in sorted(records, key=_gen_mean)[:8]:
         s = r["scores"]
-        cells = "".join(
-            f'<td class="num {_grade(s[d])}">{round(s[d] * 100)}</td>' for d in JUDGE_DIMENSIONS
-        )
+        cells = "".join(_num_cell(s[d]) for d in JUDGE_DIMENSIONS)
+        ndcg = r["retrieval"]["ndcg_at_k"] if r.get("retrieval") else None
         rows.append(
             f"<tr><td class='q'>{html.escape(r['question'])}"
             f"<div class='why'>{html.escape(r.get('rationale', ''))}</div></td>"
             f"<td><span class='tag'>{html.escape(r.get('difficulty', ''))}</span></td>"
-            f"{cells}"
-            f"<td class='num {_grade(r['retrieval_recall'])}'>{round(r['retrieval_recall'] * 100)}</td></tr>"
+            f"{cells}{_num_cell(ndcg)}</tr>"
         )
     failing = "".join(rows) or "<tr><td colspan='7'>No records.</td></tr>"
 
@@ -88,8 +103,10 @@ def render(results: dict) -> str:
         n=results.get("n", 0),
         judge=html.escape(results.get("judge_fingerprint", "unknown")),
         created=html.escape(results.get("created", "")),
+        ndcg_head=html.escape(ret_labels["ndcg_at_k"]),
         cards=cards,
-        bars=bars,
+        gen_bars=gen_bars,
+        ret_bars=ret_bars,
         failing=failing,
     )
 
@@ -123,18 +140,22 @@ _TEMPLATE = """<!doctype html>
   .ring {{ font-size:54px; font-weight:700; line-height:1; }}
   .ring.good {{ color:var(--good); }} .ring.ok {{ color:var(--ok); }} .ring.bad {{ color:var(--bad); }}
   .hero .sub {{ color:var(--mut); }}
-  .cards {{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:28px; }}
+  .cards {{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:24px; }}
   .card {{ background:var(--panel); border:1px solid var(--line); border-radius:12px;
     padding:16px; text-align:center; }}
   .card-val {{ font-size:30px; font-weight:700; }}
   .card-label {{ color:var(--mut); font-size:12px; margin-top:4px; }}
   .card.good .card-val {{ color:var(--good); }} .card.ok .card-val {{ color:var(--ok); }}
   .card.bad .card-val {{ color:var(--bad); }}
+  .grid2 {{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }}
   .panel {{ background:var(--panel); border:1px solid var(--line); border-radius:14px;
-    padding:24px 28px; margin-bottom:24px; }}
+    padding:24px 28px; }}
+  .panel.full {{ margin-bottom:24px; }}
   h2 {{ font-size:14px; text-transform:uppercase; letter-spacing:.8px; color:var(--mut);
     margin:0 0 18px; }}
+  h2 small {{ text-transform:none; letter-spacing:0; font-weight:400; }}
   .metric {{ margin-bottom:14px; }}
+  .metric:last-child {{ margin-bottom:0; }}
   .metric-head {{ display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; }}
   .track {{ height:8px; background:#0b0e14; border-radius:6px; overflow:hidden; }}
   .fill {{ height:100%; border-radius:6px; }}
@@ -146,15 +167,15 @@ _TEMPLATE = """<!doctype html>
   th:first-child {{ text-align:left; }}
   td {{ padding:11px 10px; border-bottom:1px solid var(--line); vertical-align:top; }}
   td.q {{ max-width:380px; }}
-  td.why {{ }}
   .why {{ color:var(--mut); font-size:12px; margin-top:4px; }}
   td.num {{ text-align:right; font-variant-numeric:tabular-nums; font-weight:600; }}
   td.num.good {{ color:var(--good); }} td.num.ok {{ color:var(--ok); }} td.num.bad {{ color:var(--bad); }}
+  td.num.mut {{ color:var(--mut); }}
   .tag {{ background:#0b0e14; border:1px solid var(--line); color:var(--mut);
     font-size:11px; padding:2px 7px; border-radius:999px; white-space:nowrap; }}
   footer {{ color:var(--mut); font-size:12px; text-align:center; margin-top:32px; }}
   footer a {{ color:var(--mut); }}
-  @media (max-width:720px) {{ .cards {{ grid-template-columns:repeat(2,1fr); }} }}
+  @media (max-width:720px) {{ .cards {{ grid-template-columns:repeat(2,1fr); }} .grid2 {{ grid-template-columns:1fr; }} }}
 </style></head>
 <body><div class="wrap">
   <header>
@@ -172,16 +193,22 @@ _TEMPLATE = """<!doctype html>
 
   <div class="cards">{cards}</div>
 
-  <div class="panel">
-    <h2>Metrics</h2>
-    {bars}
+  <div class="grid2">
+    <div class="panel">
+      <h2>Generation <small>— LLM-as-judge</small></h2>
+      {gen_bars}
+    </div>
+    <div class="panel">
+      <h2>Retrieval <small>— rank-aware</small></h2>
+      {ret_bars}
+    </div>
   </div>
 
-  <div class="panel">
+  <div class="panel full">
     <h2>Weakest cases</h2>
     <table>
       <thead><tr>
-        <th>Question</th><th>Tier</th><th>Grnd</th><th>Corr</th><th>Comp</th><th>Cite</th><th>Recall</th>
+        <th>Question</th><th>Tier</th><th>Grnd</th><th>Corr</th><th>Comp</th><th>Cite</th><th>{ndcg_head}</th>
       </tr></thead>
       <tbody>{failing}</tbody>
     </table>
