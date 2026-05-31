@@ -1,34 +1,100 @@
+# ---- Project Info and Dependencies ----
+
+[project.urls]
+Repository = "https://github.com/unshDee/proofrag"
+Issues = "https://github.com/unshDee/proofrag/issues"
+
 [project]
 name = "proofrag"
-version = "0.1.0"
 description = "Point your agent at your docs and your RAG app; get a golden test set + an LLM-as-judge & retrieval scorecard, in one command."
-readme = "README.md"
-requires-python = ">=3.9"
-license = { text = "MIT" }
-authors = [{ name = "Ansh Dawda" }]
-keywords = ["rag", "llm", "evaluation", "llm-as-judge", "agent-skills", "claude", "codex", "retrieval"]
-classifiers = [
-  "License :: OSI Approved :: MIT License",
-  "Programming Language :: Python :: 3",
-  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+authors = [
+    { name = "Ansh Dawda", email = "ansh.dawda@gmail.com" },
 ]
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11,<4.0"
+dynamic = ["version"]
+keywords = ["rag", "llm", "evaluation", "llm-as-judge", "agent-skills", "claude", "codex", "retrieval"]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+
+# ---- Main dependencies ----
+# Core is dependency-free. Pick a backend extra (or use a local OpenAI-compatible server).
 dependencies = []
 
 [project.optional-dependencies]
 anthropic = ["anthropic>=0.40"]
 openai = ["openai>=1.40"]
-dev = ["pytest>=7"]
-
-[project.urls]
-Homepage = "https://github.com/unshDee/proofrag"
-Issues = "https://github.com/unshDee/proofrag/issues"
 
 [project.scripts]
-rag-eval = "proofrag.cli:main"
+proofrag = "proofrag.cli:main"
+
+
+# ---- Dev dependencies ----
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-sugar>=1.0",
+    "ruff>=0.6",
+    "codespell>=2.3",
+    "basedpyright>=1.21",
+]
+
+
+# ---- Build system ----
 
 [build-system]
-requires = ["setuptools>=68"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
 
-[tool.setuptools.packages.find]
-include = ["proofrag*"]
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.uv-dynamic-versioning]
+vcs = "git"
+style = "pep440"
+bump = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/proofrag"]
+
+
+# ---- Settings ----
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "UP", "B", "I"]
+ignore = ["E501", "E402", "E731"]
+
+[tool.basedpyright]
+include = ["src", "tests", "devtools"]
+typeCheckingMode = "standard"  # this is JSON-boundary code; full strict adds noise, not safety
+reportMissingTypeStubs = false
+reportUnusedCallResult = false
+reportAny = false
+reportExplicitAny = false
+reportPrivateUsage = false
+
+[tool.codespell]
+skip = "*.lock,./docs/scorecard.png"
+# code identifiers that codespell mistakes for typos
+ignore-words-list = "ans,nin,fo"
+
+[tool.pytest.ini_options]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+testpaths = ["tests"]

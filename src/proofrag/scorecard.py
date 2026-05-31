@@ -8,7 +8,6 @@ people screenshot, so it is built to look good.
 from __future__ import annotations
 
 import html
-import json
 
 from .judge import JUDGE_DIMENSIONS
 
@@ -51,6 +50,7 @@ def _worst(records: list[dict], k: int = 8) -> list[dict]:
     def mean(r):
         s = r["scores"]
         return sum(s[d] for d in JUDGE_DIMENSIONS) / len(JUDGE_DIMENSIONS)
+
     return sorted(records, key=mean)[:k]
 
 
@@ -61,7 +61,8 @@ def render(results: dict) -> str:
 
     overall = (
         round(sum(agg.get(d, 0.0) for d in JUDGE_DIMENSIONS) / len(JUDGE_DIMENSIONS) * 100)
-        if records else 0
+        if records
+        else 0
     )
     cards = "".join(_card(_LABELS[m], agg.get(m, 0.0)) for m in metrics)
     bars = "".join(_bar(_LABELS[m], agg.get(m, 0.0)) for m in metrics)
@@ -70,14 +71,14 @@ def render(results: dict) -> str:
     for r in _worst(records):
         s = r["scores"]
         cells = "".join(
-            f'<td class="num {_grade(s[d])}">{round(s[d]*100)}</td>' for d in JUDGE_DIMENSIONS
+            f'<td class="num {_grade(s[d])}">{round(s[d] * 100)}</td>' for d in JUDGE_DIMENSIONS
         )
         rows.append(
             f"<tr><td class='q'>{html.escape(r['question'])}"
-            f"<div class='why'>{html.escape(r.get('rationale',''))}</div></td>"
-            f"<td><span class='tag'>{html.escape(r.get('difficulty',''))}</span></td>"
+            f"<div class='why'>{html.escape(r.get('rationale', ''))}</div></td>"
+            f"<td><span class='tag'>{html.escape(r.get('difficulty', ''))}</span></td>"
             f"{cells}"
-            f"<td class='num {_grade(r['retrieval_recall'])}'>{round(r['retrieval_recall']*100)}</td></tr>"
+            f"<td class='num {_grade(r['retrieval_recall'])}'>{round(r['retrieval_recall'] * 100)}</td></tr>"
         )
     failing = "".join(rows) or "<tr><td colspan='7'>No records.</td></tr>"
 

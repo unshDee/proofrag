@@ -1,3 +1,8 @@
 """proofrag: zero-config RAG/LLM evaluation — golden sets, LLM-as-judge, scorecards."""
 
-__version__ = "0.1.0"
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("proofrag")
+except PackageNotFoundError:  # running from a source tree without install metadata
+    __version__ = "0+unknown"

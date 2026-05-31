@@ -30,7 +30,9 @@ def context_matches(gold: str, retrieved: list[str], threshold: float = 0.4) -> 
     return any(_jaccard(gold, r) >= threshold for r in retrieved)
 
 
-def retrieval_recall(gold_contexts: list[str], retrieved: list[str], threshold: float = 0.4) -> float:
+def retrieval_recall(
+    gold_contexts: list[str], retrieved: list[str], threshold: float = 0.4
+) -> float:
     """Fraction of gold contexts that show up among the retrieved contexts."""
     if not gold_contexts:
         return 1.0

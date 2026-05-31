@@ -15,17 +15,18 @@ judging, and reporting.
 - User wants a hallucination/groundedness number, or a CI gate on answer quality.
 
 ## Install
+Uses [uv](https://docs.astral.sh/uv/). From the repo, `uv run proofrag ...` auto-creates
+the environment. Add a backend extra for real runs:
 ```bash
-pip install -e .            # from this repo
-# backend (pick one): pip install 'proofrag[anthropic]'  OR  'proofrag[openai]'
+uv sync --extra anthropic     # or: --extra openai
 ```
 Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY`
-(`OPENAI_BASE_URL` for local/Ollama). No key? `rag-eval demo` renders a sample scorecard.
+(`OPENAI_BASE_URL` for local/Ollama). No key? `uv run proofrag demo` renders a sample scorecard.
 
 ## The loop
 1. **Generate a golden set from the user's corpus.**
    ```bash
-   rag-eval generate --corpus ./docs --out goldenset.jsonl --n 20
+   proofrag generate --corpus ./docs --out goldenset.jsonl --n 20
    ```
    Produces JSONL: `{id, question, gold_answer, gold_contexts[], difficulty, sources[]}`
    with tiers `single_doc` / `multi_doc` / `unanswerable`. Commit this file — it is versioned.
@@ -42,21 +43,21 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
 
 3. **Judge.**
    ```bash
-   rag-eval evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
+   proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
    ```
    Scores groundedness, correctness, completeness, citation_quality (LLM-as-judge,
    pinned + fingerprinted) and retrieval_recall (token-overlap, no embeddings).
 
 4. **Report.**
    ```bash
-   rag-eval report --results results.json --out scorecard.html
+   proofrag report --results results.json --out scorecard.html
    ```
    Self-contained HTML — open it, attach it to a PR, screenshot it. Surfaces overall
    score, per-metric bars, and the weakest cases with the judge's rationale.
 
 ## CI gate
 ```bash
-rag-eval evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
+proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
   --out results.json --fail-under 0.7      # exits 1 if overall generation score < 0.7
 ```
 
@@ -73,5 +74,5 @@ models — the fingerprint in each scorecard tells you whether that's safe.
 - A low score on `unanswerable` cases means the system hallucinates instead of refusing.
 
 ## Files
-- `proofrag/` — `corpus`, `goldenset`, `judge`, `metrics`, `scorecard`, `llm`, `cli`.
+- `src/proofrag/` — `corpus`, `goldenset`, `judge`, `metrics`, `scorecard`, `llm`, `cli`.
 - `examples/docs-rag/` — a runnable end-to-end example (corpus + naive RAG driver).

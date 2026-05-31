@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import re
+from typing import Any
 
 # Cheap-by-default. Override with PROOFRAG_MODEL.
 DEFAULT_ANTHROPIC_MODEL = "claude-haiku-4-5-20251001"
@@ -26,7 +27,7 @@ class LLM:
     def __init__(self, provider: str | None = None, model: str | None = None):
         self.provider = provider or os.environ.get("PROOFRAG_PROVIDER") or self._autodetect()
         self.model = model or os.environ.get("PROOFRAG_MODEL") or self._default_model()
-        self._client = None
+        self._client: Any = None  # one of several backend SDK clients, set lazily
 
     @staticmethod
     def _autodetect() -> str:
@@ -36,7 +37,7 @@ class LLM:
             return "openai"
         raise LLMError(
             "No LLM credentials found. Set ANTHROPIC_API_KEY or OPENAI_API_KEY "
-            "(or run `rag-eval demo` to see a scorecard with no API key)."
+            "(or run `proofrag demo` to see a scorecard with no API key)."
         )
 
     def _default_model(self) -> str:
@@ -47,7 +48,7 @@ class LLM:
         """Stable id of the judge backend, recorded in every scorecard."""
         return f"{self.provider}:{self.model}"
 
-    def complete_json(self, system: str, prompt: str) -> dict:
+    def complete_json(self, system: str, prompt: str) -> dict[str, Any]:
         """Complete and parse the first JSON object out of the response."""
         return _extract_json(self._complete(system, prompt))
 
@@ -73,7 +74,9 @@ class LLM:
             system=system,
             messages=[{"role": "user", "content": prompt}],
         )
-        return "".join(b.text for b in msg.content if getattr(b, "type", "") == "text")
+        return "".join(
+            getattr(b, "text", "") for b in msg.content if getattr(b, "type", "") == "text"
+        )
 
     def _openai(self, system: str, prompt: str) -> str:
         try:

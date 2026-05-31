@@ -1,9 +1,9 @@
-"""rag-eval command-line interface.
+"""proofrag command-line interface.
 
-  rag-eval generate --corpus DIR     # docs  -> goldenset.jsonl
-  rag-eval evaluate --goldenset ...  # +preds -> results.json  (+ optional CI gate)
-  rag-eval report   --results ...    # results -> scorecard.html
-  rag-eval demo                      # canned scorecard, no API key
+proofrag generate --corpus DIR     # docs  -> goldenset.jsonl
+proofrag evaluate --goldenset ...  # +preds -> results.json  (+ optional CI gate)
+proofrag report   --results ...    # results -> scorecard.html
+proofrag demo                      # canned scorecard, no API key
 """
 
 from __future__ import annotations
@@ -86,7 +86,7 @@ def cmd_demo(args) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="rag-eval", description="Zero-config RAG/LLM evaluation.")
+    p = argparse.ArgumentParser(prog="proofrag", description="Zero-config RAG/LLM evaluation.")
     p.add_argument("--version", action="version", version=f"proofrag {__version__}")
     sub = p.add_subparsers(dest="cmd", required=True)
 
@@ -104,8 +104,12 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--predictions", required=True, help="jsonl of {id, answer, retrieved_contexts}")
     e.add_argument("--out", default="results.json")
     e.add_argument("--model", default=None)
-    e.add_argument("--fail-under", type=float, default=None,
-                   help="CI gate: exit 1 if overall generation score < this (0-1)")
+    e.add_argument(
+        "--fail-under",
+        type=float,
+        default=None,
+        help="CI gate: exit 1 if overall generation score < this (0-1)",
+    )
     e.set_defaults(func=cmd_evaluate)
 
     r = sub.add_parser("report", help="render results.json to an HTML scorecard")
