@@ -1,9 +1,9 @@
-"""ragscore command-line interface.
+"""ragproof command-line interface.
 
-ragscore generate --corpus DIR     # docs  -> goldenset.jsonl
-ragscore evaluate --goldenset ...  # +preds -> results.json  (+ optional CI gate)
-ragscore report   --results ...    # results -> scorecard.html
-ragscore demo                      # canned scorecard, no API key
+ragproof generate --corpus DIR     # docs  -> goldenset.jsonl
+ragproof evaluate --goldenset ...  # +preds -> results.json  (+ optional CI gate)
+ragproof report   --results ...    # results -> scorecard.html
+ragproof demo                      # canned scorecard, no API key
 """
 
 from __future__ import annotations
@@ -86,8 +86,8 @@ def cmd_demo(args) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="ragscore", description="Zero-config RAG/LLM evaluation.")
-    p.add_argument("--version", action="version", version=f"ragscore {__version__}")
+    p = argparse.ArgumentParser(prog="ragproof", description="Zero-config RAG/LLM evaluation.")
+    p.add_argument("--version", action="version", version=f"ragproof {__version__}")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     g = sub.add_parser("generate", help="synthesize a golden set from a corpus")

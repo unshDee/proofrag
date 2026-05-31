@@ -26,4 +26,4 @@ jobs:
       - name: Test
         run: uv run pytest
       - name: Demo scorecard renders without an API key
-        run: uv run ragscore demo --out /tmp/scorecard.html
+        run: uv run ragproof demo --out /tmp/scorecard.html

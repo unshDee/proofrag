@@ -1,0 +1,26 @@
+name: Publish
+
+# Publishes ragproof to PyPI when a GitHub Release is published.
+# Uses PyPI Trusted Publishing (OIDC) — configure the publisher once at
+# https://pypi.org/manage/project/ragproof/settings/publishing/ (no token needed).
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  pypi:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write  # required for trusted publishing
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # uv-dynamic-versioning derives the version from tags
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+      - name: Build
+        run: uv build
+      - name: Publish to PyPI
+        run: uv publish

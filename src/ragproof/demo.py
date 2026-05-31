@@ -1,4 +1,4 @@
-"""Canned results so `ragscore demo` renders a real scorecard with no API key.
+"""Canned results so `ragproof demo` renders a real scorecard with no API key.
 
 Used for the README screenshot, for trying the tool in 5 seconds, and for CI
 smoke tests that must run without credentials.

@@ -17,9 +17,9 @@ import argparse
 import json
 import re
 
-from ragscore.corpus import load_corpus
-from ragscore.goldenset import read_jsonl
-from ragscore.llm import LLM
+from ragproof.corpus import load_corpus
+from ragproof.goldenset import read_jsonl
+from ragproof.llm import LLM
 
 _WORD = re.compile(r"[a-z0-9]+")
 

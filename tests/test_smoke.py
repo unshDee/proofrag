@@ -1,11 +1,11 @@
 """Offline smoke tests — no API key, no network."""
 
-from ragscore.corpus import _split
-from ragscore.demo import DEMO_RESULTS
-from ragscore.judge import JUDGE_DIMENSIONS, _aggregate
-from ragscore.llm import _extract_json
-from ragscore.metrics import retrieval_recall
-from ragscore.scorecard import render
+from ragproof.corpus import _split
+from ragproof.demo import DEMO_RESULTS
+from ragproof.judge import JUDGE_DIMENSIONS, _aggregate
+from ragproof.llm import _extract_json
+from ragproof.metrics import retrieval_recall
+from ragproof.scorecard import render
 
 
 def test_split_packs_paragraphs():

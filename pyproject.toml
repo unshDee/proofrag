@@ -1,11 +1,11 @@
 # ---- Project Info and Dependencies ----
 
 [project.urls]
-Repository = "https://github.com/unshDee/ragscore"
-Issues = "https://github.com/unshDee/ragscore/issues"
+Repository = "https://github.com/unshDee/ragproof"
+Issues = "https://github.com/unshDee/ragproof/issues"
 
 [project]
-name = "ragscore"
+name = "ragproof"
 description = "Point your agent at your docs and your RAG app; get a golden test set + an LLM-as-judge & retrieval scorecard, in one command."
 authors = [
     { name = "Ansh Dawda", email = "ansh.dawda@gmail.com" },
@@ -38,7 +38,7 @@ anthropic = ["anthropic>=0.40"]
 openai = ["openai>=1.40"]
 
 [project.scripts]
-ragscore = "ragscore.cli:main"
+ragproof = "ragproof.cli:main"
 
 
 # ---- Dev dependencies ----
@@ -68,7 +68,7 @@ style = "pep440"
 bump = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/ragscore"]
+packages = ["src/ragproof"]
 
 
 # ---- Settings ----
