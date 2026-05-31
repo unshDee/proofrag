@@ -48,7 +48,8 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
    proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
    ```
    Scores groundedness, correctness, completeness, citation_quality (LLM-as-judge,
-   pinned + fingerprinted) and retrieval_recall (token-overlap, no embeddings).
+   pinned + fingerprinted) and rank-aware retrieval metrics — Recall@k, Precision@k,
+   NDCG@k, MRR (`--k` sets the cutoff; lexical by default, `--semantic` for embeddings).
 
 4. **Report.**
    ```bash
@@ -72,7 +73,7 @@ models — the fingerprint in each scorecard tells you whether that's safe.
 ## Credibility rules (state these to the user)
 - Judge model is pinned; mixing judges makes scores non-comparable.
 - LLM-as-judge has variance — treat single-point differences cautiously; the
-  retrieval_recall metric is deterministic and separates retriever from generator faults.
+  retrieval metrics are deterministic and separate retriever from generator faults.
 - A low score on `unanswerable` cases means the system hallucinates instead of refusing.
 
 ## Reference

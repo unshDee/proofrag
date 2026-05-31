@@ -6,16 +6,25 @@ smoke tests that must run without credentials.
 
 from __future__ import annotations
 
+
+def _ret(recall, precision, ndcg, mrr):
+    return {"recall_at_k": recall, "precision_at_k": precision, "ndcg_at_k": ndcg, "mrr": mrr}
+
+
 DEMO_RESULTS = {
     "judge_fingerprint": "anthropic:claude-haiku-4-5-20251001",
     "created": "2026-05-31T00:00:00+00:00",
+    "k": 5,
     "n": 8,
     "aggregate": {
         "groundedness": 0.86,
         "correctness": 0.79,
         "completeness": 0.71,
         "citation_quality": 0.68,
-        "retrieval_recall": 0.74,
+        "recall_at_k": 0.77,
+        "precision_at_k": 0.55,
+        "ndcg_at_k": 0.73,
+        "mrr": 0.81,
     },
     "records": [
         {
@@ -29,7 +38,7 @@ DEMO_RESULTS = {
                 "completeness": 0.88,
                 "citation_quality": 0.85,
             },
-            "retrieval_recall": 1.0,
+            "retrieval": _ret(1.0, 0.6, 1.0, 1.0),
             "rationale": "Fully grounded and matches the reference.",
         },
         {
@@ -43,7 +52,7 @@ DEMO_RESULTS = {
                 "completeness": 0.6,
                 "citation_quality": 0.7,
             },
-            "retrieval_recall": 1.0,
+            "retrieval": _ret(1.0, 0.4, 0.92, 1.0),
             "rationale": "Correct but omits the Paris region the reference lists.",
         },
         {
@@ -57,8 +66,8 @@ DEMO_RESULTS = {
                 "completeness": 0.4,
                 "citation_quality": 0.25,
             },
-            "retrieval_recall": 0.5,
-            "rationale": "Hallucinated: only retries are free; DLQ is paid. Retriever missed the pricing doc.",
+            "retrieval": _ret(0.5, 0.2, 0.39, 0.33),
+            "rationale": "Hallucinated: only retries are free; DLQ is paid. Retriever ranked the pricing doc low.",
         },
         {
             "id": "q003",
@@ -71,7 +80,7 @@ DEMO_RESULTS = {
                 "completeness": 0.8,
                 "citation_quality": 0.75,
             },
-            "retrieval_recall": 1.0,
+            "retrieval": _ret(1.0, 0.8, 1.0, 1.0),
             "rationale": "Accurate and grounded.",
         },
         {
@@ -85,7 +94,7 @@ DEMO_RESULTS = {
                 "completeness": 0.5,
                 "citation_quality": 0.45,
             },
-            "retrieval_recall": 0.5,
+            "retrieval": _ret(0.5, 0.4, 0.63, 0.5),
             "rationale": "Partially right; the precedence rule is stated backwards.",
         },
         {
@@ -99,7 +108,7 @@ DEMO_RESULTS = {
                 "completeness": 1.0,
                 "citation_quality": 0.9,
             },
-            "retrieval_recall": 1.0,
+            "retrieval": None,
             "rationale": "Correctly refused an unanswerable question.",
         },
         {
@@ -113,7 +122,7 @@ DEMO_RESULTS = {
                 "completeness": 0.3,
                 "citation_quality": 0.2,
             },
-            "retrieval_recall": 0.0,
+            "retrieval": _ret(0.0, 0.0, 0.0, 0.0),
             "rationale": "Wrong (retention is 2 years) and no relevant context was retrieved.",
         },
         {
@@ -127,7 +136,7 @@ DEMO_RESULTS = {
                 "completeness": 0.85,
                 "citation_quality": 0.8,
             },
-            "retrieval_recall": 1.0,
+            "retrieval": _ret(1.0, 0.8, 1.0, 1.0),
             "rationale": "Grounded and complete.",
         },
     ],

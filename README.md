@@ -63,7 +63,7 @@ proofrag generate --corpus ./docs --out goldenset.jsonl --n 20
 #    {"id": "q000", "answer": "...", "retrieved_contexts": ["...", "..."]}
 #    See examples/docs-rag/naive_rag.py for a runnable driver.
 
-# 3. Judge: groundedness, correctness, completeness, citation quality + retrieval recall
+# 3. Judge: groundedness, correctness, completeness, citation quality + retrieval metrics
 proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
 
 # 4. Shareable HTML scorecard
@@ -91,8 +91,9 @@ proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
 
 - **Golden set from your corpus** — the wedge. Difficulty tiers: single-doc,
   multi-doc, and *unanswerable* (so you catch hallucination-instead-of-refusal).
-- **Retriever vs generator split** — deterministic retrieval recall separates "the
-  context never arrived" from "the model fluffed it."
+- **Retriever vs generator split** — rank-aware retrieval metrics (Recall@k,
+  Precision@k, NDCG@k, MRR) separate "the context never arrived / ranked too low"
+  from "the model fluffed it." Lexical by default; `--semantic` for embedding match.
 - **Pinned, fingerprinted judge** — every scorecard records its judge model, so you
   never compare scores produced by different judges.
 - **Cheap & portable** — defaults to a small model; Anthropic, OpenAI, or local/Ollama
@@ -108,11 +109,12 @@ proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
 | `OPENAI_API_KEY` / `OPENAI_BASE_URL` | — | OpenAI-compatible / local |
 | `PROOFRAG_PROVIDER` | auto | `anthropic` or `openai` |
 | `PROOFRAG_MODEL` | Haiku / gpt-4o-mini | judge & generator model |
+| `PROOFRAG_EMBED_MODEL` | text-embedding-3-small | embeddings for `--semantic` retrieval match |
 
 ## Roadmap
 
 - [x] v0.1 — golden-set generator, LLM-as-judge, retrieval recall, HTML scorecard, CI gate
-- [ ] v0.2 — embedding-based retrieval metrics (NDCG@k / Recall@k / Precision@k)
+- [x] v0.2 — rank-aware retrieval metrics (Recall@k / Precision@k / NDCG@k / MRR), lexical + optional embedding match
 - [ ] v0.3 — GitHub Action + baseline diffing (regression-aware gate)
 - [ ] v0.4 — A/B comparator (vector vs GraphRAG) with blind judging
 - [ ] v0.5 — Ragas / DeepEval backends as pluggable scorers

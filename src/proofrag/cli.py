@@ -46,8 +46,15 @@ def cmd_evaluate(args) -> int:
 
     goldenset = read_jsonl(args.goldenset)
     predictions = read_jsonl(args.predictions)
+    matcher = None
+    if args.semantic:
+        from .embeddings import embedding_matcher
+
+        matcher = embedding_matcher()
     try:
-        results = evaluate(goldenset, predictions, llm=LLM(model=args.model))
+        results = evaluate(
+            goldenset, predictions, llm=LLM(model=args.model), k=args.k, matcher=matcher
+        )
     except LLMError as e:
         _eprint(f"error: {e}")
         return 2
@@ -104,6 +111,14 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--predictions", required=True, help="jsonl of {id, answer, retrieved_contexts}")
     e.add_argument("--out", default="results.json")
     e.add_argument("--model", default=None)
+    e.add_argument(
+        "--k", type=int, default=5, help="cutoff for retrieval metrics (Recall@k, NDCG@k, ...)"
+    )
+    e.add_argument(
+        "--semantic",
+        action="store_true",
+        help="use embedding cosine for chunk relevance instead of token overlap (needs [openai])",
+    )
     e.add_argument(
         "--fail-under",
         type=float,
