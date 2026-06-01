@@ -6,6 +6,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-06-01
+
 ### Changed
 - Redesigned the HTML scorecard and blind A/B comparison reports with a clean,
   professional light theme. Adopts shadcn-style design tokens (neutral palette,
