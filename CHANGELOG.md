@@ -6,6 +6,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-06-01
+
 ### Changed
 - Provider completeness across the whole pipeline (generate / judge / compare /
   `--semantic` / DeepEval backend) for Anthropic, OpenAI, and OpenAI-compatible
