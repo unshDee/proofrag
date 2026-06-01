@@ -7,6 +7,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- `proofrag compare` — blind A/B comparison of two RAG variants over the same
+  golden set: the pinned judge picks the better answer per question with answers
+  shown in randomized order (position bias shuffled out), plus per-variant retrieval
+  metrics and a shareable HTML report. `proofrag report` auto-detects the format,
+  and `proofrag demo --compare` renders a sample with no API key.
+
+## [0.3.0] - 2026-06-01
+
+### Added
 - `proofrag diff` — compare a run against a committed baseline results.json and
   fail on regression (per-metric delta table, `--tolerance`, refuses to compare
   across different judge models unless `--allow-judge-mismatch`).

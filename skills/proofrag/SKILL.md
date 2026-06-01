@@ -72,11 +72,19 @@ To wire this into GitHub Actions, use the bundled composite action
 `uses: unshDee/proofrag@v0` (see the repo README / `examples/ci/`). Tell the user to
 commit a baseline results.json from a good run, then diff every PR against it.
 
-## A/B comparison
-Run steps 2–4 for variant A and variant B (e.g. vector vs GraphRAG, or two prompts),
-keeping the **same goldenset and the same judge model**, then compare the two
-`results.json` aggregates. Never compare scorecards produced by different judge
-models — the fingerprint in each scorecard tells you whether that's safe.
+## A/B comparison (blind)
+To compare two variants (vector vs GraphRAG, two prompts, two models), run each over
+the **same** golden set to produce two prediction files, then:
+```bash
+proofrag compare --goldenset goldenset.jsonl \
+  --a vector_preds.jsonl --a-name vector \
+  --b graphrag_preds.jsonl --b-name graphrag \
+  --out comparison.json --html comparison.html
+```
+The same pinned judge picks the better answer per question, **blind** — answers are
+shown in randomized order so it never knows which variant is which. Output: win
+counts + per-variant retrieval metrics + an HTML report. Render later with
+`proofrag report --results comparison.json` (it auto-detects the comparison format).
 
 ## Credibility rules (state these to the user)
 - Judge model is pinned; mixing judges makes scores non-comparable.

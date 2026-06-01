@@ -141,3 +141,68 @@ DEMO_RESULTS = {
         },
     ],
 }
+
+
+# Canned A/B comparison so `proofrag demo --compare` renders with no API key.
+DEMO_COMPARISON = {
+    "kind": "comparison",
+    "judge_fingerprint": "anthropic:claude-haiku-4-5-20251001",
+    "created": "2026-06-01T00:00:00+00:00",
+    "a_name": "vector",
+    "b_name": "graphrag",
+    "n": 6,
+    "wins": {"a": 2, "b": 3, "tie": 1},
+    "win_rate_a": 0.4,
+    "retrieval_a": {"recall_at_k": 0.78, "precision_at_k": 0.55, "ndcg_at_k": 0.71, "mrr": 0.74},
+    "retrieval_b": {"recall_at_k": 0.86, "precision_at_k": 0.62, "ndcg_at_k": 0.83, "mrr": 0.85},
+    "records": [
+        {
+            "id": "q000",
+            "winner": "b",
+            "question": "How does SSO group mapping interact with custom roles?",
+            "reason": "graphrag links the two docs and states precedence correctly; vector misses it.",
+            "a_answer": "Groups map to roles automatically.",
+            "b_answer": "Groups map to roles; a custom role overrides the group default.",
+        },
+        {
+            "id": "q001",
+            "winner": "a",
+            "question": "What is the max payload size for the batch endpoint?",
+            "reason": "Both correct; vector is more concise and fully grounded.",
+            "a_answer": "10 MB per request.",
+            "b_answer": "Around 10 MB, plus a 500-item cap (extra detail not asked).",
+        },
+        {
+            "id": "q002",
+            "winner": "b",
+            "question": "Does the free plan include a dead-letter queue?",
+            "reason": "graphrag retrieved the pricing doc and refused; vector hallucinated yes.",
+            "a_answer": "Yes, the free plan includes a dead-letter queue.",
+            "b_answer": "No — retries are free, but the dead-letter queue is a paid feature.",
+        },
+        {
+            "id": "q003",
+            "winner": "tie",
+            "question": "Which auth methods does the CLI support?",
+            "reason": "Both answer API key + OAuth device flow correctly.",
+            "a_answer": "API key and OAuth device flow.",
+            "b_answer": "API keys and the OAuth device flow.",
+        },
+        {
+            "id": "q004",
+            "winner": "b",
+            "question": "How long are audit logs retained on enterprise?",
+            "reason": "graphrag found the 2-year figure; vector retrieved nothing relevant.",
+            "a_answer": "I don't have that information.",
+            "b_answer": "2 years on the enterprise plan.",
+        },
+        {
+            "id": "q005",
+            "winner": "a",
+            "question": "How do I rotate an API key without downtime?",
+            "reason": "vector's ordered steps match the reference more closely.",
+            "a_answer": "Create a new key, deploy it, verify traffic, then revoke the old one.",
+            "b_answer": "Make a new key and revoke the old one.",
+        },
+    ],
+}

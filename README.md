@@ -125,6 +125,26 @@ writes the scorecard, and gates on both the floor and the baseline:
 
 Full runnable workflow (with artifact upload): [`examples/ci/proofrag-eval.yml`](examples/ci/proofrag-eval.yml).
 
+## A/B: compare two RAG variants
+
+Vector vs GraphRAG? Two prompts? Two models? Run both over the **same** golden set,
+then let the **same** judge pick the better answer per question — **blind** (answers
+shown in randomized order, so position bias is shuffled out):
+
+```bash
+proofrag compare --goldenset goldenset.jsonl \
+  --a vector_preds.jsonl  --a-name vector \
+  --b graphrag_preds.jsonl --b-name graphrag \
+  --out comparison.json --html comparison.html
+```
+
+<p align="center">
+  <img src="docs/compare.png" alt="blind A/B comparison report" width="760">
+</p>
+
+Deterministic retrieval metrics for each variant sit beside the verdict, so you can
+tell whether a win came from better retrieval or better generation.
+
 ## What makes it different
 
 - **Golden set from your corpus** — the wedge. Difficulty tiers: single-doc,

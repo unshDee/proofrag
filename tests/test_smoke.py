@@ -1,10 +1,13 @@
 """Offline smoke tests — no API key, no network."""
 
+from typing import cast
+
+from proofrag.compare import compare
 from proofrag.corpus import _split
-from proofrag.demo import DEMO_RESULTS
+from proofrag.demo import DEMO_COMPARISON, DEMO_RESULTS
 from proofrag.diffing import diff
 from proofrag.judge import JUDGE_DIMENSIONS, _aggregate
-from proofrag.llm import _extract_json
+from proofrag.llm import LLM, _extract_json
 from proofrag.metrics import (
     RETRIEVAL_METRICS,
     lexical_matcher,
@@ -14,7 +17,7 @@ from proofrag.metrics import (
     recall_at_k,
     retrieval_recall,
 )
-from proofrag.scorecard import render
+from proofrag.scorecard import render, render_comparison
 
 M = lexical_matcher()
 
@@ -104,3 +107,49 @@ def test_diff_respects_tolerance():
 def test_diff_detects_judge_mismatch():
     r = diff(_res("judge-a", groundedness=0.9), _res("judge-b", groundedness=0.9))
     assert r["judge_mismatch"] is True
+
+
+class _PickGood:
+    """Fake judge that picks whichever response contains GOOD, regardless of position."""
+
+    fingerprint = "fake:judge"
+
+    def complete_json(self, system, prompt):
+        r1 = prompt.split("Response 1:")[1].split("Response 2:")[0]
+        r2 = prompt.split("Response 2:")[1]
+        if "GOOD" in r1 and "GOOD" not in r2:
+            return {"winner": 1, "reason": ""}
+        if "GOOD" in r2 and "GOOD" not in r1:
+            return {"winner": 2, "reason": ""}
+        return {"winner": 0, "reason": ""}
+
+
+def test_compare_is_blind_to_position():
+    # A always GOOD, B always bad — A must win every case no matter the shuffled order.
+    gold = [
+        {"id": f"q{i}", "question": f"q{i}?", "gold_answer": "ref", "gold_contexts": []}
+        for i in range(6)
+    ]
+    preds_a = [{"id": g["id"], "answer": "GOOD answer", "retrieved_contexts": []} for g in gold]
+    preds_b = [{"id": g["id"], "answer": "bad answer", "retrieved_contexts": []} for g in gold]
+    res = compare(
+        gold,
+        preds_a,
+        preds_b,
+        a_name="vector",
+        b_name="graphrag",
+        llm=cast(LLM, _PickGood()),
+        seed=1,
+    )
+    assert res["wins"]["a"] == 6
+    assert res["wins"]["b"] == 0
+    assert res["win_rate_a"] == 1.0
+    assert res["kind"] == "comparison"
+
+
+def test_comparison_renders_self_contained():
+    out = render_comparison(DEMO_COMPARISON)
+    assert "<!doctype html>" in out
+    assert "vector" in out and "graphrag" in out
+    assert "winbar" in out  # the A/B win bar
+    assert "http://" not in out.replace("http://www.w3", "")
