@@ -6,6 +6,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-01
+
 ### Added
 - Pluggable scoring backends via `evaluate --backend`. New **DeepEval** backend
   (`proofrag[deepeval]`, verified against deepeval 4.0.5) swaps generation scoring
