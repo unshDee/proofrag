@@ -6,6 +6,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-01
+
 ### Added
 - `proofrag compare` — blind A/B comparison of two RAG variants over the same
   golden set: the pinned judge picks the better answer per question with answers
