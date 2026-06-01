@@ -29,7 +29,10 @@ def _deepeval_model(provider: str, model: str):
     if provider == "anthropic":
         return AnthropicModel(model=model)
     if provider == "openai":
-        return GPTModel(model=model)
+        # GPTModel honors base_url, so this also covers local/compatible endpoints.
+        base = os.environ.get("OPENAI_BASE_URL")
+        key = os.environ.get("OPENAI_API_KEY") or ("not-needed" if base else None)
+        return GPTModel(model=model, base_url=base, api_key=key)
     raise BackendError(f"DeepEval backend supports anthropic/openai, not {provider!r}")
 
 

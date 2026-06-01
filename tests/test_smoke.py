@@ -205,3 +205,31 @@ def test_scorecard_renders_dynamic_backend_metrics():
     assert "Faithfulness" in h and "Answer Relevancy" in h and "Correctness" in h
     assert "deepeval" in h  # backend label shown
     assert "Groundedness" not in h  # proofrag's own dims not shown for this backend
+
+
+def test_autodetect_base_url_without_key(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("PROOFRAG_PROVIDER", raising=False)
+    monkeypatch.setenv("OPENAI_BASE_URL", "http://localhost:11434/v1")
+    assert LLM().provider == "openai"  # local endpoint, no key needed
+
+
+def test_openai_client_local_needs_no_key(monkeypatch):
+    from proofrag.llm import openai_client
+
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("OPENAI_BASE_URL", "http://localhost:11434/v1")
+    c = openai_client()
+    assert str(c.base_url).startswith("http://localhost:11434")
+
+
+def test_openai_client_requires_key_or_base(monkeypatch):
+    import pytest
+
+    from proofrag.llm import LLMError, openai_client
+
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_BASE_URL", raising=False)
+    with pytest.raises(LLMError):
+        openai_client()

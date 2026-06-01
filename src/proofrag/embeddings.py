@@ -5,7 +5,9 @@ paraphrased rather than copied, swap in an embedding matcher: it marks a retriev
 chunk relevant to a gold context when their cosine similarity clears a threshold.
 
 Uses the OpenAI-compatible embeddings API (also covers local servers via
-OPENAI_BASE_URL). Requires the `openai` extra and OPENAI_API_KEY.
+OPENAI_BASE_URL). Requires the `openai` extra and either OPENAI_API_KEY or
+OPENAI_BASE_URL. (Anthropic has no embeddings API, so `--semantic` always routes
+through an OpenAI-compatible endpoint.)
 """
 
 from __future__ import annotations
@@ -13,6 +15,7 @@ from __future__ import annotations
 import math
 import os
 
+from .llm import openai_client
 from .metrics import Matcher
 
 DEFAULT_EMBED_MODEL = "text-embedding-3-small"
@@ -31,13 +34,7 @@ def embedding_matcher(threshold: float = 0.75, model: str | None = None) -> Matc
     Embeddings are cached per text within the matcher, so repeated gold/retrieved
     strings across a run are embedded once.
     """
-    try:
-        import openai
-    except ImportError as e:
-        raise RuntimeError("embedding_matcher needs: pip install 'proofrag[openai]'") from e
-
-    base = os.environ.get("OPENAI_BASE_URL")
-    client = openai.OpenAI(base_url=base) if base else openai.OpenAI()
+    client = openai_client()
     model = model or os.environ.get("PROOFRAG_EMBED_MODEL") or DEFAULT_EMBED_MODEL
     cache: dict[str, list[float]] = {}
 
