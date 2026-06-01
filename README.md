@@ -1,8 +1,12 @@
 # proofrag
 
-[![CI](https://github.com/unshDee/proofrag/actions/workflows/ci.yml/badge.svg)](https://github.com/unshDee/proofrag/actions/workflows/ci.yml)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+<p align="center">
+  <a href="https://pypi.org/project/proofrag/"><img src="https://img.shields.io/pypi/v/proofrag?color=2563eb&label=pypi" alt="PyPI"></a>
+  <a href="https://pypi.org/project/proofrag/"><img src="https://img.shields.io/pypi/pyversions/proofrag" alt="Python"></a>
+  <a href="https://github.com/unshDee/proofrag/actions/workflows/ci.yml"><img src="https://github.com/unshDee/proofrag/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://pepy.tech/project/proofrag"><img src="https://static.pepy.tech/badge/proofrag/month" alt="Downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT"></a>
+</p>
 
 **Point your agent at your docs and your RAG app. Get a golden test set, an
 LLM-as-judge + retrieval scorecard, and a CI gate — in one command.**
@@ -22,15 +26,15 @@ It's an [Agent Skill](https://agentskills.io) (works in Claude Code, Codex, Curs
   <img src="docs/scorecard.png" alt="RAG eval scorecard" width="760">
 </p>
 
-<p align="center"><em>Try it now — no API key needed:</em></p>
+<p align="center"><em>See a scorecard in 5 seconds — no API key needed:</em></p>
 
 ```bash
-git clone https://github.com/unshDee/proofrag && cd proofrag
-uv run proofrag demo --out scorecard.html && open scorecard.html
+pipx install "proofrag[anthropic]"        # or: pip install / uv tool install / uvx
+proofrag demo --out scorecard.html && open scorecard.html
 ```
 
-> Uses [uv](https://docs.astral.sh/uv/). `uv run` auto-creates the environment on
-> first call — nothing else to install. Prefer pip? `pipx install proofrag`.
+> Use `[openai]` instead of `[anthropic]` for an OpenAI-compatible or local (Ollama) backend.
+> No install? Run it ad-hoc: `uvx "proofrag[anthropic]" demo`.
 
 ## Install as an Agent Skill
 
@@ -145,12 +149,6 @@ Full runnable workflow (with artifact upload): [`examples/ci/proofrag-eval.yml`]
 | `PROOFRAG_MODEL` | Haiku / gpt-4o-mini | judge & generator model |
 | `PROOFRAG_EMBED_MODEL` | text-embedding-3-small | embeddings for `--semantic` retrieval match |
 
-## Roadmap
+## Contributing
 
-- [x] v0.1 — golden-set generator, LLM-as-judge, retrieval recall, HTML scorecard, CI gate
-- [x] v0.2 — rank-aware retrieval metrics (Recall@k / Precision@k / NDCG@k / MRR), lexical + optional embedding match
-- [ ] v0.3 — GitHub Action + baseline diffing (regression-aware gate)
-- [ ] v0.4 — A/B comparator (vector vs GraphRAG) with blind judging
-- [ ] v0.5 — Ragas / DeepEval backends as pluggable scorers
-
-Issues and PRs welcome. MIT licensed.
+Issues and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). MIT licensed.
