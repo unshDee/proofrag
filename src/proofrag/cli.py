@@ -54,9 +54,21 @@ def cmd_evaluate(args) -> int:
 
         matcher = embedding_matcher()
     try:
-        results = evaluate(
-            goldenset, predictions, llm=LLM(model=args.model), k=args.k, matcher=matcher
-        )
+        if args.backend == "deepeval":
+            from .backends import BackendError
+            from .backends.deepeval_backend import evaluate_deepeval
+
+            try:
+                results = evaluate_deepeval(
+                    goldenset, predictions, model=args.model, k=args.k, matcher=matcher
+                )
+            except BackendError as e:
+                _eprint(f"error: {e}")
+                return 2
+        else:
+            results = evaluate(
+                goldenset, predictions, llm=LLM(model=args.model), k=args.k, matcher=matcher
+            )
     except LLMError as e:
         _eprint(f"error: {e}")
         return 2
@@ -66,8 +78,10 @@ def cmd_evaluate(args) -> int:
     for k, v in agg.items():
         _eprint(f"  {k:>18}: {v:.3f}")
 
+    gen = results.get("generation_metrics") or JUDGE_DIMENSIONS
     if args.fail_under is not None:
-        overall = sum(agg[d] for d in JUDGE_DIMENSIONS) / len(JUDGE_DIMENSIONS)
+        vals = [agg[d] for d in gen if agg.get(d) is not None]
+        overall = sum(vals) / len(vals) if vals else 0.0
         if overall < args.fail_under:
             _eprint(f"GATE FAIL: overall {overall:.3f} < {args.fail_under:.3f}")
             return 1
@@ -195,6 +209,12 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--predictions", required=True, help="jsonl of {id, answer, retrieved_contexts}")
     e.add_argument("--out", default="results.json")
     e.add_argument("--model", default=None)
+    e.add_argument(
+        "--backend",
+        choices=["proofrag", "deepeval"],
+        default="proofrag",
+        help="generation scoring backend (deepeval needs the [deepeval] extra)",
+    )
     e.add_argument(
         "--k", type=int, default=5, help="cutoff for retrieval metrics (Recall@k, NDCG@k, ...)"
     )

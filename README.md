@@ -158,6 +158,25 @@ tell whether a win came from better retrieval or better generation.
   (`OPENAI_BASE_URL`). Self-contained HTML, zero JS, zero external assets.
 - **Agent-native** — drop it in as a skill and say *"evaluate my RAG"*; the agent
   wires your pipeline to the kit.
+- **Pluggable scoring backends** — swap proofrag's own judge for [DeepEval](https://github.com/confident-ai/deepeval)
+  without changing the workflow, scorecard, CI gate, or A/B flow.
+
+## Scoring backends
+
+By default proofrag judges generation with its own pinned LLM-as-judge. You can
+swap in an external library instead — the retrieval metrics, scorecard, `diff`,
+and `compare` all stay the same; only the generation metrics change.
+
+```bash
+pip install "proofrag[deepeval]"
+proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
+  --backend deepeval --out results.json
+# generation metrics become: faithfulness, answer_relevancy, correctness (GEval)
+```
+
+The DeepEval judge uses the same model config as proofrag (`ANTHROPIC_API_KEY` →
+`AnthropicModel`, `OPENAI_API_KEY` → `GPTModel`). Verified against deepeval 4.0.5.
+*(Ragas backend is planned next.)*
 
 ## Configuration
 

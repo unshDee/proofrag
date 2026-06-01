@@ -36,6 +36,7 @@ dependencies = []
 [project.optional-dependencies]
 anthropic = ["anthropic>=0.40"]
 openai = ["openai>=1.40"]
+deepeval = ["deepeval>=4.0,<5"]
 
 [project.scripts]
 proofrag = "proofrag.cli:main"

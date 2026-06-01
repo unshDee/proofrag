@@ -2,6 +2,8 @@
 
 from typing import cast
 
+from proofrag.backends.deepeval_backend import GENERATION_METRICS as DE_GEN
+from proofrag.backends.deepeval_backend import _aggregate as de_aggregate
 from proofrag.compare import compare
 from proofrag.corpus import _split
 from proofrag.demo import DEMO_COMPARISON, DEMO_RESULTS
@@ -153,3 +155,53 @@ def test_comparison_renders_self_contained():
     assert "vector" in out and "graphrag" in out
     assert "winbar" in out  # the A/B win bar
     assert "http://" not in out.replace("http://www.w3", "")
+
+
+def test_deepeval_aggregate_handles_none_and_retrieval():
+    recs = [
+        {
+            "scores": {"faithfulness": 0.8, "answer_relevancy": 0.9, "correctness": None},
+            "retrieval": {"recall_at_k": 1.0, "precision_at_k": 0.5, "ndcg_at_k": 0.8, "mrr": 1.0},
+        },
+        {
+            "scores": {"faithfulness": None, "answer_relevancy": 0.7, "correctness": 0.6},
+            "retrieval": None,
+        },
+    ]
+    agg = de_aggregate(recs)
+    assert agg["faithfulness"] == 0.8  # only one non-None
+    assert agg["answer_relevancy"] == 0.8  # mean(0.9, 0.7)
+    assert agg["correctness"] == 0.6
+    assert agg["recall_at_k"] == 1.0  # only one retrieval row counted
+
+
+def test_scorecard_renders_dynamic_backend_metrics():
+    results = {
+        "judge_fingerprint": "deepeval/anthropic:claude-haiku",
+        "backend": "deepeval",
+        "generation_metrics": DE_GEN,
+        "k": 5,
+        "n": 1,
+        "aggregate": {
+            "faithfulness": 0.8,
+            "answer_relevancy": 0.9,
+            "correctness": 0.7,
+            "recall_at_k": 1.0,
+            "precision_at_k": 0.5,
+            "ndcg_at_k": 0.8,
+            "mrr": 1.0,
+        },
+        "records": [
+            {
+                "question": "q",
+                "difficulty": "single_doc",
+                "scores": {"faithfulness": 0.8, "answer_relevancy": 0.9, "correctness": 0.7},
+                "retrieval": {"ndcg_at_k": 0.8},
+                "rationale": "",
+            }
+        ],
+    }
+    h = render(results)
+    assert "Faithfulness" in h and "Answer Relevancy" in h and "Correctness" in h
+    assert "deepeval" in h  # backend label shown
+    assert "Groundedness" not in h  # proofrag's own dims not shown for this backend
