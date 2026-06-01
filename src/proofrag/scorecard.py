@@ -65,19 +65,21 @@ def _grade(v: float) -> str:
 
 def _bar(label: str, value: float) -> str:
     pct = round(value * 100)
+    g = _grade(value)
     return f"""
       <div class="metric">
-        <div class="metric-head"><span>{html.escape(label)}</span><b>{pct}</b></div>
-        <div class="track"><div class="fill {_grade(value)}" style="width:{pct}%"></div></div>
+        <div class="metric-head"><span>{html.escape(label)}</span><b class="{g}">{pct}</b></div>
+        <div class="track"><div class="fill {g}" style="width:{pct}%"></div></div>
       </div>"""
 
 
 def _card(label: str, value: float) -> str:
     pct = round(value * 100)
+    g = _grade(value)
     return f"""
-      <div class="card {_grade(value)}">
+      <div class="card {g}">
         <div class="card-val">{pct}</div>
-        <div class="card-label">{html.escape(label)}</div>
+        <div class="card-label"><span class="dot"></span>{html.escape(label)}</div>
       </div>"""
 
 
@@ -212,71 +214,93 @@ _TEMPLATE = """<!doctype html>
 <title>RAG Eval Scorecard</title>
 <style>
   :root {{
-    --bg:#0b0e14; --panel:#141925; --line:#222b3a; --ink:#e6edf3; --mut:#8b98ad;
-    --good:#3fb950; --ok:#d29922; --bad:#f85149;
+    --background:hsl(0 0% 100%); --foreground:hsl(240 10% 3.9%);
+    --card:hsl(0 0% 100%); --muted:hsl(240 4.8% 95.9%);
+    --muted-foreground:hsl(240 3.8% 46.1%); --border:hsl(240 5.9% 90%);
+    --accent:hsl(240 4.8% 95.9%); --primary:hsl(240 5.9% 10%);
+    --good:hsl(142 71% 35%); --ok:hsl(38 92% 40%); --bad:hsl(0 72% 48%);
+    --radius:0.625rem;
+    --shadow:0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 3px 0 rgb(0 0 0 / 0.04);
   }}
   * {{ box-sizing:border-box; }}
-  body {{ margin:0; background:var(--bg); color:var(--ink);
-    font:15px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }}
-  .wrap {{ max-width:980px; margin:0 auto; padding:40px 24px 64px; }}
-  header {{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
-    border-bottom:1px solid var(--line); padding-bottom:24px; margin-bottom:28px; }}
-  h1 {{ margin:0; font-size:22px; letter-spacing:.2px; }}
-  h1 .kit {{ color:var(--mut); font-weight:500; }}
-  .meta {{ color:var(--mut); font-size:13px; text-align:right; }}
-  .meta code {{ color:var(--ink); background:var(--panel); padding:2px 6px; border-radius:5px; }}
-  .hero {{ display:flex; align-items:center; gap:24px; background:var(--panel);
-    border:1px solid var(--line); border-radius:14px; padding:24px 28px; margin-bottom:24px; }}
-  .ring {{ font-size:54px; font-weight:700; line-height:1; }}
-  .ring.good {{ color:var(--good); }} .ring.ok {{ color:var(--ok); }} .ring.bad {{ color:var(--bad); }}
-  .hero .sub {{ color:var(--mut); }}
-  .cards {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:24px; }}
-  .card {{ background:var(--panel); border:1px solid var(--line); border-radius:12px;
-    padding:16px; text-align:center; }}
-  .card-val {{ font-size:30px; font-weight:700; }}
-  .card-label {{ color:var(--mut); font-size:12px; margin-top:4px; }}
-  .card.good .card-val {{ color:var(--good); }} .card.ok .card-val {{ color:var(--ok); }}
-  .card.bad .card-val {{ color:var(--bad); }}
-  .grid2 {{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }}
-  .panel {{ background:var(--panel); border:1px solid var(--line); border-radius:14px;
-    padding:24px 28px; }}
-  .panel.full {{ margin-bottom:24px; }}
-  h2 {{ font-size:14px; text-transform:uppercase; letter-spacing:.8px; color:var(--mut);
-    margin:0 0 18px; }}
-  h2 small {{ text-transform:none; letter-spacing:0; font-weight:400; }}
-  .metric {{ margin-bottom:14px; }}
+  body {{ margin:0; background:var(--background); color:var(--foreground);
+    -webkit-font-smoothing:antialiased;
+    font:14.5px/1.55 ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }}
+  .wrap {{ max-width:1040px; margin:0 auto; padding:48px 28px 72px; }}
+  .mono {{ font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace; }}
+  header {{ display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:16px;
+    margin-bottom:32px; }}
+  h1 {{ margin:0; font-size:19px; font-weight:600; letter-spacing:-.01em; }}
+  h1 .kit {{ color:var(--muted-foreground); font-weight:400; }}
+  .tagline {{ color:var(--muted-foreground); font-size:13px; margin-top:4px; }}
+  .meta {{ color:var(--muted-foreground); font-size:12.5px; text-align:right; line-height:1.7; }}
+  .meta code {{ color:var(--foreground); background:var(--muted); padding:2px 7px; border-radius:6px;
+    font-size:12px; }}
+  .hero {{ display:flex; align-items:center; gap:28px; background:var(--card);
+    border:1px solid var(--border); border-radius:var(--radius); padding:28px 32px;
+    margin-bottom:20px; box-shadow:var(--shadow); }}
+  .ring {{ font-size:52px; font-weight:680; line-height:1; letter-spacing:-.03em;
+    font-variant-numeric:tabular-nums; }}
+  .ring small {{ font-size:20px; color:var(--muted-foreground); font-weight:500; margin-left:2px; }}
+  .ring.bad {{ color:var(--bad); }}
+  .hero .htitle {{ font-size:16px; font-weight:600; }}
+  .hero .sub {{ color:var(--muted-foreground); font-size:13.5px; margin-top:3px; }}
+  .cards {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }}
+  .card {{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px 16px; box-shadow:var(--shadow); }}
+  .card-val {{ font-size:28px; font-weight:650; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }}
+  .card-val small {{ font-size:14px; color:var(--muted-foreground); font-weight:500; }}
+  .card-label {{ color:var(--muted-foreground); font-size:12.5px; margin-top:6px;
+    display:flex; align-items:center; gap:6px; }}
+  .dot {{ width:7px; height:7px; border-radius:999px; background:var(--good); flex:none; }}
+  .ok .dot {{ background:var(--ok); }} .bad .dot {{ background:var(--bad); }}
+  .bad .card-val {{ color:var(--bad); }}
+  .grid2 {{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }}
+  .panel {{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:24px 26px; box-shadow:var(--shadow); }}
+  .panel.full {{ margin-bottom:20px; padding:24px 26px 12px; }}
+  h2 {{ font-size:13px; font-weight:600; letter-spacing:-.005em; color:var(--foreground);
+    margin:0 0 20px; }}
+  h2 small {{ color:var(--muted-foreground); font-weight:400; }}
+  .metric {{ margin-bottom:16px; }}
   .metric:last-child {{ margin-bottom:0; }}
-  .metric-head {{ display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; }}
-  .track {{ height:8px; background:#0b0e14; border-radius:6px; overflow:hidden; }}
-  .fill {{ height:100%; border-radius:6px; }}
-  .fill.good {{ background:var(--good); }} .fill.ok {{ background:var(--ok); }}
+  .metric-head {{ display:flex; justify-content:space-between; font-size:13px; margin-bottom:7px; }}
+  .metric-head b {{ font-variant-numeric:tabular-nums; font-weight:600; }}
+  .metric-head .bad {{ color:var(--bad); }}
+  .track {{ height:6px; background:var(--muted); border-radius:999px; overflow:hidden; }}
+  .fill {{ height:100%; border-radius:999px; background:var(--primary); }}
   .fill.bad {{ background:var(--bad); }}
   table {{ width:100%; border-collapse:collapse; font-size:13px; }}
-  th {{ text-align:right; color:var(--mut); font-weight:600; padding:8px 10px;
-    border-bottom:1px solid var(--line); }}
+  th {{ text-align:right; color:var(--muted-foreground); font-weight:500; padding:0 12px 10px;
+    border-bottom:1px solid var(--border); font-size:12px; }}
   th:first-child {{ text-align:left; }}
-  td {{ padding:11px 10px; border-bottom:1px solid var(--line); vertical-align:top; }}
-  td.q {{ max-width:380px; }}
-  .why {{ color:var(--mut); font-size:12px; margin-top:4px; }}
-  td.num {{ text-align:right; font-variant-numeric:tabular-nums; font-weight:600; }}
-  td.num.good {{ color:var(--good); }} td.num.ok {{ color:var(--ok); }} td.num.bad {{ color:var(--bad); }}
-  td.num.mut {{ color:var(--mut); }}
-  .tag {{ background:#0b0e14; border:1px solid var(--line); color:var(--mut);
-    font-size:11px; padding:2px 7px; border-radius:999px; white-space:nowrap; }}
-  footer {{ color:var(--mut); font-size:12px; text-align:center; margin-top:32px; }}
-  footer a {{ color:var(--mut); }}
+  td {{ padding:13px 12px; border-bottom:1px solid var(--border); vertical-align:top; }}
+  tbody tr:last-child td {{ border-bottom:none; }}
+  td.q {{ max-width:420px; font-weight:500; }}
+  .why {{ color:var(--muted-foreground); font-size:12.5px; font-weight:400; margin-top:4px; }}
+  td.num {{ text-align:right; font-variant-numeric:tabular-nums; font-weight:500; }}
+  td.num.bad {{ color:var(--bad); font-weight:600; }}
+  td.num.mut {{ color:var(--muted-foreground); }}
+  .tag {{ background:var(--muted); color:var(--muted-foreground); font-weight:500;
+    font-size:11px; padding:2px 9px; border-radius:6px; white-space:nowrap; }}
+  footer {{ color:var(--muted-foreground); font-size:12.5px; text-align:center; margin-top:36px; }}
+  footer a {{ color:var(--foreground); text-decoration:none; }}
+  footer a:hover {{ text-decoration:underline; }}
   @media (max-width:720px) {{ .grid2 {{ grid-template-columns:1fr; }} }}
 </style></head>
 <body><div class="wrap">
   <header>
-    <h1>RAG Eval Scorecard <span class="kit">· proofrag</span></h1>
-    <div class="meta">judge <code>{judge}</code><br>{created} · {n} cases</div>
+    <div>
+      <h1>RAG Eval Scorecard <span class="kit">· proofrag</span></h1>
+      <div class="tagline">Generation quality &amp; retrieval, judged across {n} cases.</div>
+    </div>
+    <div class="meta">judge <code class="mono">{judge}</code><br>{created} · {n} cases</div>
   </header>
 
   <div class="hero">
-    <div class="ring {overall_grade}">{overall}</div>
+    <div class="ring {overall_grade}">{overall}<small>/100</small></div>
     <div>
-      <div style="font-size:18px;font-weight:600;">Overall generation quality</div>
+      <div class="htitle">Overall generation quality</div>
       <div class="sub">Mean of {gen_names} across {n} cases.</div>
     </div>
   </div>
@@ -314,54 +338,70 @@ _CMP_TEMPLATE = """<!doctype html>
 <title>RAG A/B — proofrag</title>
 <style>
   :root {{
-    --bg:#0b0e14; --panel:#141925; --line:#222b3a; --ink:#e6edf3; --mut:#8b98ad;
-    --a:#3b82f6; --b:#a855f7; --tie:#3a4456;
+    --background:hsl(0 0% 100%); --foreground:hsl(240 10% 3.9%);
+    --card:hsl(0 0% 100%); --muted:hsl(240 4.8% 95.9%);
+    --muted-foreground:hsl(240 3.8% 46.1%); --border:hsl(240 5.9% 90%);
+    --a:hsl(240 5.9% 10%); --b:hsl(217 91% 53%); --tie:hsl(240 4.8% 88%);
+    --radius:0.625rem;
+    --shadow:0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 3px 0 rgb(0 0 0 / 0.04);
   }}
   * {{ box-sizing:border-box; }}
-  body {{ margin:0; background:var(--bg); color:var(--ink);
-    font:15px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }}
-  .wrap {{ max-width:980px; margin:0 auto; padding:40px 24px 64px; }}
-  header {{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
-    border-bottom:1px solid var(--line); padding-bottom:24px; margin-bottom:28px; }}
-  h1 {{ margin:0; font-size:22px; }} h1 .kit {{ color:var(--mut); font-weight:500; }}
-  .meta {{ color:var(--mut); font-size:13px; text-align:right; }}
-  .meta code {{ color:var(--ink); background:var(--panel); padding:2px 6px; border-radius:5px; }}
-  .hero {{ background:var(--panel); border:1px solid var(--line); border-radius:14px;
-    padding:24px 28px; margin-bottom:24px; }}
-  .verdict {{ font-size:22px; font-weight:700; margin-bottom:6px; }}
-  .legend {{ color:var(--mut); font-size:13px; margin-bottom:16px; }}
+  body {{ margin:0; background:var(--background); color:var(--foreground);
+    -webkit-font-smoothing:antialiased;
+    font:14.5px/1.55 ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }}
+  .wrap {{ max-width:1040px; margin:0 auto; padding:48px 28px 72px; }}
+  .mono {{ font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace; }}
+  header {{ display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:16px;
+    margin-bottom:32px; }}
+  h1 {{ margin:0; font-size:19px; font-weight:600; letter-spacing:-.01em; }}
+  h1 .kit {{ color:var(--muted-foreground); font-weight:400; }}
+  .tagline {{ color:var(--muted-foreground); font-size:13px; margin-top:4px; }}
+  .meta {{ color:var(--muted-foreground); font-size:12.5px; text-align:right; line-height:1.7; }}
+  .meta code {{ color:var(--foreground); background:var(--muted); padding:2px 7px; border-radius:6px;
+    font-size:12px; }}
+  .hero {{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:28px 32px; margin-bottom:20px; box-shadow:var(--shadow); }}
+  .verdict {{ font-size:22px; font-weight:650; letter-spacing:-.02em; margin-bottom:8px; }}
+  .legend {{ color:var(--muted-foreground); font-size:13px; margin-bottom:18px; }}
+  .legend b {{ font-weight:600; }}
   .legend b.wa {{ color:var(--a); }} .legend b.wb {{ color:var(--b); }}
-  .winbar {{ display:flex; height:34px; border-radius:8px; overflow:hidden; font-size:12px;
-    font-weight:700; color:#0b0e14; }}
+  .winbar {{ display:flex; height:30px; border-radius:8px; overflow:hidden; font-size:12px;
+    font-weight:600; color:#fff; gap:2px; background:var(--background); }}
   .winbar .seg {{ display:flex; align-items:center; justify-content:center; min-width:0; }}
   .winbar .sa {{ background:var(--a); }} .winbar .sb {{ background:var(--b); }}
-  .winbar .st {{ background:var(--tie); color:var(--mut); }}
-  .panel {{ background:var(--panel); border:1px solid var(--line); border-radius:14px;
-    padding:24px 28px; margin-bottom:24px; }}
-  h2 {{ font-size:14px; text-transform:uppercase; letter-spacing:.8px; color:var(--mut); margin:0 0 16px; }}
+  .winbar .st {{ background:var(--tie); color:var(--muted-foreground); }}
+  .panel {{ background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:24px 26px 12px; margin-bottom:20px; box-shadow:var(--shadow); }}
+  h2 {{ font-size:13px; font-weight:600; color:var(--foreground); margin:0 0 16px; }}
   table {{ width:100%; border-collapse:collapse; font-size:13px; }}
-  th {{ text-align:right; color:var(--mut); font-weight:600; padding:8px 10px; border-bottom:1px solid var(--line); }}
+  th {{ text-align:right; color:var(--muted-foreground); font-weight:500; padding:0 12px 10px;
+    border-bottom:1px solid var(--border); font-size:12px; }}
   th:first-child {{ text-align:left; }}
-  td {{ padding:11px 10px; border-bottom:1px solid var(--line); vertical-align:top; }}
-  td.num {{ text-align:right; font-variant-numeric:tabular-nums; font-weight:600; }}
-  td.q {{ max-width:300px; }} td.ans {{ color:var(--mut); font-size:12px; max-width:240px; }}
-  .why {{ color:var(--mut); font-size:12px; margin-top:4px; }}
-  .win {{ font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; white-space:nowrap; color:#0b0e14; }}
+  td {{ padding:13px 12px; border-bottom:1px solid var(--border); vertical-align:top; }}
+  tbody tr:last-child td {{ border-bottom:none; }}
+  td.num {{ text-align:right; font-variant-numeric:tabular-nums; font-weight:500; }}
+  td.q {{ max-width:300px; font-weight:500; }}
+  td.ans {{ color:var(--muted-foreground); font-size:12.5px; max-width:240px; }}
+  .why {{ color:var(--muted-foreground); font-size:12.5px; font-weight:400; margin-top:4px; }}
+  .win {{ font-size:11px; font-weight:600; padding:2px 9px; border-radius:6px; white-space:nowrap; color:#fff; }}
   .win.wa {{ background:var(--a); }} .win.wb {{ background:var(--b); }}
-  .win.wt {{ background:var(--tie); color:var(--mut); }}
-  footer {{ color:var(--mut); font-size:12px; text-align:center; margin-top:32px; }}
-  footer a {{ color:var(--mut); }}
+  .win.wt {{ background:var(--tie); color:var(--muted-foreground); }}
+  footer {{ color:var(--muted-foreground); font-size:12.5px; text-align:center; margin-top:36px; }}
+  footer a {{ color:var(--foreground); text-decoration:none; }}
+  footer a:hover {{ text-decoration:underline; }}
 </style></head>
 <body><div class="wrap">
   <header>
-    <h1>RAG A/B — blind <span class="kit">· proofrag</span></h1>
-    <div class="meta">judge <code>{judge}</code><br>{created} · {n} cases</div>
+    <div>
+      <h1>RAG A/B — blind <span class="kit">· proofrag</span></h1>
+      <div class="tagline">Blind pairwise judging across {n} cases, answers in randomized order.</div>
+    </div>
+    <div class="meta">judge <code class="mono">{judge}</code><br>{created} · {n} cases</div>
   </header>
 
   <div class="hero">
     <div class="verdict">{verdict}</div>
-    <div class="legend"><b class="wa">{a}</b> {aw} · tie {tw} · <b class="wb">{b}</b> {bw}
-      &nbsp;— blind pairwise judging, answers shown in randomized order.</div>
+    <div class="legend"><b class="wa">{a}</b> {aw} · tie {tw} · <b class="wb">{b}</b> {bw}</div>
     <div class="winbar">
       <div class="seg sa" style="width:{a_pct}%">{a_pct}%</div>
       <div class="seg st" style="width:{t_pct}%"></div>
