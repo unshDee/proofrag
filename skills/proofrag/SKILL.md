@@ -50,6 +50,9 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
    Scores groundedness, correctness, completeness, citation_quality (LLM-as-judge,
    pinned + fingerprinted) and rank-aware retrieval metrics — Recall@k, Precision@k,
    NDCG@k, MRR (`--k` sets the cutoff; lexical by default, `--semantic` for embeddings).
+   To score generation with DeepEval instead, add `--backend deepeval` (needs the
+   `proofrag[deepeval]` extra; metrics become faithfulness / answer_relevancy / correctness).
+   Retrieval metrics and everything downstream stay the same.
 
 4. **Report.**
    ```bash

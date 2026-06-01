@@ -88,6 +88,8 @@ def evaluate(
 
     return {
         "judge_fingerprint": llm.fingerprint,
+        "backend": "proofrag",
+        "generation_metrics": list(JUDGE_DIMENSIONS),
         "created": _dt.datetime.now(_dt.UTC).isoformat(timespec="seconds"),
         "k": k,
         "n": len(records),

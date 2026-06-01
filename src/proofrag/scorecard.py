@@ -17,7 +17,33 @@ _GEN_LABELS = {
     "correctness": "Correctness",
     "completeness": "Completeness",
     "citation_quality": "Citation Quality",
+    "faithfulness": "Faithfulness",
+    "answer_relevancy": "Answer Relevancy",
+    "relevancy": "Relevancy",
 }
+
+_GEN_SHORT = {
+    "groundedness": "Grnd",
+    "correctness": "Corr",
+    "completeness": "Comp",
+    "citation_quality": "Cite",
+    "faithfulness": "Faith",
+    "answer_relevancy": "Rel",
+    "relevancy": "Rel",
+}
+
+
+def _gen_label(name: str) -> str:
+    return _GEN_LABELS.get(name, name.replace("_", " ").title())
+
+
+def _gen_short(name: str) -> str:
+    return _GEN_SHORT.get(name, _gen_label(name)[:5])
+
+
+def _gen_metrics(results: dict) -> list[str]:
+    """Generation metric names for this run — backend-dependent, with a fallback."""
+    return results.get("generation_metrics") or JUDGE_DIMENSIONS
 
 
 def _ret_labels(k: int) -> dict:
@@ -55,11 +81,6 @@ def _card(label: str, value: float) -> str:
       </div>"""
 
 
-def _gen_mean(r: dict) -> float:
-    s = r["scores"]
-    return sum(s[d] for d in JUDGE_DIMENSIONS) / len(JUDGE_DIMENSIONS)
-
-
 def _num_cell(value) -> str:
     if value is None:
         return '<td class="num mut">—</td>'
@@ -71,23 +92,26 @@ def render(results: dict) -> str:
     records = results.get("records", [])
     k = results.get("k", 5)
     ret_labels = _ret_labels(k)
+    gen = _gen_metrics(results)
 
-    overall = (
-        round(sum(agg.get(d, 0.0) for d in JUDGE_DIMENSIONS) / len(JUDGE_DIMENSIONS) * 100)
-        if records
-        else 0
-    )
-    # Headline cards: 4 generation dims + NDCG@k as the single best retrieval signal.
-    cards = "".join(_card(_GEN_LABELS[d], agg.get(d, 0.0)) for d in JUDGE_DIMENSIONS)
+    overall = round(sum(agg.get(d, 0.0) for d in gen) / len(gen) * 100) if records and gen else 0
+    # Headline cards: each generation metric + NDCG@k as the single best retrieval signal.
+    cards = "".join(_card(_gen_label(d), agg.get(d, 0.0)) for d in gen)
     cards += _card(ret_labels["ndcg_at_k"], agg.get("ndcg_at_k", 0.0))
 
-    gen_bars = "".join(_bar(_GEN_LABELS[d], agg.get(d, 0.0)) for d in JUDGE_DIMENSIONS)
+    gen_bars = "".join(_bar(_gen_label(d), agg.get(d, 0.0)) for d in gen)
     ret_bars = "".join(_bar(ret_labels[m], agg.get(m, 0.0)) for m in RETRIEVAL_METRICS)
+    gen_heads = "".join(f"<th>{html.escape(_gen_short(d))}</th>" for d in gen)
+
+    def gmean(r: dict) -> float:
+        s = r["scores"]
+        vals = [s[d] for d in gen if s.get(d) is not None]
+        return sum(vals) / len(vals) if vals else 0.0
 
     rows = []
-    for r in sorted(records, key=_gen_mean)[:8]:
+    for r in sorted(records, key=gmean)[:8]:
         s = r["scores"]
-        cells = "".join(_num_cell(s[d]) for d in JUDGE_DIMENSIONS)
+        cells = "".join(_num_cell(s.get(d)) for d in gen)
         ndcg = r["retrieval"]["ndcg_at_k"] if r.get("retrieval") else None
         rows.append(
             f"<tr><td class='q'>{html.escape(r['question'])}"
@@ -95,7 +119,7 @@ def render(results: dict) -> str:
             f"<td><span class='tag'>{html.escape(r.get('difficulty', ''))}</span></td>"
             f"{cells}{_num_cell(ndcg)}</tr>"
         )
-    failing = "".join(rows) or "<tr><td colspan='7'>No records.</td></tr>"
+    failing = "".join(rows) or f"<tr><td colspan='{len(gen) + 2}'>No records.</td></tr>"
 
     return _TEMPLATE.format(
         overall=overall,
@@ -103,10 +127,13 @@ def render(results: dict) -> str:
         n=results.get("n", 0),
         judge=html.escape(results.get("judge_fingerprint", "unknown")),
         created=html.escape(results.get("created", "")),
+        backend=html.escape(results.get("backend", "proofrag")),
+        gen_names=", ".join(_gen_label(d).lower() for d in gen),
         ndcg_head=html.escape(ret_labels["ndcg_at_k"]),
         cards=cards,
         gen_bars=gen_bars,
         ret_bars=ret_bars,
+        gen_heads=gen_heads,
         failing=failing,
     )
 
@@ -203,7 +230,7 @@ _TEMPLATE = """<!doctype html>
   .ring {{ font-size:54px; font-weight:700; line-height:1; }}
   .ring.good {{ color:var(--good); }} .ring.ok {{ color:var(--ok); }} .ring.bad {{ color:var(--bad); }}
   .hero .sub {{ color:var(--mut); }}
-  .cards {{ display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:24px; }}
+  .cards {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:24px; }}
   .card {{ background:var(--panel); border:1px solid var(--line); border-radius:12px;
     padding:16px; text-align:center; }}
   .card-val {{ font-size:30px; font-weight:700; }}
@@ -238,7 +265,7 @@ _TEMPLATE = """<!doctype html>
     font-size:11px; padding:2px 7px; border-radius:999px; white-space:nowrap; }}
   footer {{ color:var(--mut); font-size:12px; text-align:center; margin-top:32px; }}
   footer a {{ color:var(--mut); }}
-  @media (max-width:720px) {{ .cards {{ grid-template-columns:repeat(2,1fr); }} .grid2 {{ grid-template-columns:1fr; }} }}
+  @media (max-width:720px) {{ .grid2 {{ grid-template-columns:1fr; }} }}
 </style></head>
 <body><div class="wrap">
   <header>
@@ -250,7 +277,7 @@ _TEMPLATE = """<!doctype html>
     <div class="ring {overall_grade}">{overall}</div>
     <div>
       <div style="font-size:18px;font-weight:600;">Overall generation quality</div>
-      <div class="sub">Mean of groundedness, correctness, completeness & citation quality across {n} cases.</div>
+      <div class="sub">Mean of {gen_names} across {n} cases.</div>
     </div>
   </div>
 
@@ -258,7 +285,7 @@ _TEMPLATE = """<!doctype html>
 
   <div class="grid2">
     <div class="panel">
-      <h2>Generation <small>— LLM-as-judge</small></h2>
+      <h2>Generation <small>— {backend}</small></h2>
       {gen_bars}
     </div>
     <div class="panel">
@@ -271,7 +298,7 @@ _TEMPLATE = """<!doctype html>
     <h2>Weakest cases</h2>
     <table>
       <thead><tr>
-        <th>Question</th><th>Tier</th><th>Grnd</th><th>Corr</th><th>Comp</th><th>Cite</th><th>{ndcg_head}</th>
+        <th>Question</th><th>Tier</th>{gen_heads}<th>{ndcg_head}</th>
       </tr></thead>
       <tbody>{failing}</tbody>
     </table>

@@ -6,6 +6,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- Pluggable scoring backends via `evaluate --backend`. New **DeepEval** backend
+  (`proofrag[deepeval]`, verified against deepeval 4.0.5) swaps generation scoring
+  to faithfulness / answer_relevancy / correctness (GEval), using the same model
+  config as proofrag. Retrieval metrics, scorecard, `diff`, and `compare` are
+  unchanged. The scorecard now renders each backend's metric set dynamically.
+
 ## [0.4.0] - 2026-06-01
 
 ### Added
