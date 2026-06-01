@@ -4,6 +4,7 @@ proofrag generate --corpus DIR     # docs  -> goldenset.jsonl
 proofrag evaluate --goldenset ...  # +preds -> results.json  (+ optional CI gate)
 proofrag report   --results ...    # results -> scorecard.html
 proofrag diff      --baseline ...  # compare vs a baseline; fail on regression
+proofrag compare   --a ... --b ... # blind A/B of two RAG variants
 proofrag demo                      # canned scorecard, no API key
 """
 
@@ -79,8 +80,55 @@ def cmd_report(args) -> int:
     from .scorecard import write_html
 
     results = read_results(args.results)
-    write_html(results, args.out)
+    if results.get("kind") == "comparison":
+        from .scorecard import write_comparison_html
+
+        write_comparison_html(results, args.out)
+    else:
+        write_html(results, args.out)
     _eprint(f"Wrote scorecard -> {args.out}")
+    return 0
+
+
+def cmd_compare(args) -> int:
+    from .compare import compare, write_comparison
+    from .goldenset import read_jsonl
+    from .llm import LLM, LLMError
+
+    goldenset = read_jsonl(args.goldenset)
+    preds_a = read_jsonl(args.a)
+    preds_b = read_jsonl(args.b)
+    matcher = None
+    if args.semantic:
+        from .embeddings import embedding_matcher
+
+        matcher = embedding_matcher()
+    try:
+        res = compare(
+            goldenset,
+            preds_a,
+            preds_b,
+            a_name=args.a_name,
+            b_name=args.b_name,
+            llm=LLM(model=args.model),
+            k=args.k,
+            matcher=matcher,
+            seed=args.seed,
+        )
+    except LLMError as e:
+        _eprint(f"error: {e}")
+        return 2
+    write_comparison(res, args.out)
+    w = res["wins"]
+    _eprint(f"Compared {res['n']} cases (blind) with {res['judge_fingerprint']} -> {args.out}")
+    _eprint(f"  {args.a_name}: {w['a']} wins | {args.b_name}: {w['b']} wins | tie: {w['tie']}")
+    if res["win_rate_a"] is not None:
+        _eprint(f"  {args.a_name} win rate: {res['win_rate_a']:.0%} of decided")
+    if args.html:
+        from .scorecard import write_comparison_html
+
+        write_comparison_html(res, args.html)
+        _eprint(f"  report -> {args.html}")
     return 0
 
 
@@ -113,6 +161,13 @@ def cmd_diff(args) -> int:
 
 
 def cmd_demo(args) -> int:
+    if args.compare:
+        from .demo import DEMO_COMPARISON
+        from .scorecard import write_comparison_html
+
+        write_comparison_html(DEMO_COMPARISON, args.out)
+        _eprint(f"Wrote demo A/B comparison -> {args.out}  (open it in a browser)")
+        return 0
     from .demo import DEMO_RESULTS
     from .scorecard import write_html
 
@@ -172,8 +227,27 @@ def build_parser() -> argparse.ArgumentParser:
     )
     df.set_defaults(func=cmd_diff)
 
+    c = sub.add_parser("compare", help="blind A/B comparison of two RAG variants")
+    c.add_argument("--goldenset", required=True)
+    c.add_argument("--a", required=True, help="variant A predictions JSONL")
+    c.add_argument("--b", required=True, help="variant B predictions JSONL")
+    c.add_argument("--a-name", default="A", help="label for variant A (e.g. vector)")
+    c.add_argument("--b-name", default="B", help="label for variant B (e.g. graphrag)")
+    c.add_argument("--out", default="comparison.json")
+    c.add_argument("--html", default=None, help="also write an HTML comparison report here")
+    c.add_argument("--model", default=None)
+    c.add_argument("--k", type=int, default=5)
+    c.add_argument("--seed", type=int, default=0)
+    c.add_argument(
+        "--semantic",
+        action="store_true",
+        help="embedding cosine for retrieval relevance (needs [openai])",
+    )
+    c.set_defaults(func=cmd_compare)
+
     d = sub.add_parser("demo", help="render a sample scorecard (no API key needed)")
     d.add_argument("--out", default="scorecard.html")
+    d.add_argument("--compare", action="store_true", help="render a sample A/B comparison instead")
     d.set_defaults(func=cmd_demo)
     return p
 
