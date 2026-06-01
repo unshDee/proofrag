@@ -6,6 +6,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+- Provider completeness across the whole pipeline (generate / judge / compare /
+  `--semantic` / DeepEval backend) for Anthropic, OpenAI, and OpenAI-compatible
+  local endpoints. `OPENAI_BASE_URL` now works **without** an API key (Ollama,
+  vLLM, LM Studio); provider auto-detect picks OpenAI when only a base URL is set;
+  the DeepEval backend honors `OPENAI_BASE_URL` via `GPTModel(base_url=...)`.
+- Trimmed the sdist (~1 MB of README demo media no longer shipped in the package).
+
 ## [0.5.0] - 2026-06-01
 
 ### Added

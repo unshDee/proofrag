@@ -178,15 +178,31 @@ The DeepEval judge uses the same model config as proofrag (`ANTHROPIC_API_KEY` �
 `AnthropicModel`, `OPENAI_API_KEY` → `GPTModel`). Verified against deepeval 4.0.5.
 *(Ragas backend is planned next.)*
 
-## Configuration
+## Providers
+
+proofrag is provider-agnostic. Set one of these and everything — generate, judge,
+compare, and the DeepEval backend — uses it:
+
+| Provider | How to enable | Notes |
+|----------|---------------|-------|
+| **Anthropic** (default) | `ANTHROPIC_API_KEY` | cheap Haiku judge by default |
+| **OpenAI** | `OPENAI_API_KEY` | |
+| **OpenAI-compatible / local** | `OPENAI_BASE_URL` (e.g. Ollama, vLLM, LM Studio) | API key optional — local servers accept any token |
+
+`--semantic` retrieval matching uses **embeddings**, which only exist on the
+OpenAI-compatible path (Anthropic has no embeddings API), so it needs
+`OPENAI_API_KEY` or `OPENAI_BASE_URL` even when your judge is Anthropic.
+
+### Environment
 
 | Env | Default | Purpose |
 |-----|---------|---------|
-| `ANTHROPIC_API_KEY` | — | Anthropic backend (default) |
-| `OPENAI_API_KEY` / `OPENAI_BASE_URL` | — | OpenAI-compatible / local |
-| `PROOFRAG_PROVIDER` | auto | `anthropic` or `openai` |
+| `ANTHROPIC_API_KEY` | — | Anthropic provider |
+| `OPENAI_API_KEY` | — | OpenAI provider |
+| `OPENAI_BASE_URL` | — | OpenAI-compatible / local endpoint (key optional) |
+| `PROOFRAG_PROVIDER` | auto | force `anthropic` or `openai` |
 | `PROOFRAG_MODEL` | Haiku / gpt-4o-mini | judge & generator model |
-| `PROOFRAG_EMBED_MODEL` | text-embedding-3-small | embeddings for `--semantic` retrieval match |
+| `PROOFRAG_EMBED_MODEL` | text-embedding-3-small | embedding model for `--semantic` |
 
 ## Contributing
 

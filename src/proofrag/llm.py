@@ -33,11 +33,12 @@ class LLM:
     def _autodetect() -> str:
         if os.environ.get("ANTHROPIC_API_KEY"):
             return "anthropic"
-        if os.environ.get("OPENAI_API_KEY"):
+        # OPENAI_BASE_URL alone (no key) covers local/compatible servers like Ollama.
+        if os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENAI_BASE_URL"):
             return "openai"
         raise LLMError(
-            "No LLM credentials found. Set ANTHROPIC_API_KEY or OPENAI_API_KEY "
-            "(or run `proofrag demo` to see a scorecard with no API key)."
+            "No LLM credentials found. Set ANTHROPIC_API_KEY, OPENAI_API_KEY, or "
+            "OPENAI_BASE_URL (local/compatible). Or run `proofrag demo` (no key needed)."
         )
 
     def _default_model(self) -> str:
@@ -79,13 +80,8 @@ class LLM:
         )
 
     def _openai(self, system: str, prompt: str) -> str:
-        try:
-            import openai
-        except ImportError as e:
-            raise LLMError("OpenAI backend needs: pip install 'proofrag[openai]'") from e
         if self._client is None:
-            base = os.environ.get("OPENAI_BASE_URL")
-            self._client = openai.OpenAI(base_url=base) if base else openai.OpenAI()
+            self._client = openai_client()
         resp = self._client.chat.completions.create(
             model=self.model,
             temperature=0,
@@ -95,6 +91,26 @@ class LLM:
             ],
         )
         return resp.choices[0].message.content or ""
+
+
+def openai_client(require_key: bool = True):
+    """Create an OpenAI-compatible client, honoring OPENAI_BASE_URL.
+
+    For a local/compatible endpoint (base URL set) an API key is optional — many
+    local servers (Ollama, vLLM, LM Studio) accept any token.
+    """
+    try:
+        import openai
+    except ImportError as e:
+        raise LLMError("OpenAI backend needs: pip install 'proofrag[openai]'") from e
+    base = os.environ.get("OPENAI_BASE_URL")
+    key = os.environ.get("OPENAI_API_KEY") or ("not-needed" if base else None)
+    if key is None and require_key:
+        raise LLMError(
+            "OpenAI backend needs OPENAI_API_KEY, or set OPENAI_BASE_URL for a "
+            "local/compatible endpoint."
+        )
+    return openai.OpenAI(base_url=base, api_key=key) if base else openai.OpenAI(api_key=key)
 
 
 def _extract_json(text: str) -> dict:

@@ -73,6 +73,10 @@ pattern = '(?x)^v(?P<base>\d+\.\d+\.\d+)$'
 [tool.hatch.build.targets.wheel]
 packages = ["src/proofrag"]
 
+[tool.hatch.build.targets.sdist]
+# Keep the sdist lean — the demo media (~1 MB) is for the GitHub README, not the package.
+exclude = ["docs", "docs/**", ".github", ".github/**", "examples/ci", "examples/ci/**"]
+
 
 # ---- Settings ----
 
