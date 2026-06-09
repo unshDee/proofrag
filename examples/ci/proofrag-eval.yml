@@ -22,7 +22,8 @@ jobs:
         run: python scripts/run_rag.py --goldenset eval/goldenset.jsonl --out predictions.jsonl
 
       # 2. Evaluate + score + gate. Fails the build on a low score OR a regression
-      #    vs the committed baseline.
+      #    vs the committed baseline. The action writes a job summary and uploads
+      #    results.json + scorecard.html as a workflow artifact by default.
       - name: proofrag
         id: proofrag
         uses: unshDee/proofrag@v0
@@ -35,11 +36,3 @@ jobs:
           fail-under: "0.7"
           tolerance: "0.02"
           k: "5"
-
-      # 3. Keep the scorecard as a downloadable artifact.
-      - name: Upload scorecard
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: proofrag-scorecard
-          path: ${{ steps.proofrag.outputs.scorecard }}

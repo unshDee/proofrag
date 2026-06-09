@@ -38,6 +38,15 @@ inputs:
   version:
     description: "Pin a proofrag version (e.g. 0.3.0). Empty = latest."
     default: ""
+  summary:
+    description: "Write a markdown score summary to the GitHub Actions job summary."
+    default: "true"
+  upload-artifact:
+    description: "Upload the results JSON and HTML scorecard as a workflow artifact."
+    default: "true"
+  artifact-name:
+    description: "Name for the uploaded scorecard/results artifact."
+    default: "proofrag-scorecard"
 
 outputs:
   results:
@@ -75,10 +84,38 @@ runs:
         ARGS=(--goldenset "$GOLDENSET" --predictions "$PREDICTIONS" --out "$RESULTS" --k "$K")
         [ "$SEMANTIC" = "true" ] && ARGS+=(--semantic)
         [ -n "$FAIL_UNDER" ] && ARGS+=(--fail-under "$FAIL_UNDER")
-        "${RUN[@]}" evaluate "${ARGS[@]}"
+        status=0
+        "${RUN[@]}" evaluate "${ARGS[@]}" || status=$?
 
-        "${RUN[@]}" report --results "$RESULTS" --out "$SCORECARD"
+        if [ -f "$RESULTS" ]; then
+          "${RUN[@]}" report --results "$RESULTS" --out "$SCORECARD" || status=$?
+        fi
 
         if [ -n "$BASELINE" ]; then
-          "${RUN[@]}" diff --baseline "$BASELINE" --candidate "$RESULTS" --tolerance "$TOLERANCE"
+          "${RUN[@]}" diff --baseline "$BASELINE" --candidate "$RESULTS" --tolerance "$TOLERANCE" || status=$?
         fi
+
+        exit "$status"
+    - name: Write score summary
+      if: ${{ always() && inputs.summary == 'true' }}
+      shell: bash
+      env:
+        RESULTS: ${{ inputs.results }}
+        EXTRA: ${{ inputs.extra }}
+        VERSION: ${{ inputs.version }}
+      run: |
+        set -euo pipefail
+        [ -n "${GITHUB_STEP_SUMMARY:-}" ] || exit 0
+        [ -f "$RESULTS" ] || exit 0
+        SPEC="proofrag[$EXTRA]"
+        [ -n "$VERSION" ] && SPEC="proofrag[$EXTRA]==$VERSION"
+        uvx --from "$SPEC" proofrag summary --results "$RESULTS" --out "$GITHUB_STEP_SUMMARY" --append
+    - name: Upload scorecard artifact
+      if: ${{ always() && inputs.upload-artifact == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: |
+          ${{ inputs.results }}
+          ${{ inputs.scorecard }}
+        if-no-files-found: ignore

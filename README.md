@@ -77,6 +77,9 @@ proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --
 
 # 4. Shareable HTML scorecard
 proofrag report --results results.json --out scorecard.html
+
+# Optional: Markdown summary for CI logs / job summaries
+proofrag summary --results results.json
 ```
 
 Run the whole thing end-to-end against the bundled example:
@@ -137,7 +140,8 @@ proofrag diff --baseline baseline.json --candidate results.json --tolerance 0.02
 ### GitHub Action
 
 Drop proofrag into any repo's CI in a few lines — it installs the CLI, evaluates,
-writes the scorecard, and gates on both the floor and the baseline:
+writes the scorecard, adds a GitHub Actions job summary, uploads the scorecard and
+results as an artifact, and gates on both the floor and the baseline:
 
 ```yaml
 - uses: unshDee/proofrag@v0
@@ -150,7 +154,11 @@ writes the scorecard, and gates on both the floor and the baseline:
     fail-under: "0.7"                   # optional absolute gate
 ```
 
-Full runnable workflow (with artifact upload): [`examples/ci/proofrag-eval.yml`](examples/ci/proofrag-eval.yml).
+Full runnable workflow: [`examples/ci/proofrag-eval.yml`](examples/ci/proofrag-eval.yml).
+
+The artifact and job summary are on by default. Disable them with
+`upload-artifact: "false"` or `summary: "false"` if your workflow handles those
+separately.
 
 ## A/B: compare two RAG variants
 
@@ -185,6 +193,8 @@ tell whether a win came from better retrieval or better generation.
   (`OPENAI_BASE_URL`). Self-contained HTML, zero JS, zero external assets.
 - **Prediction adapters** — `proofrag run` can call an HTTP endpoint or Python
   callable so teams do not need to hand-write `predictions.jsonl` glue on day one.
+- **CI-native output** — the GitHub Action writes a markdown job summary and uploads
+  the HTML scorecard/results artifact automatically, including when a gate fails.
 - **Agent-native** — drop it in as a skill and say *"evaluate my RAG"*; the agent
   wires your pipeline to the kit.
 - **Pluggable scoring backends** — swap proofrag's own judge for [DeepEval](https://github.com/confident-ai/deepeval)

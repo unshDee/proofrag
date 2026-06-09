@@ -4,6 +4,7 @@ proofrag generate --corpus DIR     # docs  -> goldenset.jsonl
 proofrag run --goldenset ...       # app   -> predictions.jsonl
 proofrag evaluate --goldenset ...  # +preds -> results.json  (+ optional CI gate)
 proofrag report   --results ...    # results -> scorecard.html
+proofrag summary  --results ...    # results -> markdown summary
 proofrag diff      --baseline ...  # compare vs a baseline; fail on regression
 proofrag compare   --a ... --b ... # blind A/B of two RAG variants
 proofrag demo                      # canned scorecard, no API key
@@ -136,6 +137,20 @@ def cmd_report(args) -> int:
     else:
         write_html(results, args.out)
     _eprint(f"Wrote scorecard -> {args.out}")
+    return 0
+
+
+def cmd_summary(args) -> int:
+    from .judge import read_results
+    from .summary import render_markdown, write_markdown
+
+    results = read_results(args.results)
+    markdown = render_markdown(results)
+    if args.out:
+        write_markdown(markdown, args.out, append=args.append)
+        _eprint(f"Wrote summary -> {args.out}")
+    else:
+        print(markdown, end="")
     return 0
 
 
@@ -295,6 +310,12 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--results", required=True)
     r.add_argument("--out", default="scorecard.html")
     r.set_defaults(func=cmd_report)
+
+    sm = sub.add_parser("summary", help="render results.json to markdown for CI")
+    sm.add_argument("--results", required=True)
+    sm.add_argument("--out", default=None, help="write markdown to this path (stdout if omitted)")
+    sm.add_argument("--append", action="store_true", help="append to --out instead of replacing it")
+    sm.set_defaults(func=cmd_summary)
 
     df = sub.add_parser("diff", help="compare results against a baseline; fail on regression")
     df.add_argument("--baseline", required=True, help="baseline results.json (a known-good run)")
