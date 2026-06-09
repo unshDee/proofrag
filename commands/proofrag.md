@@ -12,7 +12,8 @@ Do this:
    or just prefix commands with `uvx`.
 2. Follow the proofrag skill workflow end to end:
    - generate a golden set from this project's docs/corpus,
-   - run the project's RAG over each question to produce `predictions.jsonl`,
+   - run the project's RAG over each question to produce `predictions.jsonl`
+     with `proofrag run --endpoint ...` or `proofrag run --callable ...` when possible,
    - `proofrag evaluate` to judge,
    - `proofrag report` to render the HTML scorecard.
 3. Report the scorecard path and the aggregate scores, and call out the weakest cases.

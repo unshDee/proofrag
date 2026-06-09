@@ -34,14 +34,26 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
    with tiers `single_doc` / `multi_doc` / `unanswerable`. Commit this file — it is versioned.
 
 2. **Run the user's RAG over every question to produce predictions.**
-   This is the step you adapt to their codebase. For each golden record, call their
-   pipeline and emit one line to `predictions.jsonl`:
+   Prefer `proofrag run` when the app exposes a local HTTP endpoint or Python callable:
+   ```bash
+   proofrag run --goldenset goldenset.jsonl \
+     --endpoint http://localhost:8000/ask \
+     --out predictions.jsonl
+
+   proofrag run --goldenset goldenset.jsonl \
+     --callable myapp.rag:answer \
+     --out predictions.jsonl
+   ```
+   HTTP mode POSTs `{"id": "...", "question": "..."}`. Callable mode calls
+   `answer(question)` by default; add `--call-style record` to pass the full golden
+   record. The adapter may return an answer string, `(answer, contexts)`, or:
    ```json
    {"id": "q000", "answer": "<system answer>", "retrieved_contexts": ["<chunk>", "..."]}
    ```
-   Match `id` to the golden set. `retrieved_contexts` are the chunks their retriever
-   returned (used for retrieval recall). If you can't find their entrypoint, ask the
-   user where their "ask a question" function lives, then write a small driver script.
+   `retrieved_contexts` are the chunks their retriever returned (used for retrieval
+   metrics). If neither adapter fits, write a small driver script that emits the same
+   JSONL shape. If you can't find their entrypoint, ask the user where their "ask a
+   question" function lives.
 
 3. **Judge.**
    ```bash

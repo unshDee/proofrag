@@ -6,6 +6,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `proofrag run` generates `predictions.jsonl` directly from a golden set by calling
+  either an HTTP endpoint (`--endpoint`, POSTing `{id, question}`) or a Python
+  callable (`--callable module:function`, with optional `--call-style record`).
+  Adapters may return a string, `(answer, contexts)`, or a dict with
+  `answer`/`retrieved_contexts`, making the first integration step much lighter
+  for real RAG apps.
+
 ## [0.5.2] - 2026-06-01
 
 ### Changed

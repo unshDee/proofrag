@@ -68,9 +68,9 @@ that loop: **change something → re-run → see if quality moved → gate the m
 # 1. Generate a golden set from YOUR docs (questions + gold answers + gold contexts)
 proofrag generate --corpus ./docs --out goldenset.jsonl --n 20
 
-# 2. Run your RAG over each question -> predictions.jsonl  (one line per question)
-#    {"id": "q000", "answer": "...", "retrieved_contexts": ["...", "..."]}
-#    See examples/docs-rag/naive_rag.py for a runnable driver.
+# 2. Run your RAG over each question -> predictions.jsonl
+proofrag run --goldenset goldenset.jsonl --endpoint http://localhost:8000/ask --out predictions.jsonl
+# or: proofrag run --goldenset goldenset.jsonl --callable myapp.rag:answer --out predictions.jsonl
 
 # 3. Judge: groundedness, correctness, completeness, citation quality + retrieval metrics
 proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
@@ -88,6 +88,34 @@ uv run python examples/docs-rag/naive_rag.py --goldenset goldenset.jsonl --corpu
 uv run proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
 uv run proofrag report --results results.json --out scorecard.html
 ```
+
+## Prediction adapters
+
+The only app-specific step is producing `predictions.jsonl`. You can still write
+your own driver, but most projects can start with `proofrag run`:
+
+```bash
+# HTTP: proofrag POSTs {"id": "...", "question": "..."}
+proofrag run --goldenset goldenset.jsonl \
+  --endpoint http://localhost:8000/ask \
+  --header "Authorization: Bearer $TOKEN" \
+  --out predictions.jsonl
+
+# Python: calls myapp.rag.answer(question)
+proofrag run --goldenset goldenset.jsonl \
+  --callable myapp.rag:answer \
+  --out predictions.jsonl
+
+# Python record mode: calls myapp.rag.answer(full_golden_record)
+proofrag run --goldenset goldenset.jsonl \
+  --callable myapp.rag:answer --call-style record \
+  --out predictions.jsonl
+```
+
+Adapters may return an answer string, a tuple like `(answer, contexts)`, or a dict
+like `{"answer": "...", "retrieved_contexts": ["...", "..."]}`. The endpoint form
+accepts the same JSON response shape. See [`examples/docs-rag/naive_rag.py`](examples/docs-rag/naive_rag.py)
+for a fully custom driver.
 
 ## CI gate
 
@@ -155,6 +183,8 @@ tell whether a win came from better retrieval or better generation.
   never compare scores produced by different judges.
 - **Cheap & portable** — defaults to a small model; Anthropic, OpenAI, or local/Ollama
   (`OPENAI_BASE_URL`). Self-contained HTML, zero JS, zero external assets.
+- **Prediction adapters** — `proofrag run` can call an HTTP endpoint or Python
+  callable so teams do not need to hand-write `predictions.jsonl` glue on day one.
 - **Agent-native** — drop it in as a skill and say *"evaluate my RAG"*; the agent
   wires your pipeline to the kit.
 - **Pluggable scoring backends** — swap proofrag's own judge for [DeepEval](https://github.com/confident-ai/deepeval)

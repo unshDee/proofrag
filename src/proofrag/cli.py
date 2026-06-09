@@ -1,6 +1,7 @@
 """proofrag command-line interface.
 
 proofrag generate --corpus DIR     # docs  -> goldenset.jsonl
+proofrag run --goldenset ...       # app   -> predictions.jsonl
 proofrag evaluate --goldenset ...  # +preds -> results.json  (+ optional CI gate)
 proofrag report   --results ...    # results -> scorecard.html
 proofrag diff      --baseline ...  # compare vs a baseline; fail on regression
@@ -86,6 +87,40 @@ def cmd_evaluate(args) -> int:
             _eprint(f"GATE FAIL: overall {overall:.3f} < {args.fail_under:.3f}")
             return 1
         _eprint(f"GATE PASS: overall {overall:.3f} >= {args.fail_under:.3f}")
+    return 0
+
+
+def cmd_run(args) -> int:
+    from .goldenset import read_jsonl
+    from .run import (
+        RunError,
+        callable_runner,
+        endpoint_runner,
+        parse_headers,
+        run_predictions,
+        write_predictions,
+    )
+
+    try:
+        goldenset = read_jsonl(args.goldenset)
+        if args.endpoint:
+            runner = endpoint_runner(
+                args.endpoint,
+                timeout=args.timeout,
+                headers=parse_headers(args.header),
+            )
+            adapter = args.endpoint
+        else:
+            runner = callable_runner(args.callable_spec, style=args.call_style)
+            adapter = args.callable_spec
+
+        predictions = run_predictions(goldenset, runner)
+        write_predictions(predictions, args.out)
+    except (OSError, RunError) as e:
+        _eprint(f"error: {e}")
+        return 2
+
+    _eprint(f"Ran {len(predictions)} cases via {adapter} -> {args.out}")
     return 0
 
 
@@ -203,6 +238,31 @@ def build_parser() -> argparse.ArgumentParser:
     g.add_argument("--chunk-chars", type=int, default=1200)
     g.add_argument("--model", default=None, help="override judge/generator model")
     g.set_defaults(func=cmd_generate)
+
+    rn = sub.add_parser("run", help="run a RAG adapter over a golden set")
+    rn.add_argument("--goldenset", required=True)
+    source = rn.add_mutually_exclusive_group(required=True)
+    source.add_argument("--endpoint", help="HTTP endpoint to POST {id, question} JSON")
+    source.add_argument(
+        "--callable",
+        dest="callable_spec",
+        help="Python callable as module:function; returns answer or {answer, retrieved_contexts}",
+    )
+    rn.add_argument("--out", default="predictions.jsonl")
+    rn.add_argument(
+        "--call-style",
+        choices=["question", "record"],
+        default="question",
+        help="callable argument: question string or full golden record",
+    )
+    rn.add_argument("--timeout", type=float, default=30.0, help="HTTP timeout in seconds")
+    rn.add_argument(
+        "--header",
+        action="append",
+        default=[],
+        help="HTTP header for --endpoint, e.g. 'Authorization: Bearer ...'",
+    )
+    rn.set_defaults(func=cmd_run)
 
     e = sub.add_parser("evaluate", help="judge predictions against a golden set")
     e.add_argument("--goldenset", required=True)
