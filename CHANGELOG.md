@@ -7,6 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- `proofrag summary` renders a compact markdown score summary for CI logs and
+  GitHub Actions job summaries, including aggregate metrics and weakest cases.
+- The GitHub Action now writes a job summary and uploads `results.json` plus the
+  HTML scorecard as a workflow artifact by default. It also renders those artifacts
+  even when an absolute or regression gate fails, so failed PRs are easier to debug.
 - `proofrag run` generates `predictions.jsonl` directly from a golden set by calling
   either an HTTP endpoint (`--endpoint`, POSTing `{id, question}`) or a Python
   callable (`--callable module:function`, with optional `--call-style record`).

@@ -69,9 +69,11 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
 4. **Report.**
    ```bash
    proofrag report --results results.json --out scorecard.html
+   proofrag summary --results results.json   # optional markdown for CI/logs
    ```
    Self-contained HTML — open it, attach it to a PR, screenshot it. Surfaces overall
-   score, per-metric bars, and the weakest cases with the judge's rationale.
+   score, per-metric bars, and the weakest cases with the judge's rationale. The
+   markdown summary gives CI systems a compact score table without opening the HTML.
 
 ## CI gate
 Absolute floor:
@@ -85,7 +87,9 @@ proofrag diff --baseline baseline.json --candidate results.json --tolerance 0.02
 ```
 To wire this into GitHub Actions, use the bundled composite action
 `uses: unshDee/proofrag@v0` (see the repo README / `examples/ci/`). Tell the user to
-commit a baseline results.json from a good run, then diff every PR against it.
+commit a baseline results.json from a good run, then diff every PR against it. The
+action writes a GitHub Actions job summary and uploads the scorecard/results artifact
+by default, including when a gate fails.
 
 ## A/B comparison (blind)
 To compare two variants (vector vs GraphRAG, two prompts, two models), run each over

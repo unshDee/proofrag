@@ -20,6 +20,7 @@ from proofrag.metrics import (
     retrieval_recall,
 )
 from proofrag.scorecard import render, render_comparison
+from proofrag.summary import render_markdown
 
 M = lexical_matcher()
 
@@ -155,6 +156,21 @@ def test_comparison_renders_self_contained():
     assert "vector" in out and "graphrag" in out
     assert "winbar" in out  # the A/B win bar
     assert "http://" not in out.replace("http://www.w3", "")
+
+
+def test_summary_renders_markdown_scorecard():
+    out = render_markdown(DEMO_RESULTS)
+    assert "## proofrag scorecard" in out
+    assert "Overall generation score" in out
+    assert "| Groundedness |" in out
+    assert "| NDCG@5 |" in out
+    assert "Weakest cases" in out
+
+
+def test_summary_renders_markdown_comparison():
+    out = render_markdown(DEMO_COMPARISON)
+    assert "## proofrag A/B comparison" in out
+    assert "vector" in out and "graphrag" in out
 
 
 def test_deepeval_aggregate_handles_none_and_retrieval():
