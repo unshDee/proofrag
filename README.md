@@ -68,14 +68,17 @@ that loop: **change something → re-run → see if quality moved → gate the m
 # 1. Generate a golden set from YOUR docs (questions + gold answers + gold contexts)
 proofrag generate --corpus ./docs --out goldenset.jsonl --n 20
 
-# 2. Run your RAG over each question -> predictions.jsonl
+# 2. Validate it before committing it
+proofrag validate --goldenset goldenset.jsonl --corpus ./docs --out validation.json
+
+# 3. Run your RAG over each question -> predictions.jsonl
 proofrag run --goldenset goldenset.jsonl --endpoint http://localhost:8000/ask --out predictions.jsonl
 # or: proofrag run --goldenset goldenset.jsonl --callable myapp.rag:answer --out predictions.jsonl
 
-# 3. Judge: groundedness, correctness, completeness, citation quality + retrieval metrics
+# 4. Judge: groundedness, correctness, completeness, citation quality + retrieval metrics
 proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
 
-# 4. Shareable HTML scorecard
+# 5. Shareable HTML scorecard
 proofrag report --results results.json --out scorecard.html
 
 # Optional: Markdown summary for CI logs / job summaries
@@ -87,10 +90,25 @@ Run the whole thing end-to-end against the bundled example:
 ```bash
 uv sync --extra anthropic && export ANTHROPIC_API_KEY=...
 uv run proofrag generate --corpus examples/docs-rag/corpus --out goldenset.jsonl --n 8
+uv run proofrag validate --goldenset goldenset.jsonl --corpus examples/docs-rag/corpus
 uv run python examples/docs-rag/naive_rag.py --goldenset goldenset.jsonl --corpus examples/docs-rag/corpus --out predictions.jsonl
 uv run proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
 uv run proofrag report --results results.json --out scorecard.html
 ```
+
+## Golden set validation
+
+Generated eval sets should be reviewed before they become a committed baseline.
+`proofrag validate` checks the JSONL schema, duplicate ids/questions, answerable
+cases without gold contexts, unanswerable cases that still cite context, difficulty
+tiers, source coverage, and a stable file fingerprint:
+
+```bash
+proofrag validate --goldenset goldenset.jsonl --corpus ./docs --out validation.json
+```
+
+It exits non-zero on hard errors. Add `--strict` to fail on warnings too when you
+want CI to enforce review hygiene.
 
 ## Prediction adapters
 
@@ -184,6 +202,8 @@ tell whether a win came from better retrieval or better generation.
 
 - **Golden set from your corpus** — the wedge. Difficulty tiers: single-doc,
   multi-doc, and *unanswerable* (so you catch hallucination-instead-of-refusal).
+- **Golden set validation** — schema checks, duplicate detection, source coverage,
+  and a stable fingerprint help teams review generated evals before committing them.
 - **Retriever vs generator split** — rank-aware retrieval metrics (Recall@k,
   Precision@k, NDCG@k, MRR) separate "the context never arrived / ranked too low"
   from "the model fluffed it." Lexical by default; `--semantic` for embedding match.
