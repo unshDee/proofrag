@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- New Ragas scoring backend via `evaluate --backend ragas` and the `proofrag[ragas]`
+  extra, verified against ragas 0.4.3. Ragas scores faithfulness and factual
+  correctness with proofrag's configured LLM provider, and adds answer relevancy
+  when OpenAI-compatible embeddings are available. Retrieval metrics, scorecards,
+  summaries, `diff`, and CI gates use the same output contract as the built-in and
+  DeepEval backends.
 - DeepEval backend support is updated for deepeval 4.0.6 and now preserves metric
   reasons in record rationales when DeepEval provides them, so scorecards explain
   weak cases instead of showing scores alone.

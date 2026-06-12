@@ -73,8 +73,11 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
    NDCG@k, MRR (`--k` sets the cutoff; lexical by default, `--semantic` for embeddings).
    To score generation with DeepEval instead, add `--backend deepeval` (needs the
    `proofrag[deepeval]` extra; metrics become faithfulness / answer_relevancy / correctness).
-   Retrieval metrics and everything downstream stay the same. DeepEval metric reasons,
-   when available, are preserved in the scorecard's weakest-case notes.
+   To score with Ragas instead, add `--backend ragas` (needs the `proofrag[ragas]`
+   extra; metrics become faithfulness / factual_correctness, plus answer_relevancy
+   when OpenAI-compatible embeddings are configured). Retrieval metrics and everything
+   downstream stay the same. DeepEval metric reasons, when available, are preserved
+   in the scorecard's weakest-case notes.
 
 5. **Report.**
    ```bash

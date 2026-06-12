@@ -218,7 +218,8 @@ tell whether a win came from better retrieval or better generation.
 - **Agent-native** — drop it in as a skill and say *"evaluate my RAG"*; the agent
   wires your pipeline to the kit.
 - **Pluggable scoring backends** — swap proofrag's own judge for [DeepEval](https://github.com/confident-ai/deepeval)
-  without changing the workflow, scorecard, CI gate, or A/B flow.
+  or [Ragas](https://github.com/explodinggradients/ragas) without changing the
+  workflow, scorecard, CI gate, or A/B flow.
 
 ## Scoring backends
 
@@ -231,18 +232,27 @@ pip install "proofrag[deepeval]"
 proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
   --backend deepeval --out results.json
 # generation metrics become: faithfulness, answer_relevancy, correctness (GEval)
+
+pip install "proofrag[ragas]"
+proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
+  --backend ragas --out results.json
+# generation metrics become: faithfulness, factual_correctness
+# plus answer_relevancy when OpenAI-compatible embeddings are configured
 ```
 
 The DeepEval judge uses the same model config as proofrag (`ANTHROPIC_API_KEY` →
 `AnthropicModel`, `OPENAI_API_KEY` → `GPTModel`). Verified against deepeval 4.0.6.
 Metric reasons are preserved in the scorecard's weakest-case notes when DeepEval
 provides them.
-*(Ragas backend is planned next.)*
+
+The Ragas backend is verified against ragas 0.4.3. It uses proofrag's configured
+LLM provider for faithfulness and factual correctness. Ragas answer relevancy needs
+embeddings, so it is enabled when `OPENAI_API_KEY` or `OPENAI_BASE_URL` is set.
 
 ## Providers
 
 proofrag is provider-agnostic. Set one of these and everything — generate, judge,
-compare, and the DeepEval backend — uses it:
+compare, and the DeepEval/Ragas backends — uses it:
 
 | Provider | How to enable | Notes |
 |----------|---------------|-------|
