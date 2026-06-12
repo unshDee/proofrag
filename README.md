@@ -234,7 +234,9 @@ proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
 ```
 
 The DeepEval judge uses the same model config as proofrag (`ANTHROPIC_API_KEY` →
-`AnthropicModel`, `OPENAI_API_KEY` → `GPTModel`). Verified against deepeval 4.0.5.
+`AnthropicModel`, `OPENAI_API_KEY` → `GPTModel`). Verified against deepeval 4.0.6.
+Metric reasons are preserved in the scorecard's weakest-case notes when DeepEval
+provides them.
 *(Ragas backend is planned next.)*
 
 ## Providers

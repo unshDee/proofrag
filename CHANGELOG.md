@@ -7,6 +7,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- DeepEval backend support is updated for deepeval 4.0.6 and now preserves metric
+  reasons in record rationales when DeepEval provides them, so scorecards explain
+  weak cases instead of showing scores alone.
 - `proofrag validate` checks generated golden sets before they are committed:
   schema/JSONL shape, duplicate ids/questions, answerable cases without gold
   contexts, unanswerable cases that still cite context, source coverage against an
@@ -48,7 +51,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 - Pluggable scoring backends via `evaluate --backend`. New **DeepEval** backend
-  (`proofrag[deepeval]`, verified against deepeval 4.0.5) swaps generation scoring
+  (`proofrag[deepeval]`, verified against deepeval 4.0.6) swaps generation scoring
   to faithfulness / answer_relevancy / correctness (GEval), using the same model
   config as proofrag. Retrieval metrics, scorecard, `diff`, and `compare` are
   unchanged. The scorecard now renders each backend's metric set dynamically.
