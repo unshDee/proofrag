@@ -6,6 +6,8 @@ from proofrag.backends.deepeval_backend import GENERATION_METRICS as DE_GEN
 from proofrag.backends.deepeval_backend import _aggregate as de_aggregate
 from proofrag.backends.deepeval_backend import _measure as de_measure
 from proofrag.backends.deepeval_backend import _rationale as de_rationale
+from proofrag.backends.ragas_backend import _aggregate as ragas_aggregate
+from proofrag.backends.ragas_backend import evaluate_ragas
 from proofrag.compare import compare
 from proofrag.corpus import _split
 from proofrag.demo import DEMO_COMPARISON, DEMO_RESULTS
@@ -260,6 +262,99 @@ def test_scorecard_renders_dynamic_backend_metrics():
     assert "Faithfulness" in h and "Answer Relevancy" in h and "Correctness" in h
     assert "deepeval" in h  # backend label shown
     assert "Groundedness" not in h  # proofrag's own dims not shown for this backend
+
+
+def test_ragas_backend_maps_scores_and_retrieval(monkeypatch):
+    class _Result:
+        scores = [
+            {
+                "faithfulness": 0.9,
+                "answer_relevancy": 0.8,
+                "factual_correctness": 0.7,
+            }
+        ]
+
+    monkeypatch.setenv("OPENAI_BASE_URL", "http://localhost:11434/v1")
+    monkeypatch.setattr(
+        "proofrag.backends.ragas_backend._evaluate_ragas_dataset",
+        lambda samples, metrics: _Result(),
+    )
+
+    gold = [
+        {
+            "id": "q001",
+            "question": "What is proofrag?",
+            "gold_answer": "A RAG eval tool.",
+            "gold_contexts": ["Proofrag is a RAG eval tool."],
+        }
+    ]
+    preds = [
+        {
+            "id": "q001",
+            "answer": "Proofrag is a RAG eval tool.",
+            "retrieved_contexts": ["Proofrag is a RAG eval tool."],
+        }
+    ]
+
+    result = evaluate_ragas(gold, preds)
+
+    assert result["backend"] == "ragas"
+    assert result["generation_metrics"] == [
+        "faithfulness",
+        "answer_relevancy",
+        "factual_correctness",
+    ]
+    assert result["records"][0]["scores"]["faithfulness"] == 0.9
+    assert result["aggregate"]["factual_correctness"] == 0.7
+    assert result["aggregate"]["recall_at_k"] == 1.0
+
+
+def test_ragas_backend_skips_answer_relevancy_without_embeddings(monkeypatch):
+    class _Result:
+        scores = [{"faithfulness": 0.9, "factual_correctness": 0.7}]
+
+    monkeypatch.setenv("OPENAI_BASE_URL", "http://localhost:11434/v1")
+    monkeypatch.setattr("proofrag.backends.ragas_backend._ragas_embeddings", lambda: None)
+    monkeypatch.setattr(
+        "proofrag.backends.ragas_backend._evaluate_ragas_dataset",
+        lambda samples, metrics: _Result(),
+    )
+
+    result = evaluate_ragas(
+        [{"id": "q001", "question": "q", "gold_answer": "a", "gold_contexts": ["ctx"]}],
+        [{"id": "q001", "answer": "a", "retrieved_contexts": ["ctx"]}],
+    )
+
+    assert result["generation_metrics"] == ["faithfulness", "factual_correctness"]
+    assert "answer_relevancy" not in result["aggregate"]
+
+
+def test_ragas_aggregate_handles_none_and_retrieval():
+    recs = [
+        {
+            "scores": {
+                "faithfulness": 0.8,
+                "answer_relevancy": None,
+                "factual_correctness": 0.6,
+            },
+            "retrieval": {"recall_at_k": 1.0, "precision_at_k": 0.5, "ndcg_at_k": 0.8, "mrr": 1.0},
+        },
+        {
+            "scores": {
+                "faithfulness": None,
+                "answer_relevancy": 0.7,
+                "factual_correctness": 0.8,
+            },
+            "retrieval": None,
+        },
+    ]
+
+    agg = ragas_aggregate(recs, ["faithfulness", "answer_relevancy", "factual_correctness"])
+
+    assert agg["faithfulness"] == 0.8
+    assert agg["answer_relevancy"] == 0.7
+    assert agg["factual_correctness"] == 0.7
+    assert agg["recall_at_k"] == 1.0
 
 
 def test_autodetect_base_url_without_key(monkeypatch):
