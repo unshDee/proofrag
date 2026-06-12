@@ -1,4 +1,4 @@
-"""DeepEval scoring backend (verified against deepeval 4.0.5).
+"""DeepEval scoring backend (verified against deepeval 4.0.6).
 
 Maps proofrag's records onto DeepEval test cases and metrics:
   - faithfulness      -> FaithfulnessMetric   (answer grounded in retrieved context)
