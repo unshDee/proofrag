@@ -33,7 +33,16 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
    Produces JSONL: `{id, question, gold_answer, gold_contexts[], difficulty, sources[]}`
    with tiers `single_doc` / `multi_doc` / `unanswerable`. Commit this file — it is versioned.
 
-2. **Run the user's RAG over every question to produce predictions.**
+2. **Validate the golden set before committing it.**
+   ```bash
+   proofrag validate --goldenset goldenset.jsonl --corpus ./docs --out validation.json
+   ```
+   This checks the JSONL contract, duplicate ids/questions, answerable cases without
+   gold contexts, unanswerable cases that still cite context, source coverage, and a
+   stable fingerprint. It exits non-zero on hard errors; add `--strict` to fail on
+   warnings too.
+
+3. **Run the user's RAG over every question to produce predictions.**
    Prefer `proofrag run` when the app exposes a local HTTP endpoint or Python callable:
    ```bash
    proofrag run --goldenset goldenset.jsonl \
@@ -55,7 +64,7 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
    JSONL shape. If you can't find their entrypoint, ask the user where their "ask a
    question" function lives.
 
-3. **Judge.**
+4. **Judge.**
    ```bash
    proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
    ```
@@ -66,7 +75,7 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
    `proofrag[deepeval]` extra; metrics become faithfulness / answer_relevancy / correctness).
    Retrieval metrics and everything downstream stay the same.
 
-4. **Report.**
+5. **Report.**
    ```bash
    proofrag report --results results.json --out scorecard.html
    proofrag summary --results results.json   # optional markdown for CI/logs

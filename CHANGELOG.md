@@ -7,6 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- `proofrag validate` checks generated golden sets before they are committed:
+  schema/JSONL shape, duplicate ids/questions, answerable cases without gold
+  contexts, unanswerable cases that still cite context, source coverage against an
+  optional corpus, and a stable file fingerprint. `--strict` fails on warnings for
+  CI hygiene, and `--out` writes a JSON validation report.
 - `proofrag summary` renders a compact markdown score summary for CI logs and
   GitHub Actions job summaries, including aggregate metrics and weakest cases.
 - The GitHub Action now writes a job summary and uploads `results.json` plus the

@@ -12,6 +12,7 @@ Do this:
    or just prefix commands with `uvx`.
 2. Follow the proofrag skill workflow end to end:
    - generate a golden set from this project's docs/corpus,
+   - validate the golden set with `proofrag validate --goldenset ... --corpus ...`,
    - run the project's RAG over each question to produce `predictions.jsonl`
      with `proofrag run --endpoint ...` or `proofrag run --callable ...` when possible,
    - `proofrag evaluate` to judge,

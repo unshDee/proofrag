@@ -1,6 +1,7 @@
 """proofrag command-line interface.
 
 proofrag generate --corpus DIR     # docs  -> goldenset.jsonl
+proofrag validate --goldenset ...  # check eval set quality/schema
 proofrag run --goldenset ...       # app   -> predictions.jsonl
 proofrag evaluate --goldenset ...  # +preds -> results.json  (+ optional CI gate)
 proofrag report   --results ...    # results -> scorecard.html
@@ -122,6 +123,18 @@ def cmd_run(args) -> int:
         return 2
 
     _eprint(f"Ran {len(predictions)} cases via {adapter} -> {args.out}")
+    return 0
+
+
+def cmd_validate(args) -> int:
+    from .validate import format_report, validate_goldenset, write_report
+
+    report = validate_goldenset(args.goldenset, corpus=args.corpus)
+    if args.out:
+        write_report(report, args.out)
+    _eprint(format_report(report, strict=args.strict))
+    if report["errors"] or (args.strict and report["warnings"]):
+        return 1
     return 0
 
 
@@ -253,6 +266,13 @@ def build_parser() -> argparse.ArgumentParser:
     g.add_argument("--chunk-chars", type=int, default=1200)
     g.add_argument("--model", default=None, help="override judge/generator model")
     g.set_defaults(func=cmd_generate)
+
+    v = sub.add_parser("validate", help="validate a golden set before committing it")
+    v.add_argument("--goldenset", required=True)
+    v.add_argument("--corpus", default=None, help="optional corpus path for source coverage")
+    v.add_argument("--out", default=None, help="write a JSON validation report")
+    v.add_argument("--strict", action="store_true", help="fail on warnings as well as errors")
+    v.set_defaults(func=cmd_validate)
 
     rn = sub.add_parser("run", help="run a RAG adapter over a golden set")
     rn.add_argument("--goldenset", required=True)
