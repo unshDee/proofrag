@@ -4,6 +4,8 @@ from typing import cast
 
 from proofrag.backends.deepeval_backend import GENERATION_METRICS as DE_GEN
 from proofrag.backends.deepeval_backend import _aggregate as de_aggregate
+from proofrag.backends.deepeval_backend import _measure as de_measure
+from proofrag.backends.deepeval_backend import _rationale as de_rationale
 from proofrag.compare import compare
 from proofrag.corpus import _split
 from proofrag.demo import DEMO_COMPARISON, DEMO_RESULTS
@@ -189,6 +191,43 @@ def test_deepeval_aggregate_handles_none_and_retrieval():
     assert agg["answer_relevancy"] == 0.8  # mean(0.9, 0.7)
     assert agg["correctness"] == 0.6
     assert agg["recall_at_k"] == 1.0  # only one retrieval row counted
+
+
+class _FakeDeepEvalMetric:
+    score = 0.8123
+    reason = "The answer is grounded in the retrieved context."
+
+    def measure(self, tc):
+        return None
+
+
+class _FailingDeepEvalMetric:
+    def measure(self, tc):
+        raise RuntimeError("metric unavailable")
+
+
+def test_deepeval_measure_keeps_score_and_reason():
+    score, reason = de_measure(_FakeDeepEvalMetric(), object())
+
+    assert score == 0.812
+    assert reason == "The answer is grounded in the retrieved context."
+
+
+def test_deepeval_measure_handles_metric_failures():
+    assert de_measure(_FailingDeepEvalMetric(), object()) == (None, "")
+
+
+def test_deepeval_rationale_summarizes_reasons_and_missing_metrics():
+    text = de_rationale(
+        {
+            "faithfulness": (0.8, "Grounded."),
+            "answer_relevancy": (None, ""),
+            "correctness": (0.7, ""),
+        }
+    )
+
+    assert "faithfulness: Grounded." in text
+    assert "answer relevancy: metric unavailable" in text
 
 
 def test_scorecard_renders_dynamic_backend_metrics():

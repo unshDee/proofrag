@@ -41,8 +41,8 @@ def _build_metrics(model):
     from deepeval.test_case import SingleTurnParams as P
 
     common = {"model": model, "async_mode": False, "verbose_mode": False}
-    faith = FaithfulnessMetric(include_reason=False, **common)
-    rel = AnswerRelevancyMetric(include_reason=False, **common)
+    faith = FaithfulnessMetric(include_reason=True, **common)
+    rel = AnswerRelevancyMetric(include_reason=True, **common)
     corr = GEval(
         name="Correctness",
         criteria="Is the actual output factually correct and complete relative to the expected output?",
@@ -56,9 +56,27 @@ def _build_metrics(model):
 def _measure(metric, tc):
     try:
         metric.measure(tc)
-        return round(float(metric.score), 3)
+        score = round(float(metric.score), 3)
+        return score, _reason(metric)
     except Exception:  # noqa: BLE001 - one metric failing shouldn't abort the run
-        return None
+        return None, ""
+
+
+def _reason(metric) -> str:
+    reason = getattr(metric, "reason", "") or ""
+    return str(reason).strip()[:300]
+
+
+def _rationale(measurements: dict[str, tuple[float | None, str]]) -> str:
+    parts = []
+    for metric, (score, reason) in measurements.items():
+        if reason:
+            label = metric.replace("_", " ")
+            parts.append(f"{label}: {reason}")
+        elif score is None:
+            label = metric.replace("_", " ")
+            parts.append(f"{label}: metric unavailable")
+    return " ".join(parts)[:300]
 
 
 def evaluate_deepeval(
@@ -92,11 +110,12 @@ def evaluate_deepeval(
             expected_output=g.get("gold_answer", ""),
             retrieval_context=retrieved or ["(no context retrieved)"],
         )
-        scores = {
-            "faithfulness": _measure(faith, tc) if retrieved else None,
+        measurements = {
+            "faithfulness": _measure(faith, tc) if retrieved else (None, ""),
             "answer_relevancy": _measure(rel, tc),
             "correctness": _measure(corr, tc),
         }
+        scores = {metric: score for metric, (score, _reason_text) in measurements.items()}
         records.append(
             {
                 "id": g["id"],
@@ -109,7 +128,7 @@ def evaluate_deepeval(
                     if g.get("gold_contexts")
                     else None
                 ),
-                "rationale": "",
+                "rationale": _rationale(measurements),
             }
         )
 
