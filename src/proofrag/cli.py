@@ -68,6 +68,17 @@ def cmd_evaluate(args) -> int:
             except BackendError as e:
                 _eprint(f"error: {e}")
                 return 2
+        elif args.backend == "ragas":
+            from .backends import BackendError
+            from .backends.ragas_backend import evaluate_ragas
+
+            try:
+                results = evaluate_ragas(
+                    goldenset, predictions, model=args.model, k=args.k, matcher=matcher
+                )
+            except BackendError as e:
+                _eprint(f"error: {e}")
+                return 2
         else:
             results = evaluate(
                 goldenset, predictions, llm=LLM(model=args.model), k=args.k, matcher=matcher
@@ -306,9 +317,9 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--model", default=None)
     e.add_argument(
         "--backend",
-        choices=["proofrag", "deepeval"],
+        choices=["proofrag", "deepeval", "ragas"],
         default="proofrag",
-        help="generation scoring backend (deepeval needs the [deepeval] extra)",
+        help="generation scoring backend (deepeval/ragas need matching extras)",
     )
     e.add_argument(
         "--k", type=int, default=5, help="cutoff for retrieval metrics (Recall@k, NDCG@k, ...)"
