@@ -26,12 +26,20 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
 (`OPENAI_BASE_URL` for local/Ollama). No key? `proofrag demo` renders a sample scorecard.
 
 ## The loop
-1. **Generate a golden set from the user's corpus.**
+1. **Inspect and generate from the user's corpus.**
+   ```bash
+   proofrag corpus ./docs
+   ```
+   Use `--include`, `--exclude`, and `--no-gitignore` when the docs tree is noisy.
+   PDF loading needs the `proofrag[pdf]` extra; HTML is supported by default.
+
+   Then generate:
    ```bash
    proofrag generate --corpus ./docs --out goldenset.jsonl --n 20
    ```
    Produces JSONL: `{id, question, gold_answer, gold_contexts[], difficulty, sources[]}`
-   with tiers `single_doc` / `multi_doc` / `unanswerable`. Commit this file — it is versioned.
+   with tiers `single_doc` / `multi_doc` / `unanswerable`, plus `context_metadata`
+   for each gold context. Commit this file — it is versioned.
 
 2. **Validate the golden set before committing it.**
    ```bash

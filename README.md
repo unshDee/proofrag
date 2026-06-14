@@ -96,6 +96,31 @@ uv run proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.j
 uv run proofrag report --results results.json --out scorecard.html
 ```
 
+## Corpus loading
+
+Before generating a golden set, inspect what proofrag will actually read:
+
+```bash
+proofrag corpus ./docs
+proofrag corpus ./docs --include "**/*.md" --exclude "drafts/**"
+```
+
+Corpus loading skips noisy directories by default (`.git`, `.venv`, `node_modules`,
+`dist`, `build`, caches) and honors `.gitignore` patterns. Use `--no-gitignore` to
+disable `.gitignore` filtering. The same `--include`, `--exclude`, `--no-gitignore`,
+and `--chunk-chars` flags work on `proofrag generate`.
+
+Supported inputs include Markdown, plain text, reStructuredText, MDX, common code
+files, and HTML. PDF loading is optional:
+
+```bash
+pip install "proofrag[pdf]"
+proofrag corpus ./docs
+```
+
+Generated golden sets include `context_metadata` for each gold context, preserving
+source path, chunk id, chunk index, character count, and extension.
+
 ## Golden set validation
 
 Generated eval sets should be reviewed before they become a committed baseline.

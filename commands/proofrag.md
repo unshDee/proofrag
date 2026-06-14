@@ -11,6 +11,7 @@ Do this:
    missing install it with `uv tool install "proofrag[anthropic]"` (or `pipx install`),
    or just prefix commands with `uvx`.
 2. Follow the proofrag skill workflow end to end:
+   - inspect corpus loading with `proofrag corpus ...` and use include/exclude filters if needed,
    - generate a golden set from this project's docs/corpus,
    - validate the golden set with `proofrag validate --goldenset ... --corpus ...`,
    - run the project's RAG over each question to produce `predictions.jsonl`

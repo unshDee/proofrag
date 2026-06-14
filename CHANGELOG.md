@@ -6,6 +6,15 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `proofrag corpus` inspects corpus loading before generation, including source,
+  chunk, character, and extension counts.
+- Corpus loading now skips common noisy directories by default, honors `.gitignore`,
+  supports `--include`/`--exclude` filters on `corpus` and `generate`, extracts HTML
+  text, and can load PDFs with the optional `proofrag[pdf]` extra.
+- Generated golden sets now include `context_metadata` for each gold context so
+  source path, chunk id, chunk index, character count, and extension survive review.
+
 ## [0.6.0] - 2026-06-13
 
 ### Added
