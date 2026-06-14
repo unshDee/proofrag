@@ -2,6 +2,7 @@
 
 import pytest
 
+from proofrag.cli import main
 from proofrag.corpus import corpus_stats, load_corpus, read_document
 
 
@@ -70,3 +71,24 @@ def test_corpus_stats_counts_sources_chunks_chars_and_extensions(tmp_path):
     assert stats["chunks"] == 2
     assert stats["chars"] == 20
     assert stats["extensions"] == {".md": 1, ".txt": 1}
+
+
+def test_corpus_cli_prints_stats(tmp_path, capsys):
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "guide.md").write_text("guide docs", encoding="utf-8")
+
+    assert main(["corpus", str(docs)]) == 0
+    err = capsys.readouterr().err
+
+    assert "Loaded 1 sources into 1 chunks" in err
+    assert ".md: 1" in err
+
+
+def test_corpus_cli_respects_exclude(tmp_path, capsys):
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    (docs / "guide.md").write_text("guide docs", encoding="utf-8")
+
+    assert main(["corpus", str(docs), "--exclude", "*.md"]) == 2
+    assert "No readable text chunks" in capsys.readouterr().err
