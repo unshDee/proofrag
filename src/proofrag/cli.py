@@ -29,7 +29,13 @@ def cmd_generate(args) -> int:
     from .goldenset import generate, write_jsonl
     from .llm import LLM, LLMError
 
-    chunks = load_corpus(args.corpus, max_chars=args.chunk_chars)
+    chunks = load_corpus(
+        args.corpus,
+        max_chars=args.chunk_chars,
+        include=args.include,
+        exclude=args.exclude,
+        respect_gitignore=not args.no_gitignore,
+    )
     _eprint(f"Loaded {len(chunks)} chunks from {args.corpus}")
     try:
         records = generate(chunks, n=args.n, seed=args.seed, llm=LLM(model=args.model))
@@ -41,6 +47,32 @@ def cmd_generate(args) -> int:
     for r in records:
         tiers[r["difficulty"]] = tiers.get(r["difficulty"], 0) + 1
     _eprint(f"Wrote {len(records)} golden cases -> {args.out}  ({dict(tiers)})")
+    return 0
+
+
+def cmd_corpus(args) -> int:
+    from .corpus import corpus_stats, load_corpus
+
+    try:
+        chunks = load_corpus(
+            args.path,
+            max_chars=args.chunk_chars,
+            include=args.include,
+            exclude=args.exclude,
+            respect_gitignore=not args.no_gitignore,
+        )
+    except (OSError, ValueError) as e:
+        _eprint(f"error: {e}")
+        return 2
+
+    stats = corpus_stats(chunks)
+    _eprint(f"Loaded {stats['sources']} sources into {stats['chunks']} chunks")
+    _eprint(f"  chars: {stats['chars']}")
+    _eprint(f"  avg chunk chars: {stats['avg_chunk_chars']}")
+    if stats["extensions"]:
+        _eprint("  extensions:")
+        for ext, count in stats["extensions"].items():
+            _eprint(f"    {ext}: {count}")
     return 0
 
 
@@ -275,8 +307,21 @@ def build_parser() -> argparse.ArgumentParser:
     g.add_argument("--n", type=int, default=20, help="number of cases")
     g.add_argument("--seed", type=int, default=0)
     g.add_argument("--chunk-chars", type=int, default=1200)
+    g.add_argument(
+        "--include", action="append", default=[], help="include glob, e.g. 'docs/**/*.md'"
+    )
+    g.add_argument("--exclude", action="append", default=[], help="exclude glob, e.g. 'drafts/**'")
+    g.add_argument("--no-gitignore", action="store_true", help="ignore .gitignore patterns")
     g.add_argument("--model", default=None, help="override judge/generator model")
     g.set_defaults(func=cmd_generate)
+
+    co = sub.add_parser("corpus", help="inspect corpus loading and chunking")
+    co.add_argument("path", help="file or directory of docs/code")
+    co.add_argument("--chunk-chars", type=int, default=1200)
+    co.add_argument("--include", action="append", default=[], help="include glob")
+    co.add_argument("--exclude", action="append", default=[], help="exclude glob")
+    co.add_argument("--no-gitignore", action="store_true", help="ignore .gitignore patterns")
+    co.set_defaults(func=cmd_corpus)
 
     v = sub.add_parser("validate", help="validate a golden set before committing it")
     v.add_argument("--goldenset", required=True)

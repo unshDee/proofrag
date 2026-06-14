@@ -60,9 +60,8 @@ def generate(chunks: list[dict], n: int = 20, seed: int = 0, llm: LLM | None = N
                 _record(
                     out["question"],
                     out.get("gold_answer", ""),
-                    [c["text"]],
+                    [c],
                     "single_doc",
-                    [c["source"]],
                 )
             )
     cursor = n_single
@@ -83,16 +82,15 @@ def generate(chunks: list[dict], n: int = 20, seed: int = 0, llm: LLM | None = N
                 _record(
                     out["question"],
                     out.get("gold_answer", ""),
-                    [a["text"], b["text"]],
+                    [a, b],
                     "multi_doc",
-                    [a["source"], b["source"]],
                 )
             )
 
     for c in pool[cursor : cursor + n_unans]:
         out = _try(llm, _UNANS.format(text=c["text"][:1500]))
         if out and out.get("question"):
-            records.append(_record(out["question"], _REFUSAL, [], "unanswerable", []))
+            records.append(_record(out["question"], _REFUSAL, [], "unanswerable"))
 
     for i, r in enumerate(records):
         r["id"] = f"q{i:03d}"
@@ -106,7 +104,9 @@ def _try(llm: LLM, prompt: str) -> dict | None:
         return None
 
 
-def _record(question, gold_answer, gold_contexts, difficulty, sources) -> dict:
+def _record(question, gold_answer, chunks, difficulty) -> dict:
+    gold_contexts = [c["text"] for c in chunks]
+    sources = [c["source"] for c in chunks]
     return {
         "id": "",
         "question": question.strip(),
@@ -114,6 +114,16 @@ def _record(question, gold_answer, gold_contexts, difficulty, sources) -> dict:
         "gold_contexts": gold_contexts,
         "difficulty": difficulty,
         "sources": sources,
+        "context_metadata": [
+            {
+                "source": c.get("source", ""),
+                "chunk_id": c.get("chunk_id", ""),
+                "chunk_index": c.get("chunk_index"),
+                "char_count": c.get("char_count", len(c.get("text", ""))),
+                "extension": c.get("extension", ""),
+            }
+            for c in chunks
+        ],
     }
 
 
