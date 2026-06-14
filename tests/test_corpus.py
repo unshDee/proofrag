@@ -1,5 +1,7 @@
 """Offline tests for corpus loading and filtering."""
 
+import builtins
+
 import pytest
 
 from proofrag.cli import main
@@ -57,6 +59,22 @@ def test_read_document_extracts_html_text(tmp_path):
     assert "Title" in text
     assert "A & B" in text
     assert "script" not in text.lower()
+
+
+def test_read_document_pdf_reports_missing_extra(tmp_path, monkeypatch):
+    path = tmp_path / "paper.pdf"
+    path.write_bytes(b"%PDF-1.4\n")
+    real_import = builtins.__import__
+
+    def blocked_import(name, *args, **kwargs):
+        if name == "pypdf":
+            raise ImportError("blocked")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", blocked_import)
+
+    with pytest.raises(ValueError, match="proofrag\\[pdf\\]"):
+        read_document(path)
 
 
 def test_corpus_stats_counts_sources_chunks_chars_and_extensions(tmp_path):

@@ -22,6 +22,7 @@ TEXT_EXT = {
     ".rs",
     ".html",
     ".htm",
+    ".pdf",
 }
 
 DEFAULT_IGNORE_DIRS = {
@@ -97,6 +98,8 @@ def read_document(path: Path) -> str:
     """Read a supported document into plain text."""
     if path.suffix.lower() not in TEXT_EXT:
         return ""
+    if path.suffix.lower() == ".pdf":
+        return _pdf_to_text(path)
     try:
         text = path.read_text(encoding="utf-8", errors="ignore")
     except OSError:
@@ -197,3 +200,15 @@ def _html_to_text(text: str) -> str:
     text = re.sub(r"(?is)<[^>]+>", " ", text)
     text = html.unescape(text)
     return re.sub(r"[ \t]+", " ", text).strip()
+
+
+def _pdf_to_text(path: Path) -> str:
+    try:
+        from pypdf import PdfReader
+    except ImportError as e:
+        raise ValueError("PDF corpus loading needs: pip install 'proofrag[pdf]'") from e
+    try:
+        reader = PdfReader(str(path))
+        return "\n\n".join((page.extract_text() or "").strip() for page in reader.pages).strip()
+    except Exception as e:  # noqa: BLE001 - keep corpus loading resilient
+        raise ValueError(f"Could not read PDF {path}: {e}") from e
