@@ -1,0 +1,580 @@
+{
+  "judge_fingerprint": "anthropic:claude-haiku-4-5-20251001",
+  "backend": "proofrag",
+  "generation_metrics": [
+    "groundedness",
+    "correctness",
+    "completeness",
+    "citation_quality"
+  ],
+  "created": "2026-08-09T21:09:59+00:00",
+  "k": 5,
+  "n": 30,
+  "aggregate": {
+    "groundedness": 1.0,
+    "correctness": 0.4,
+    "completeness": 0.1,
+    "citation_quality": 1.0,
+    "recall_at_k": 0.0,
+    "precision_at_k": 0.0,
+    "ndcg_at_k": 0.0,
+    "mrr": 0.0
+  },
+  "records": [
+    {
+      "id": "q000",
+      "question": "What built-in data types can be stored in a ShareableList?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided discuss the `track` parameter, resource tracking, SharedMemoryManager, and threading/asyncio concepts, but they do not contain information about what built-in data types can be stored in a ShareableList.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly identified that the retrieved context lacks information about ShareableList data types, avoiding hallucination, but failed to provide the answer despite it being available in the reference material."
+    },
+    {
+      "id": "q001",
+      "question": "Can a ShareableList element change data type, and what happens if a replacement string exceeds its allocated storage?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover threading primitives (Lock), concurrent futures, asyncio tasks, and Thread objects, but they do not contain any information about ShareableList or its behavior regarding data type changes or string storage allocation.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly refused to answer based on irrelevant context, avoiding hallucination, but the retrieved context failed to provide information needed to answer the question correctly."
+    },
+    {
+      "id": "q002",
+      "question": "What does the asyncio open_connection function return?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover threading stack size, condition variables, asyncio barriers, asyncio queues, and asyncio tasks, but they do not include information about the `asyncio.open_connection` function or what it returns.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly refuses to answer without relevant context, avoiding hallucination, but cannot provide the correct information about open_connection's return value."
+    },
+    {
+      "id": "q003",
+      "question": "Why does wait_on_future() deadlock in a ThreadPoolExecutor with max_workers=1?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided describe the `InterpreterPoolExecutor`, `ThreadPoolExecutor`, and `ProcessPoolExecutor` classes, but they do not contain information about a `wait_on_future()` function or explain deadlock scenarios with single-worker thread pools.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly refuses to answer based on absent context, but this refusal prevents providing the correct explanation of the deadlock mechanism."
+    },
+    {
+      "id": "q004",
+      "question": "How does an InterpreterPoolExecutor worker report an uncaught exception raised by its current task?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover threading, condition objects, multiprocessing shared memory, and queue objects, but they do not contain any information about `InterpreterPoolExecutor` or how its workers report uncaught exceptions.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly acknowledged lack of relevant information rather than hallucinating, but cannot answer the question with retrieved context."
+    },
+    {
+      "id": "q005",
+      "question": "What does queue.Queue.put(item, block=False) raise when no slot is immediately available?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover shared memory, asyncio tasks, concurrent futures, and threading, but do not include information about `queue.Queue.put()` behavior.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly acknowledges that the retrieved context does not contain information about queue.Queue.put() and appropriately refuses to answer rather than hallucinate, but this results in an incomplete and incorrect response relative to the reference answer."
+    },
+    {
+      "id": "q006",
+      "question": "What happens when you call shutdown() on a SharedMemoryManager instance?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover threading events, locks, concurrent.futures, and asyncio tasks, but do not contain information about `SharedMemoryManager` or its `shutdown()` method.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly refused to answer based on irrelevant context, avoiding hallucination, but provided no information about the actual question."
+    },
+    {
+      "id": "q007",
+      "question": "When is a Python thread name reflected at OS level, and what truncation limits do the docs give for Linux and macOS?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover locks, events, conditions, futures callbacks, and queues, but do not contain information about thread naming, OS-level reflection of thread names, or truncation limits for Linux and macOS.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly acknowledges missing information rather than hallucinating, but provides zero completeness since the actual answer about thread naming and OS-level limits is entirely absent."
+    },
+    {
+      "id": "q008",
+      "question": "What does the kill_workers() method do to terminate worker processes?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover threading primitives (locks), asyncio tasks and task groups, thread naming, and asyncio barriers, but they do not contain any information about a `kill_workers()` method or worker process termination.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly refused to answer based on unavailable context, avoiding hallucination, but this results in zero correctness and completeness against the reference answer."
+    },
+    {
+      "id": "q009",
+      "question": "What happens to tasks in as_completed() if a timeout occurs before all awaitables complete?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover threading primitives, shared memory, queues, and thread properties, but do not include any information about `as_completed()` or how it handles timeouts.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly refused to answer based on irrelevant context, avoiding hallucination, but failed to provide the needed information about as_completed() timeout behavior."
+    },
+    {
+      "id": "q010",
+      "question": "For an asyncio.Queue that has not been shut down, what exception does get_nowait() raise when the queue is empty?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover threading, multiprocessing shared memory, concurrent.futures, and asyncio tasks, but they do not include information about asyncio.Queue or its get_nowait() method.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly acknowledges that the retrieved context does not contain information about asyncio.Queue, avoiding hallucination, but fails to provide the correct answer that the reference specifies."
+    },
+    {
+      "id": "q011",
+      "question": "What exception is raised if the start() method is called more than once on the same thread object?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover multiprocessing shared memory and asyncio task management, but do not contain information about thread objects or the start() method behavior when called multiple times.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly declined to answer with unreliable context, avoiding hallucination, but failed to provide the correct answer that RuntimeError is raised when start() is called multiple times on a thread object."
+    },
+    {
+      "id": "q012",
+      "question": "What does the done() method return and under what conditions is a Task considered done?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover threading primitives (locks, barriers, threads) and shared memory, but do not contain any information about a `done()` method or Task objects.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly identified that the retrieved context does not contain information about Task.done(), avoiding hallucination, but provided no answer where one existed in the reference material."
+    },
+    {
+      "id": "q013",
+      "question": "What is the default behavior of the limit argument in the get_stack method for Task objects?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover threading primitives (locks, barriers, semaphores) and shared memory, but they do not contain any information about the `get_stack` method or its `limit` argument for Task objects.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly refused to answer based on retrieved context lacking information about Task.get_stack(), but this results in zero correctness/completeness against the gold answer."
+    },
+    {
+      "id": "q014",
+      "question": "What happens when a thread calls acquire() on a locked primitive lock?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover concurrent.futures, queues, and asyncio, but they do not contain information about primitive locks or the behavior of `acquire()` method calls on locked primitives.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly refuses to answer due to irrelevant context, avoiding hallucination, but provides no useful information about primitive locks."
+    },
+    {
+      "id": "q015",
+      "question": "How do set(), clear(), and wait() affect an asyncio.Event's internal flag, and what is its initial state?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover task groups, queues, streams, and related asyncio functionality, but they do not include documentation about `asyncio.Event` or its methods (`set()`, `clear()`, `wait()`) and their effects on the internal flag or its initial state.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly refuses to answer because the retrieved context contains no information about asyncio.Event, demonstrating appropriate epistemic humility and avoiding hallucination."
+    },
+    {
+      "id": "q016",
+      "question": "What happens to the count of unfinished tasks when a consumer coroutine calls task_done?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided do not contain information about `task_done()` or how it affects the count of unfinished tasks.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly acknowledged that the retrieved context does not contain information about task_done(), avoiding hallucination, but this causes it to fail to answer the question correctly or completely."
+    },
+    {
+      "id": "q017",
+      "question": "What do asyncio streams let async/await code do without callbacks or low-level protocols and transports?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover asyncio synchronization primitives (Event, Condition), tasks, and some task management functions, but they do not contain information about asyncio streams or their capabilities.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly identifies that the retrieved context does not contain information about asyncio streams, refusing to hallucinate rather than providing unsupported claims."
+    },
+    {
+      "id": "q018",
+      "question": "In the queue module example, what method must a consumer thread call to indicate that work on an item is complete?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover asyncio tasks, TaskGroup, shared memory, and timeouts, but they do not include any information about the queue module or consumer thread methods for indicating work completion.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly acknowledges that the retrieved context does not contain queue module information and appropriately declines to answer rather than hallucinating, but this results in a factually incorrect response compared to the gold answer."
+    },
+    {
+      "id": "q019",
+      "question": "What workaround do the Python docs recommend when ShareableList strips trailing NUL bytes from bytes or str values?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided do not contain any information about ShareableList or workarounds for handling trailing NUL bytes.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly refused to answer based on the irrelevant retrieved context, avoiding hallucination, but failed to provide the correct answer about the ShareableList NUL byte workaround."
+    },
+    {
+      "id": "q020",
+      "question": "What happens to a semaphore's internal counter when the acquire method is called and the counter is zero?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover Tasks, threading names, and barriers, but do not include information about semaphores or their `acquire()` method behavior.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly refuses to answer based on unavailable context, avoiding hallucination, but provides no answer to the user's question."
+    },
+    {
+      "id": "q021",
+      "question": "How should code handle two lifecycle hazards: a ThreadPoolExecutor initializer that raises, and an asyncio background Task without a strong reference?",
+      "difficulty": "multi_doc",
+      "answer": "I don't have enough information in the provided context to answer that.\n\nThe documentation excerpts provided cover `ProcessPoolExecutor`, shared memory, threading basics, and barrier synchronization, but they do not contain information about:\n1. ThreadPoolExecutor initializer exception handling\n2. Asyncio background Task lifecycle management and reference handling\n\nTo answer your question, I would need documentation on ThreadPoolExecutor initialization and asyncio Task reference management.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly declines to answer, avoiding hallucination, but provides no useful information about the actual question."
+    },
+    {
+      "id": "q022",
+      "question": "In the TCP echo-server example, which call is awaited to keep the server serving, and what happens generally when a Task's coroutine awaits a Future?",
+      "difficulty": "multi_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided do not contain information about a TCP echo-server example or details about what happens when a Task's coroutine awaits a Future.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly acknowledges the retrieved context doesn't contain the required information, avoiding hallucination, but fails to provide any answer to the user's question."
+    },
+    {
+      "id": "q023",
+      "question": "Why might using shared memory with ProcessPoolExecutor be preferable to message-based communication between worker processes, and what challenges might arise from process pool failures?",
+      "difficulty": "multi_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover threading events, condition variables, asyncio tasks, barriers, and queue classes, but they do not contain information about ProcessPoolExecutor, shared memory, message-based communication between worker processes, or process pool failure handling.\n\nTo answer your question, I would need documentation related to `concurrent.futures.ProcessPoolExecutor` and multiprocessing concepts.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly identified that the retrieved context is irrelevant and does not support answering the question, avoiding hallucination, but this results in zero completeness since the question went unanswered."
+    },
+    {
+      "id": "q024",
+      "question": "How do an asyncio.Condition and the stream operations in the TCP echo-client example solve different coordination problems?",
+      "difficulty": "multi_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover task groups, queues, task shielding, eager task starting, and thread-safe coroutine execution, but they do not include information about `asyncio.Condition` or TCP echo-client stream operations.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly acknowledged missing context rather than hallucinating information about Condition and streams, but provided no answer to the question."
+    },
+    {
+      "id": "q025",
+      "question": "What happens if Future.set_exception() is called after the Future is already done, and why can a thread awakened by Condition.notify() still not return from wait() immediately?",
+      "difficulty": "multi_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided do not contain information about `Future.set_exception()` behavior when called on a completed Future, nor do they explain the behavior of `Condition.notify()` and `wait()` in threading scenarios.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly refuses to answer based on irrelevant context (queue, asyncio, barrier documentation) rather than hallucinating, but provides no actual answer to the question."
+    },
+    {
+      "id": "q026",
+      "question": "Compare what qsize() tells callers and how shutdown affects puts and gets for asyncio.Queue and queue.Queue.",
+      "difficulty": "multi_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided cover asyncio tasks, task groups, events, and conditions, but they do not include information about `qsize()`, `shutdown()`, or the behavior of `asyncio.Queue` and `queue.Queue`.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly refuses to answer due to missing queue documentation in retrieved context, avoiding hallucination, but fails to address the question entirely."
+    },
+    {
+      "id": "q027",
+      "question": "What measured throughput or latency improvement does multiprocessing.shared_memory provide over multiprocessing.Queue for a 1 GiB NumPy array?",
+      "difficulty": "unanswerable",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided discuss the GIL, threading, ProcessPoolExecutor, and queue operations, but they do not contain any measurements or benchmarks comparing the throughput or latency of `multiprocessing.shared_memory` versus `multiprocessing.Queue` for transferring large arrays.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": null,
+      "rationale": "The system's answer correctly identifies that the retrieved context lacks the specific benchmark data needed, matching the reference answer perfectly."
+    },
+    {
+      "id": "q028",
+      "question": "What is the maximum number of daemon threads that can be created in a single Python process?",
+      "difficulty": "unanswerable",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided discuss asyncio tasks, concurrent.futures with isolated interpreters, and task introspection methods, but they do not contain information about daemon threads or limits on their creation in a Python process.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": null,
+      "rationale": "The system correctly identified that the retrieved context does not contain information about daemon threads and appropriately declined to answer, matching the reference answer exactly."
+    },
+    {
+      "id": "q029",
+      "question": "For what input size does the documented asyncio factorial example become faster than a synchronous iterative implementation?",
+      "difficulty": "unanswerable",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided discuss asyncio tasks, event loops, synchronization primitives, and task creation, but they do not contain any factorial example or performance comparisons between asyncio and synchronous implementations.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": null,
+      "rationale": "The system correctly identifies that the retrieved context lacks any factorial example or performance comparison data, matching the reference answer's acknowledgment of insufficient information."
+    }
+  ]
+}

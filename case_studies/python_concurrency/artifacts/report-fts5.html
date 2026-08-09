@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAG Eval Scorecard</title>
+<style>
+  :root {
+    --background:hsl(0 0% 100%); --foreground:hsl(240 10% 3.9%);
+    --card:hsl(0 0% 100%); --muted:hsl(240 4.8% 95.9%);
+    --muted-foreground:hsl(240 3.8% 46.1%); --border:hsl(240 5.9% 90%);
+    --accent:hsl(240 4.8% 95.9%); --primary:hsl(240 5.9% 10%);
+    --good:hsl(142 71% 35%); --ok:hsl(38 92% 40%); --bad:hsl(0 72% 48%);
+    --radius:0.625rem;
+    --shadow:0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 3px 0 rgb(0 0 0 / 0.04);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--background); color:var(--foreground);
+    -webkit-font-smoothing:antialiased;
+    font:14.5px/1.55 ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }
+  .wrap { max-width:1040px; margin:0 auto; padding:48px 28px 72px; }
+  .mono { font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace; }
+  header { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:16px;
+    margin-bottom:32px; }
+  h1 { margin:0; font-size:19px; font-weight:600; letter-spacing:-.01em; }
+  h1 .kit { color:var(--muted-foreground); font-weight:400; }
+  .tagline { color:var(--muted-foreground); font-size:13px; margin-top:4px; }
+  .meta { color:var(--muted-foreground); font-size:12.5px; text-align:right; line-height:1.7; }
+  .meta code { color:var(--foreground); background:var(--muted); padding:2px 7px; border-radius:6px;
+    font-size:12px; }
+  .hero { display:flex; align-items:center; gap:28px; background:var(--card);
+    border:1px solid var(--border); border-radius:var(--radius); padding:28px 32px;
+    margin-bottom:20px; box-shadow:var(--shadow); }
+  .ring { font-size:52px; font-weight:680; line-height:1; letter-spacing:-.03em;
+    font-variant-numeric:tabular-nums; }
+  .ring small { font-size:20px; color:var(--muted-foreground); font-weight:500; margin-left:2px; }
+  .ring.bad { color:var(--bad); }
+  .hero .htitle { font-size:16px; font-weight:600; }
+  .hero .sub { color:var(--muted-foreground); font-size:13.5px; margin-top:3px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px 16px; box-shadow:var(--shadow); }
+  .card-val { font-size:28px; font-weight:650; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+  .card-val small { font-size:14px; color:var(--muted-foreground); font-weight:500; }
+  .card-label { color:var(--muted-foreground); font-size:12.5px; margin-top:6px;
+    display:flex; align-items:center; gap:6px; }
+  .dot { width:7px; height:7px; border-radius:999px; background:var(--good); flex:none; }
+  .ok .dot { background:var(--ok); } .bad .dot { background:var(--bad); }
+  .bad .card-val { color:var(--bad); }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+  .panel { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:24px 26px; box-shadow:var(--shadow); }
+  .panel.full { margin-bottom:20px; padding:24px 26px 12px; }
+  h2 { font-size:13px; font-weight:600; letter-spacing:-.005em; color:var(--foreground);
+    margin:0 0 20px; }
+  h2 small { color:var(--muted-foreground); font-weight:400; }
+  .metric { margin-bottom:16px; }
+  .metric:last-child { margin-bottom:0; }
+  .metric-head { display:flex; justify-content:space-between; font-size:13px; margin-bottom:7px; }
+  .metric-head b { font-variant-numeric:tabular-nums; font-weight:600; }
+  .metric-head .bad { color:var(--bad); }
+  .track { height:6px; background:var(--muted); border-radius:999px; overflow:hidden; }
+  .fill { height:100%; border-radius:999px; background:var(--primary); }
+  .fill.bad { background:var(--bad); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:right; color:var(--muted-foreground); font-weight:500; padding:0 12px 10px;
+    border-bottom:1px solid var(--border); font-size:12px; }
+  th:first-child { text-align:left; }
+  td { padding:13px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  tbody tr:last-child td { border-bottom:none; }
+  td.q { max-width:420px; font-weight:500; }
+  .why { color:var(--muted-foreground); font-size:12.5px; font-weight:400; margin-top:4px; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; font-weight:500; }
+  td.num.bad { color:var(--bad); font-weight:600; }
+  td.num.mut { color:var(--muted-foreground); }
+  .tag { background:var(--muted); color:var(--muted-foreground); font-weight:500;
+    font-size:11px; padding:2px 9px; border-radius:6px; white-space:nowrap; }
+  footer { color:var(--muted-foreground); font-size:12.5px; text-align:center; margin-top:36px; }
+  footer a { color:var(--foreground); text-decoration:none; }
+  footer a:hover { text-decoration:underline; }
+  @media (max-width:720px) { .grid2 { grid-template-columns:1fr; } }
+</style></head>
+<body><div class="wrap">
+  <header>
+    <div>
+      <h1>RAG Eval Scorecard <span class="kit">· proofrag</span></h1>
+      <div class="tagline">Generation quality &amp; retrieval, judged across 30 cases.</div>
+    </div>
+    <div class="meta">judge <code class="mono">anthropic:claude-haiku-4-5-20251001</code><br>2026-08-09T21:09:04+00:00 · 30 cases</div>
+  </header>
+
+  <div class="hero">
+    <div class="ring good">89<small>/100</small></div>
+    <div>
+      <div class="htitle">Overall generation quality</div>
+      <div class="sub">Mean of groundedness, correctness, completeness, citation quality across 30 cases.</div>
+    </div>
+  </div>
+
+  <div class="cards">
+      <div class="card good">
+        <div class="card-val">92</div>
+        <div class="card-label"><span class="dot"></span>Groundedness</div>
+      </div>
+      <div class="card good">
+        <div class="card-val">87</div>
+        <div class="card-label"><span class="dot"></span>Correctness</div>
+      </div>
+      <div class="card good">
+        <div class="card-val">86</div>
+        <div class="card-label"><span class="dot"></span>Completeness</div>
+      </div>
+      <div class="card good">
+        <div class="card-val">92</div>
+        <div class="card-label"><span class="dot"></span>Citation Quality</div>
+      </div>
+      <div class="card good">
+        <div class="card-val">91</div>
+        <div class="card-label"><span class="dot"></span>NDCG@5</div>
+      </div></div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>Generation <small>— proofrag</small></h2>
+
+      <div class="metric">
+        <div class="metric-head"><span>Groundedness</span><b class="good">92</b></div>
+        <div class="track"><div class="fill good" style="width:92%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-head"><span>Correctness</span><b class="good">87</b></div>
+        <div class="track"><div class="fill good" style="width:87%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-head"><span>Completeness</span><b class="good">86</b></div>
+        <div class="track"><div class="fill good" style="width:86%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-head"><span>Citation Quality</span><b class="good">92</b></div>
+        <div class="track"><div class="fill good" style="width:92%"></div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Retrieval <small>— rank-aware</small></h2>
+
+      <div class="metric">
+        <div class="metric-head"><span>Recall@5</span><b class="good">91</b></div>
+        <div class="track"><div class="fill good" style="width:91%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-head"><span>Precision@5</span><b class="bad">28</b></div>
+        <div class="track"><div class="fill bad" style="width:28%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-head"><span>NDCG@5</span><b class="good">91</b></div>
+        <div class="track"><div class="fill good" style="width:91%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-head"><span>MRR</span><b class="good">89</b></div>
+        <div class="track"><div class="fill good" style="width:89%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel full">
+    <h2>Weakest cases</h2>
+    <table>
+      <thead><tr>
+        <th>Question</th><th>Tier</th><th>Grnd</th><th>Corr</th><th>Comp</th><th>Cite</th><th>NDCG@5</th>
+      </tr></thead>
+      <tbody><tr><td class='q'>How should code handle two lifecycle hazards: a ThreadPoolExecutor initializer that raises, and an asyncio background Task without a strong reference?<div class='why'>Answer correctly handles asyncio weak references but misses the critical BrokenThreadPool behavior for ThreadPoolExecutor initializer failures, instead discussing ExecutionFailed which applies only to ProcessPoolExecutor.</div></td><td><span class='tag'>multi_doc</span></td><td class="num bad">60</td><td class="num bad">40</td><td class="num bad">30</td><td class="num bad">50</td><td class="num good">100</td></tr><tr><td class='q'>In the TCP echo-server example, which call is awaited to keep the server serving, and what happens generally when a Task&#x27;s coroutine awaits a Future?<div class='why'>First part correctly identifies `await server.serve_forever()` from context, but second part about Task/Future behavior is entirely missing from retrieved context, making answer incomplete and unable to address half the question.</div></td><td><span class='tag'>multi_doc</span></td><td class="num bad">50</td><td class="num bad">50</td><td class="num bad">20</td><td class="num bad">60</td><td class="num bad">63</td></tr><tr><td class='q'>Why might using shared memory with ProcessPoolExecutor be preferable to message-based communication between worker processes, and what challenges might arise from process pool failures?<div class='why'>System correctly addresses shared memory benefits from context but fails to address the critical ProcessPoolExecutor failure handling and BrokenProcessPool exception that are central to the reference answer, appearing instead to acknowledge this gap.</div></td><td><span class='tag'>multi_doc</span></td><td class="num bad">50</td><td class="num bad">50</td><td class="num bad">20</td><td class="num bad">60</td><td class="num good">100</td></tr><tr><td class='q'>How do an asyncio.Condition and the stream operations in the TCP echo-client example solve different coordination problems?<div class='why'>System correctly acknowledged missing context about asyncio.Condition rather than hallucinating, but failed to answer the question by not utilizing available stream information or attempting partial explanation.</div></td><td><span class='tag'>multi_doc</span></td><td class="num good">100</td><td class="num bad">0</td><td class="num bad">0</td><td class="num good">100</td><td class="num ok">65</td></tr><tr><td class='q'>When is a Python thread name reflected at OS level, and what truncation limits do the docs give for Linux and macOS?<div class='why'>The answer correctly identifies truncation limits and the behavior for currently running threads, but incompletely states that OS-level names are set &#x27;when the thread starts&#x27; on supported platforms, instead claiming they&#x27;re set only &#x27;when currently running thread is renamed.&#x27;</div></td><td><span class='tag'>single_doc</span></td><td class="num bad">50</td><td class="num bad">50</td><td class="num bad">60</td><td class="num ok">70</td><td class="num good">100</td></tr><tr><td class='q'>What does the kill_workers() method do to terminate worker processes?<div class='why'>System answer uses Process.terminate() but reference specifies Process.kill(); citation is accurate but the critical technical detail differs from the gold answer.</div></td><td><span class='tag'>single_doc</span></td><td class="num ok">70</td><td class="num bad">50</td><td class="num ok">80</td><td class="num good">90</td><td class="num good">100</td></tr><tr><td class='q'>Compare what qsize() tells callers and how shutdown affects puts and gets for asyncio.Queue and queue.Queue.<div class='why'>Answer is well-supported by context but misses the graceful shutdown distinction for asyncio and conflates exception naming between the two queue types in places.</div></td><td><span class='tag'>multi_doc</span></td><td class="num good">85</td><td class="num ok">75</td><td class="num ok">70</td><td class="num ok">80</td><td class="num good">97</td></tr><tr><td class='q'>Why does wait_on_future() deadlock in a ThreadPoolExecutor with max_workers=1?<div class='why'>Answer accurately explains the deadlock mechanism with strong support from context, though slightly less concise than the reference answer and citation attribution could be more explicit.</div></td><td><span class='tag'>single_doc</span></td><td class="num good">95</td><td class="num good">95</td><td class="num good">90</td><td class="num good">85</td><td class="num good">88</td></tr></tbody>
+    </table>
+  </div>
+
+  <footer>Generated by <a href="https://github.com/unshDee/proofrag">proofrag</a> — point your agent at your docs, get a golden set + scorecard in one command.</footer>
+</div></body></html>

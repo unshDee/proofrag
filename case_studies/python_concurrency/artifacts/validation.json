@@ -1,0 +1,33 @@
+{
+  "kind": "goldenset_validation",
+  "schema_version": 1,
+  "path": "case_studies/python_concurrency/goldenset.jsonl",
+  "fingerprint": "sha256:d8dbb57996d021c0",
+  "n": 30,
+  "difficulty_counts": {
+    "multi_doc": 6,
+    "single_doc": 21,
+    "unanswerable": 3
+  },
+  "source_counts": {
+    "case_studies/python_concurrency/corpus/asyncio-queue.rst": 3,
+    "case_studies/python_concurrency/corpus/asyncio-stream.rst": 4,
+    "case_studies/python_concurrency/corpus/asyncio-sync.rst": 3,
+    "case_studies/python_concurrency/corpus/asyncio-task.rst": 5,
+    "case_studies/python_concurrency/corpus/concurrent.futures.rst": 6,
+    "case_studies/python_concurrency/corpus/multiprocessing.shared_memory.rst": 5,
+    "case_studies/python_concurrency/corpus/queue.rst": 3,
+    "case_studies/python_concurrency/corpus/threading.rst": 4
+  },
+  "coverage": {
+    "corpus": "case_studies/python_concurrency/corpus",
+    "total_sources": 8,
+    "covered_sources": 8,
+    "coverage": 1.0,
+    "missing_sources": [],
+    "unknown_sources": []
+  },
+  "errors": [],
+  "warnings": [],
+  "ok": true
+}

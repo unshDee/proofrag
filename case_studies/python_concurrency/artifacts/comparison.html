@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAG A/B — proofrag</title>
+<style>
+  :root {
+    --background:hsl(0 0% 100%); --foreground:hsl(240 10% 3.9%);
+    --card:hsl(0 0% 100%); --muted:hsl(240 4.8% 95.9%);
+    --muted-foreground:hsl(240 3.8% 46.1%); --border:hsl(240 5.9% 90%);
+    --a:hsl(240 5.9% 10%); --b:hsl(217 91% 53%); --tie:hsl(240 4.8% 88%);
+    --radius:0.625rem;
+    --shadow:0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 3px 0 rgb(0 0 0 / 0.04);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--background); color:var(--foreground);
+    -webkit-font-smoothing:antialiased;
+    font:14.5px/1.55 ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }
+  .wrap { max-width:1040px; margin:0 auto; padding:48px 28px 72px; }
+  .mono { font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace; }
+  header { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:16px;
+    margin-bottom:32px; }
+  h1 { margin:0; font-size:19px; font-weight:600; letter-spacing:-.01em; }
+  h1 .kit { color:var(--muted-foreground); font-weight:400; }
+  .tagline { color:var(--muted-foreground); font-size:13px; margin-top:4px; }
+  .meta { color:var(--muted-foreground); font-size:12.5px; text-align:right; line-height:1.7; }
+  .meta code { color:var(--foreground); background:var(--muted); padding:2px 7px; border-radius:6px;
+    font-size:12px; }
+  .hero { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:28px 32px; margin-bottom:20px; box-shadow:var(--shadow); }
+  .verdict { font-size:22px; font-weight:650; letter-spacing:-.02em; margin-bottom:8px; }
+  .legend { color:var(--muted-foreground); font-size:13px; margin-bottom:18px; }
+  .legend b { font-weight:600; }
+  .legend b.wa { color:var(--a); } .legend b.wb { color:var(--b); }
+  .winbar { display:flex; height:30px; border-radius:8px; overflow:hidden; font-size:12px;
+    font-weight:600; color:#fff; gap:2px; background:var(--background); }
+  .winbar .seg { display:flex; align-items:center; justify-content:center; min-width:0; }
+  .winbar .sa { background:var(--a); } .winbar .sb { background:var(--b); }
+  .winbar .st { background:var(--tie); color:var(--muted-foreground); }
+  .panel { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:24px 26px 12px; margin-bottom:20px; box-shadow:var(--shadow); }
+  h2 { font-size:13px; font-weight:600; color:var(--foreground); margin:0 0 16px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:right; color:var(--muted-foreground); font-weight:500; padding:0 12px 10px;
+    border-bottom:1px solid var(--border); font-size:12px; }
+  th:first-child { text-align:left; }
+  td { padding:13px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  tbody tr:last-child td { border-bottom:none; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; font-weight:500; }
+  td.q { max-width:300px; font-weight:500; }
+  td.ans { color:var(--muted-foreground); font-size:12.5px; max-width:240px; }
+  .why { color:var(--muted-foreground); font-size:12.5px; font-weight:400; margin-top:4px; }
+  .win { font-size:11px; font-weight:600; padding:2px 9px; border-radius:6px; white-space:nowrap; color:#fff; }
+  .win.wa { background:var(--a); } .win.wb { background:var(--b); }
+  .win.wt { background:var(--tie); color:var(--muted-foreground); }
+  footer { color:var(--muted-foreground); font-size:12.5px; text-align:center; margin-top:36px; }
+  footer a { color:var(--foreground); text-decoration:none; }
+  footer a:hover { text-decoration:underline; }
+</style></head>
+<body><div class="wrap">
+  <header>
+    <div>
+      <h1>RAG A/B — blind <span class="kit">· proofrag</span></h1>
+      <div class="tagline">Blind pairwise judging across 30 cases, answers in randomized order.</div>
+    </div>
+    <div class="meta">judge <code class="mono">anthropic:claude-haiku-4-5-20251001</code><br>2026-08-09T21:10:52+00:00 · 30 cases</div>
+  </header>
+
+  <div class="hero">
+    <div class="verdict">fts5 wins</div>
+    <div class="legend"><b class="wa">fts5</b> 13 · tie 11 · <b class="wb">overlap</b> 6</div>
+    <div class="winbar">
+      <div class="seg sa" style="width:43%">43%</div>
+      <div class="seg st" style="width:37%"></div>
+      <div class="seg sb" style="width:20%">20%</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Retrieval (deterministic)</h2>
+    <table>
+      <thead><tr><th>Metric</th><th>fts5</th><th>overlap</th></tr></thead>
+      <tbody><tr><td>Recall@5</td><td class='num'>91</td><td class='num'>87</td></tr><tr><td>Precision@5</td><td class='num'>28</td><td class='num'>26</td></tr><tr><td>NDCG@5</td><td class='num'>91</td><td class='num'>88</td></tr><tr><td>MRR</td><td class='num'>89</td><td class='num'>85</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>Per-question verdicts</h2>
+    <table>
+      <thead><tr><th>Question</th><th>Winner</th><th>fts5</th><th>overlap</th></tr></thead>
+      <tbody><tr><td class='q'>What built-in data types can be stored in a ShareableList?<div class='why'>Both responses are identical in content and accuracy, listing all six supported data types with correct specifications matching the reference answer.</div></td><td><span class='win wt'>tie</span></td><td class='ans'>According to the documentation, the following built-in data types can be stored in a `ShareableList` [Source: multiprocessing.shared_memory.rst]:
+
+* `int` (signed 64-bit)
+* `float`
+* `bool`
+* `str` (less than 10M bytes each when encoded as </td><td class='ans'>According to the documentation [multiprocessing.shared_memory.rst], the built-in data types that can be stored in a ShareableList are:
+
+* `int` (signed 64-bit)
+* `float`
+* `bool`
+* `str` (less than 10M bytes each when encoded as UTF-8)
+* `b</td></tr><tr><td class='q'>Can a ShareableList element change data type, and what happens if a replacement string exceeds its allocated storage?<div class='why'>Response 1 provides a concrete example of the error scenario while both accurately convey the core information, making it slightly more complete and illustrative.</div></td><td><span class='win wa'>fts5</span></td><td class='ans'>Yes, a ShareableList element can change data type. According to the documentation, &quot;Changing data types is supported as well&quot; [multiprocessing.shared_memory.rst].
+
+However, if a replacement string exceeds its allocated storage, a `ValueErro</td><td class='ans'>Yes, a ShareableList element can change data type. According to the documentation, &quot;Changing data types is supported as well&quot; [multiprocessing.shared_memory.rst].
+
+However, if a replacement string exceeds its allocated storage space, a `Val</td></tr><tr><td class='q'>What does the asyncio open_connection function return?<div class='why'>Both responses are equally correct, complete, and faithful to the reference answer, with only minor stylistic differences.</div></td><td><span class='win wt'>tie</span></td><td class='ans'>According to the documentation, `asyncio.open_connection()` returns a pair of `(reader, writer)` objects. The *reader* is an instance of :class:`StreamReader` and the *writer* is an instance of :class:`StreamWriter`. [asyncio-stream.rst]</td><td class='ans'>According to the documentation, the `asyncio.open_connection()` function returns a pair of `(reader, writer)` objects, which are instances of :class:`StreamReader` and :class:`StreamWriter` classes. [asyncio-stream.rst]</td></tr><tr><td class='q'>Why does wait_on_future() deadlock in a ThreadPoolExecutor with max_workers=1?<div class='why'>Response 2 more clearly articulates the circular dependency (worker blocked waiting for task that can only run on that worker) while Response 1 uses slightly vaguer phrasing about &#x27;no worker available&#x27;.</div></td><td><span class='win wa'>fts5</span></td><td class='ans'>`wait_on_future()` deadlocks in a ThreadPoolExecutor with `max_workers=1` because:
+
+1. The single worker thread is executing `wait_on_future()`
+2. Inside that function, it calls `executor.submit(pow, 5, 2)` to submit another task
+3. It then</td><td class='ans'>According to the documentation, `wait_on_future()` deadlocks because:
+
+1. The single worker thread is executing `wait_on_future()`
+2. Inside that function, it tries to submit another task to the same executor and call `result()` on it
+3. Si</td></tr><tr><td class='q'>How does an InterpreterPoolExecutor worker report an uncaught exception raised by its current task?<div class='why'>Response 1 accurately matches the reference answer with precise technical details about exception preservation and ExecutionFailed handling, while Response 2 incorrectly claims insufficient information.</div></td><td><span class='win wa'>fts5</span></td><td class='ans'>Based on the documentation provided, when a worker&#x27;s current task in an `InterpreterPoolExecutor` raises an uncaught exception, the worker attempts to preserve the exception as-is. If successful, it sets the `__cause__` to a corresponding `</td><td class='ans'>I don&#x27;t have enough information in the provided context to answer that. The documentation excerpts provided discuss exception handling in `ProcessPoolExecutor`, `threading`, and `asyncio` task groups, but they do not contain information abo</td></tr><tr><td class='q'>What does queue.Queue.put(item, block=False) raise when no slot is immediately available?<div class='why'>Both responses are identical and correctly answer that queue.Queue.put(item, block=False) raises the Full exception when no slot is immediately available.</div></td><td><span class='win wt'>tie</span></td><td class='ans'>According to the documentation, `queue.Queue.put(item, block=False)` raises the :exc:`Full` exception when no free slot is immediately available. [queue.rst]</td><td class='ans'>According to the documentation, `queue.Queue.put(item, block=False)` raises the :exc:`Full` exception when no free slot is immediately available. [queue.rst]</td></tr><tr><td class='q'>What happens when you call shutdown() on a SharedMemoryManager instance?<div class='why'>Response 2 is more concise and directly faithful to the reference answer without unnecessary elaboration, while Response 1 adds speculative commentary about &#x27;eliminating the need to manually track&#x27; that goes beyond what the reference states.</div></td><td><span class='win wb'>overlap</span></td><td class='ans'>When you call `shutdown()` on a `SharedMemoryManager` instance, it:
+
+1. Triggers an `unlink()` call on all `SharedMemory` objects managed by that process
+2. Stops the manager process itself
+
+This releases all shared memory blocks that were </td><td class='ans'>When you call `shutdown()` on a `SharedMemoryManager` instance, it triggers a `unlink()` call on all of the `SharedMemory` objects managed by that process and then stops the process itself. This releases all shared memory blocks that were c</td></tr><tr><td class='q'>When is a Python thread name reflected at OS level, and what truncation limits do the docs give for Linux and macOS?<div class='why'>Response 1 correctly states the OS-level name is set when the thread starts, while Response 2 omits this crucial initial timing detail and only mentions the later self-rename behavior.</div></td><td><span class='win wb'>overlap</span></td><td class='ans'>According to the documentation, a Python thread name is reflected at the OS level **when the currently running thread is renamed**. Setting the name attribute of a different thread only updates the Python Thread object, not the OS level.
+
+T</td><td class='ans'>According to the documentation [threading.rst]:
+
+**When reflected at OS level:** A thread name is set at the operating system level when the thread starts. However, changes to a thread&#x27;s name are only reflected at the OS level when the **cu</td></tr><tr><td class='q'>What does the kill_workers() method do to terminate worker processes?<div class='why'>Response 1 correctly states that `kill_workers()` calls `Process.kill()`, while Response 2 incorrectly claims it calls `Process.terminate()`, making Response 1 factually accurate to the reference answer.</div></td><td><span class='win wb'>overlap</span></td><td class='ans'>According to the documentation, `kill_workers()` attempts to terminate all living worker processes immediately by calling `Process.terminate()` on each of them. It also internally calls `Executor.shutdown()` to ensure that all other resourc</td><td class='ans'>According to the documentation, the `kill_workers()` method attempts to kill all living worker processes immediately by calling `Process.kill()` on each of them. Internally, it also calls `Executor.shutdown()` to ensure that all other resou</td></tr><tr><td class='q'>What happens to tasks in as_completed() if a timeout occurs before all awaitables complete?<div class='why'>Response 1 provides more complete information by explicitly quoting the documentation and clearly separating both key points (TimeoutError raised and tasks continue running) with better structure.</div></td><td><span class='win wa'>fts5</span></td><td class='ans'>Based on the documentation provided, if a timeout occurs in `as_completed()` before all awaitables are done:
+
+1. A `TimeoutError` is raised [asyncio-task.rst]
+2. **The remaining tasks continue to run** - `as_completed()` does not cancel the</td><td class='ans'>According to the documentation, if a timeout occurs in `as_completed()` before all awaitables are done, a `TimeoutError` is raised. However, **the tasks running the supplied awaitables are not cancelled** — they continue to run in the backg</td></tr><tr><td class='q'>For an asyncio.Queue that has not been shut down, what exception does get_nowait() raise when the queue is empty?<div class='why'>Both responses correctly identify that get_nowait() raises QueueEmpty when the queue is empty, with only minor formatting differences in how they present the exception name.</div></td><td><span class='win wt'>tie</span></td><td class='ans'>According to the documentation, `get_nowait()` raises `QueueEmpty` when called on an empty queue [asyncio-queue.rst].</td><td class='ans'>According to the documentation, `get_nowait()` raises :exc:`QueueEmpty` when the queue is empty [asyncio-queue.rst].</td></tr><tr><td class='q'>What exception is raised if the start() method is called more than once on the same thread object?<div class='why'>Both responses provide the correct answer (RuntimeError) with identical substantive content; the only difference is minor formatting notation style (:exc: vs plain backticks) which does not meaningfully affect correctness or completeness.</div></td><td><span class='win wt'>tie</span></td><td class='ans'>According to the documentation, a :exc:`RuntimeError` is raised if the `start()` method is called more than once on the same thread object. [threading.rst]</td><td class='ans'>According to the documentation, a `RuntimeError` is raised if the `start()` method is called more than once on the same thread object. [threading.rst]</td></tr><tr><td class='q'>What does the done() method return and under what conditions is a Task considered done?<div class='why'>Both responses are identical and equally correct, complete, and faithful to the reference answer.</div></td><td><span class='win wt'>tie</span></td><td class='ans'>According to the documentation [asyncio-task.rst], the `done()` method returns `True` if the Task is *done*.
+
+A Task is considered *done* when:
+1. The wrapped coroutine returned a value
+2. The wrapped coroutine raised an exception
+3. The Ta</td><td class='ans'>According to the documentation [asyncio-task.rst], the `done()` method returns `True` if the Task is *done*.
+
+A Task is considered *done* when:
+1. The wrapped coroutine returned a value
+2. The wrapped coroutine raised an exception
+3. The Ta</td></tr><tr><td class='q'>What is the default behavior of the limit argument in the get_stack method for Task objects?<div class='why'>Both responses are essentially identical in content and accuracy, correctly stating that all available frames are returned by default when limit is not specified.</div></td><td><span class='win wt'>tie</span></td><td class='ans'>According to the documentation, the default behavior of the *limit* argument in the `get_stack` method is that **all available frames are returned** when no limit is specified (i.e., when `limit=None`).
+
+[asyncio-task.rst]</td><td class='ans'>According to the documentation, the default behavior of the *limit* argument in the `get_stack()` method is that **all available frames are returned** when no limit is specified (i.e., when `limit=None`). [asyncio-task.rst]</td></tr><tr><td class='q'>What happens when a thread calls acquire() on a locked primitive lock?<div class='why'>Both responses are essentially identical in content and accuracy, faithfully matching the reference answer with only trivial stylistic differences.</div></td><td><span class='win wt'>tie</span></td><td class='ans'>When a thread calls `acquire()` on a locked primitive lock, it **blocks until another thread calls `release()` to unlock it**. Once the lock is unlocked, the blocked `acquire()` call resets it to locked and returns. [threading.rst]</td><td class='ans'>When a thread calls `acquire()` on a locked primitive lock, it blocks until another thread calls `release()` to unlock it. Once unlocked, the `acquire()` call resets the lock to locked and returns. [threading.rst]</td></tr><tr><td class='q'>How do set(), clear(), and wait() affect an asyncio.Event&#x27;s internal flag, and what is its initial state?<div class='why'>Both responses are equally accurate, complete, and faithful to the reference answer, with only minor stylistic differences in presentation.</div></td><td><span class='win wt'>tie</span></td><td class='ans'>Based on the provided documentation [asyncio-sync.rst]:
+
+**Initial state:** The flag is set to *false* initially.
+
+**How the methods affect the flag:**
+
+- **`set()`**: Sets the internal flag to *true*. All tasks waiting on the event are imm</td><td class='ans'>Based on the documentation, here&#x27;s how these methods affect an asyncio.Event&#x27;s internal flag:
+
+**Initial state:** The flag is set to *false* initially. [asyncio-sync.rst]
+
+**set():** Sets the internal flag to *true*. All tasks waiting for t</td></tr><tr><td class='q'>What happens to the count of unfinished tasks when a consumer coroutine calls task_done?<div class='why'>Response 2 more completely matches the reference by including that task_done indicates &#x27;the item was retrieved and all work on it is complete,&#x27; which Response 1 omits.</div></td><td><span class='win wb'>overlap</span></td><td class='ans'>According to the documentation, when a consumer coroutine calls `task_done`, the count of unfinished tasks goes down. When this count drops to zero, the `join` method unblocks. [asyncio-queue.rst]</td><td class='ans'>According to the documentation, when a consumer coroutine calls `task_done`, the count of unfinished tasks goes down. This indicates that the item was retrieved and all work on it is complete. When the count of unfinished tasks drops to zer</td></tr><tr><td class='q'>What do asyncio streams let async/await code do without callbacks or low-level protocols and transports?<div class='why'>Both responses are essentially equivalent, accurately conveying that asyncio streams enable sending and receiving data without callbacks or low-level protocols/transports, with only minor stylistic differences.</div></td><td><span class='win wt'>tie</span></td><td class='ans'>According to the documentation, asyncio streams let async/await code **send and receive data without using callbacks or low-level protocols and transports** [asyncio-stream.rst].</td><td class='ans'>According to the documentation, asyncio streams allow sending and receiving data without using callbacks or low-level protocols and transports. [asyncio-stream.rst]</td></tr><tr><td class='q'>In the queue module example, what method must a consumer thread call to indicate that work on an item is complete?<div class='why'>Response 2 provides additional context by explaining when task_done() is called (after processing with q.get()), making it more complete and helpful than Response 1.</div></td><td><span class='win wb'>overlap</span></td><td class='ans'>According to the queue module example, a consumer thread must call the `task_done()` method to indicate that work on an item is complete. [queue.rst]</td><td class='ans'>According to the documentation, a consumer thread must call the `task_done()` method to indicate that work on an item is complete. [queue.rst]
+
+This is shown in the example where after processing an item retrieved with `q.get()`, the worker</td></tr><tr><td class='q'>What workaround do the Python docs recommend when ShareableList strips trailing NUL bytes from bytes or str values?<div class='why'>Response 1 correctly identifies and explains the workaround (append non-NUL byte, remove after retrieval) with a concrete code example, while Response 2 incorrectly claims the documentation doesn&#x27;t describe any workaround.</div></td><td><span class='win wa'>fts5</span></td><td class='ans'>Based on the provided documentation, the recommended workaround is to **pad the values with a non-NUL byte at the end**, then strip it when retrieving the value.
+
+The documentation demonstrates this approach:
+
+```python
+&gt;&gt;&gt; padded = shared_</td><td class='ans'>I don&#x27;t have enough information in the provided context to answer that. The documentation excerpts acknowledge that a known issue exists where `bytes` and `str` values in `ShareableList` may have trailing `\x00` nul bytes silently stripped,</td></tr><tr><td class='q'>What happens to a semaphore&#x27;s internal counter when the acquire method is called and the counter is zero?<div class='why'>Response 2 provides more complete information by explaining what happens after release() is called (decrement and return), whereas Response 1 only describes the blocking behavior.</div></td><td><span class='win wa'>fts5</span></td><td class='ans'>When the semaphore&#x27;s internal counter is zero and the acquire method is called, the call **blocks and waits** until another task or thread calls `release()` [threading.rst, asyncio-sync.rst].
+
+More specifically:
+- In threading: &quot;block until</td><td class='ans'>When the `acquire()` method is called and the semaphore&#x27;s internal counter is zero, the method blocks and waits until some other task or thread calls `release()` [asyncio-sync.rst, threading.rst].</td></tr><tr><td class='q'>How should code handle two lifecycle hazards: a ThreadPoolExecutor initializer that raises, and an asyncio background Task without a strong reference?<div class='why'>Response 1 correctly addresses both hazards with specific technical details (BrokenThreadPool behavior and weak reference mechanics), while Response 2 admits insufficient information about ThreadPoolExecutor and provides less complete guidance.</div></td><td><span class='win wa'>fts5</span></td><td class='ans'>Based on the provided documentation:
+
+**ThreadPoolExecutor initializer exceptions:** The executor may replace uncaught exceptions from the *initializer* with :class:`~concurrent.interpreters.ExecutionFailed` [concurrent.futures.rst]
+
+**asyn</td><td class='ans'>Based on the provided documentation:
+
+**ThreadPoolExecutor initializer that raises:** The documentation does not contain information about handling exceptions from ThreadPoolExecutor initializers. [threading.rst]
+
+**asyncio background Task </td></tr><tr><td class='q'>In the TCP echo-server example, which call is awaited to keep the server serving, and what happens generally when a Task&#x27;s coroutine awaits a Future?<div class='why'>Response 1 correctly identifies the awaited call (server.serve_forever()) and acknowledges the limitation, while Response 2 incorrectly claims the example isn&#x27;t provided and fails to answer the first part despite having the information.</div></td><td><span class='win wa'>fts5</span></td><td class='ans'>Based on the provided documentation excerpts:
+
+In the TCP echo-server example, **`await server.serve_forever()`** is the call that is awaited to keep the server serving. [asyncio-stream.rst]
+
+However, I don&#x27;t have enough information in the </td><td class='ans'>I don&#x27;t have enough information in the provided context to answer that. While the documentation excerpts include general information about how Tasks and Futures work together, they do not contain a TCP echo-server example. The excerpts expl</td></tr><tr><td class='q'>Why might using shared memory with ProcessPoolExecutor be preferable to message-based communication between worker processes, and what challenges might arise from process pool failures?<div class='why'>Response 1 partially answers the question with accurate information about shared memory performance benefits, while Response 2 incorrectly claims insufficient information exists when the concepts are documented in standard Python resources.</div></td><td><span class='win wa'>fts5</span></td><td class='ans'>Based on the provided documentation excerpts, I can address the first part of your question:
+
+**Why shared memory is preferable to message-based communication:**
+
+Shared memory provides &quot;significant performance benefits compared to sharing </td><td class='ans'>I don&#x27;t have enough information in the provided context to answer that.
+
+The documentation excerpts discuss shared memory&#x27;s `track` parameter for resource cleanup and describe `ProcessPoolExecutor`&#x27;s use of the `multiprocessing` module, but</td></tr><tr><td class='q'>How do an asyncio.Condition and the stream operations in the TCP echo-client example solve different coordination problems?<div class='why'>Response 1 correctly addresses both mechanisms and their different coordination roles (task/state vs I/O sequencing), while Response 2 incorrectly claims insufficient information despite the question being answerable from standard asyncio documentation.</div></td><td><span class='win wb'>overlap</span></td><td class='ans'>I don&#x27;t have enough information in the provided context to answer that.
+
+The provided documentation excerpts discuss stream operations in the TCP echo-client example (such as `open_connection()`, `write()`, `drain()`, `read()`, `close()`, a</td><td class='ans'>Based on the provided documentation excerpts:
+
+**asyncio.Condition** solves task coordination problems by combining lock and event functionality to coordinate exclusive access to shared resources between different tasks interested in partic</td></tr><tr><td class='q'>What happens if Future.set_exception() is called after the Future is already done, and why can a thread awakened by Condition.notify() still not return from wait() immediately?<div class='why'>Response 2 correctly identifies that notify() itself does not release the lock (the key reason), while Response 1 incorrectly suggests the issue is other threads holding the lock, missing the crucial point that the notifying thread retains the lock.</div></td><td><span class='win wa'>fts5</span></td><td class='ans'>Based on the provided documentation:
+
+**Future.set_exception() when already done:**
+If `Future.set_exception()` is called after the Future is already done, it raises `concurrent.futures.InvalidStateError` [concurrent.futures.rst].
+
+**Thread</td><td class='ans'>Based on the provided documentation:
+
+**What happens if Future.set_exception() is called after the Future is already done:**
+
+According to the concurrent.futures.rst documentation, &quot;This method raises `concurrent.futures.InvalidStateError` </td></tr><tr><td class='q'>Compare what qsize() tells callers and how shutdown affects puts and gets for asyncio.Queue and queue.Queue.<div class='why'>Response 2 correctly identifies that queue.Queue.qsize() is approximate and doesn&#x27;t guarantee blocking behavior, while Response 1 omits qsize() for queue.Queue entirely, missing a key distinction highlighted in the reference answer.</div></td><td><span class='win wa'>fts5</span></td><td class='ans'># Comparison of qsize() and shutdown() Effects
+
+## qsize()
+
+**asyncio.Queue** [asyncio-queue.rst]: Returns the number of items in the queue.
+
+**queue.Queue** [queue.rst]: Returns the approximate size of the queue, with a caveat that `qsize(</td><td class='ans'>Based on the provided documentation:
+
+**qsize() behavior:**
+- **asyncio.Queue**: Returns the number of items in the queue. The size is always known and can be returned by calling qsize() [asyncio-queue.rst]
+- **queue.Queue**: No qsize() met</td></tr><tr><td class='q'>What measured throughput or latency improvement does multiprocessing.shared_memory provide over multiprocessing.Queue for a 1 GiB NumPy array?<div class='why'>Both responses correctly identify that the context lacks performance benchmarks and appropriately decline to answer, with only minor wording differences that don&#x27;t affect quality.</div></td><td><span class='win wt'>tie</span></td><td class='ans'>I don&#x27;t have enough information in the provided context to answer that. The documentation excerpts provided show how to use `multiprocessing.shared_memory` with examples, but they do not contain any performance benchmarks, throughput measur</td><td class='ans'>I don&#x27;t have enough information in the provided context to answer that. The documentation excerpts provided show how to use `multiprocessing.shared_memory` and `multiprocessing.Queue`, but they do not include any performance benchmarks, thr</td></tr><tr><td class='q'>What is the maximum number of daemon threads that can be created in a single Python process?<div class='why'>Response 1 provides more specific explanation by citing what the documentation actually covers (daemon thread properties and behavior) rather than vague generalizations.</div></td><td><span class='win wa'>fts5</span></td><td class='ans'>I don&#x27;t have enough information in the provided context to answer that.
+
+The documentation excerpts discuss daemon thread properties and behavior (such as how they&#x27;re inherited and when the program exits), but they do not specify any limit </td><td class='ans'>I don&#x27;t have enough information in the provided context to answer that. The documentation excerpts provided discuss threading concepts like the GIL and how threading operates within a single process, but they do not contain information abou</td></tr><tr><td class='q'>For what input size does the documented asyncio factorial example become faster than a synchronous iterative implementation?<div class='why'>Response 1 is more accurate because it acknowledges the existence of an asyncio factorial example in the documentation before correctly stating the comparison information is absent, while Response 2 incorrectly denies the example exists at all.</div></td><td><span class='win wa'>fts5</span></td><td class='ans'>I don&#x27;t have enough information in the provided context to answer that. The documentation excerpts show the asyncio factorial example and its expected output, but they do not contain any comparison with a synchronous iterative implementatio</td><td class='ans'>I don&#x27;t have enough information in the provided context to answer that. The documentation excerpts provided do not contain a factorial example or any comparison between asyncio and synchronous iterative implementations for calculating facto</td></tr></tbody>
+    </table>
+  </div>
+
+  <footer>Generated by <a href="https://github.com/unshDee/proofrag">proofrag</a> — blind A/B comparison of two RAG variants.</footer>
+</div></body></html>

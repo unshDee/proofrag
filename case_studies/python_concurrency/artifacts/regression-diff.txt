@@ -1,0 +1,16 @@
+metric              base     candidate   delta
+groundedness        0.920    1.000      +0.080
+correctness         0.870    0.400      -0.470  REGRESSION
+completeness        0.857    0.100      -0.757  REGRESSION
+citation_quality    0.925    1.000      +0.075
+recall_at_k         0.907    0.000      -0.907  REGRESSION
+precision_at_k      0.281    0.000      -0.281  REGRESSION
+ndcg_at_k           0.908    0.000      -0.908  REGRESSION
+mrr                 0.889    0.000      -0.889  REGRESSION
+
+Command:
+proofrag diff --baseline results-fts5.json --candidate results-fts5-reversed.json --tolerance 0.02
+
+Exit code: 1
+Judge mismatch: false
+Regressed metrics: correctness, completeness, recall_at_k, precision_at_k, ndcg_at_k, mrr
