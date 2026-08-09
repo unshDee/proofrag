@@ -14,6 +14,7 @@ proofrag demo                      # canned scorecard, no API key
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 
 from . import __version__
@@ -24,25 +25,69 @@ def _eprint(*a):
     print(*a, file=sys.stderr)
 
 
+def _positive_int(value: str) -> int:
+    number = int(value)
+    if number <= 0:
+        raise argparse.ArgumentTypeError("must be greater than zero")
+    return number
+
+
+def _positive_float(value: str) -> float:
+    number = float(value)
+    if not math.isfinite(number) or number <= 0:
+        raise argparse.ArgumentTypeError("must be greater than zero")
+    return number
+
+
+def _unit_float(value: str) -> float:
+    number = float(value)
+    if not math.isfinite(number) or not 0 <= number <= 1:
+        raise argparse.ArgumentTypeError("must be between 0 and 1")
+    return number
+
+
+def _nonnegative_float(value: str) -> float:
+    number = float(value)
+    if not math.isfinite(number) or number < 0:
+        raise argparse.ArgumentTypeError("must be zero or greater")
+    return number
+
+
+def _matcher(args):
+    if getattr(args, "exact", False):
+        from .metrics import exact_matcher
+
+        return exact_matcher()
+    if getattr(args, "semantic", False):
+        from .embeddings import embedding_matcher
+
+        return embedding_matcher()
+    return None
+
+
 def cmd_generate(args) -> int:
     from .corpus import load_corpus
     from .goldenset import generate, write_jsonl
     from .llm import LLM, LLMError
 
-    chunks = load_corpus(
-        args.corpus,
-        max_chars=args.chunk_chars,
-        include=args.include,
-        exclude=args.exclude,
-        respect_gitignore=not args.no_gitignore,
-    )
-    _eprint(f"Loaded {len(chunks)} chunks from {args.corpus}")
     try:
+        chunks = load_corpus(
+            args.corpus,
+            max_chars=args.chunk_chars,
+            include=args.include,
+            exclude=args.exclude,
+            respect_gitignore=not args.no_gitignore,
+        )
+        _eprint(f"Loaded {len(chunks)} chunks from {args.corpus}")
         records = generate(chunks, n=args.n, seed=args.seed, llm=LLM(model=args.model))
-    except LLMError as e:
+    except (LLMError, OSError, ValueError) as e:
         _eprint(f"error: {e}")
         return 2
-    write_jsonl(records, args.out)
+    try:
+        write_jsonl(records, args.out)
+    except OSError as e:
+        _eprint(f"error: {e}")
+        return 2
     tiers = {}
     for r in records:
         tiers[r["difficulty"]] = tiers.get(r["difficulty"], 0) + 1
@@ -77,52 +122,42 @@ def cmd_corpus(args) -> int:
 
 
 def cmd_evaluate(args) -> int:
+    from .backends import BackendError
     from .goldenset import read_jsonl
     from .judge import evaluate, write_results
     from .llm import LLM, LLMError
 
-    goldenset = read_jsonl(args.goldenset)
-    predictions = read_jsonl(args.predictions)
-    matcher = None
-    if args.semantic:
-        from .embeddings import embedding_matcher
-
-        matcher = embedding_matcher()
     try:
+        goldenset = read_jsonl(args.goldenset)
+        predictions = read_jsonl(args.predictions)
+        matcher = _matcher(args)
         if args.backend == "deepeval":
-            from .backends import BackendError
             from .backends.deepeval_backend import evaluate_deepeval
 
-            try:
-                results = evaluate_deepeval(
-                    goldenset, predictions, model=args.model, k=args.k, matcher=matcher
-                )
-            except BackendError as e:
-                _eprint(f"error: {e}")
-                return 2
+            results = evaluate_deepeval(
+                goldenset, predictions, model=args.model, k=args.k, matcher=matcher
+            )
         elif args.backend == "ragas":
-            from .backends import BackendError
             from .backends.ragas_backend import evaluate_ragas
 
-            try:
-                results = evaluate_ragas(
-                    goldenset, predictions, model=args.model, k=args.k, matcher=matcher
-                )
-            except BackendError as e:
-                _eprint(f"error: {e}")
-                return 2
+            results = evaluate_ragas(
+                goldenset, predictions, model=args.model, k=args.k, matcher=matcher
+            )
         else:
             results = evaluate(
                 goldenset, predictions, llm=LLM(model=args.model), k=args.k, matcher=matcher
             )
-    except LLMError as e:
+        write_results(results, args.out)
+    except (BackendError, LLMError, OSError, ValueError) as e:
         _eprint(f"error: {e}")
         return 2
-    write_results(results, args.out)
     agg = results["aggregate"]
     _eprint(f"Judged {results['n']} cases with {results['judge_fingerprint']} -> {args.out}")
     for k, v in agg.items():
         _eprint(f"  {k:>18}: {v:.3f}")
+    if results.get("evaluation_errors"):
+        _eprint(f"error: {len(results['evaluation_errors'])} evaluation call(s) failed")
+        return 2
 
     gen = results.get("generation_metrics") or JUDGE_DIMENSIONS
     if args.fail_under is not None:
@@ -215,15 +250,11 @@ def cmd_compare(args) -> int:
     from .goldenset import read_jsonl
     from .llm import LLM, LLMError
 
-    goldenset = read_jsonl(args.goldenset)
-    preds_a = read_jsonl(args.a)
-    preds_b = read_jsonl(args.b)
-    matcher = None
-    if args.semantic:
-        from .embeddings import embedding_matcher
-
-        matcher = embedding_matcher()
     try:
+        goldenset = read_jsonl(args.goldenset)
+        preds_a = read_jsonl(args.a)
+        preds_b = read_jsonl(args.b)
+        matcher = _matcher(args)
         res = compare(
             goldenset,
             preds_a,
@@ -235,15 +266,18 @@ def cmd_compare(args) -> int:
             matcher=matcher,
             seed=args.seed,
         )
-    except LLMError as e:
+        write_comparison(res, args.out)
+    except (LLMError, OSError, ValueError) as e:
         _eprint(f"error: {e}")
         return 2
-    write_comparison(res, args.out)
     w = res["wins"]
     _eprint(f"Compared {res['n']} cases (blind) with {res['judge_fingerprint']} -> {args.out}")
     _eprint(f"  {args.a_name}: {w['a']} wins | {args.b_name}: {w['b']} wins | tie: {w['tie']}")
     if res["win_rate_a"] is not None:
         _eprint(f"  {args.a_name} win rate: {res['win_rate_a']:.0%} of decided")
+    if res.get("evaluation_errors"):
+        _eprint(f"error: {len(res['evaluation_errors'])} comparison call(s) failed")
+        return 2
     if args.html:
         from .scorecard import write_comparison_html
 
@@ -258,8 +292,16 @@ def cmd_diff(args) -> int:
 
     baseline = read_results(args.baseline)
     candidate = read_results(args.candidate)
+    if baseline.get("evaluation_errors") or candidate.get("evaluation_errors"):
+        _eprint("error: cannot diff results containing evaluation errors")
+        return 2
     res = diff(baseline, candidate, tolerance=args.tolerance)
     _eprint(format_table(res))
+
+    if res["configuration_mismatches"]:
+        fields = ", ".join(row["field"] for row in res["configuration_mismatches"])
+        _eprint(f"error: incompatible result configuration: {fields}")
+        return 2
 
     if res["judge_mismatch"]:
         msg = (
@@ -304,9 +346,9 @@ def build_parser() -> argparse.ArgumentParser:
     g = sub.add_parser("generate", help="synthesize a golden set from a corpus")
     g.add_argument("--corpus", required=True, help="file or directory of docs/code")
     g.add_argument("--out", default="goldenset.jsonl")
-    g.add_argument("--n", type=int, default=20, help="number of cases")
+    g.add_argument("--n", type=_positive_int, default=20, help="number of cases")
     g.add_argument("--seed", type=int, default=0)
-    g.add_argument("--chunk-chars", type=int, default=1200)
+    g.add_argument("--chunk-chars", type=_positive_int, default=1200)
     g.add_argument(
         "--include", action="append", default=[], help="include glob, e.g. 'docs/**/*.md'"
     )
@@ -317,7 +359,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     co = sub.add_parser("corpus", help="inspect corpus loading and chunking")
     co.add_argument("path", help="file or directory of docs/code")
-    co.add_argument("--chunk-chars", type=int, default=1200)
+    co.add_argument("--chunk-chars", type=_positive_int, default=1200)
     co.add_argument("--include", action="append", default=[], help="include glob")
     co.add_argument("--exclude", action="append", default=[], help="exclude glob")
     co.add_argument("--no-gitignore", action="store_true", help="ignore .gitignore patterns")
@@ -346,7 +388,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="question",
         help="callable argument: question string or full golden record",
     )
-    rn.add_argument("--timeout", type=float, default=30.0, help="HTTP timeout in seconds")
+    rn.add_argument("--timeout", type=_positive_float, default=30.0, help="HTTP timeout in seconds")
     rn.add_argument(
         "--header",
         action="append",
@@ -367,16 +409,25 @@ def build_parser() -> argparse.ArgumentParser:
         help="generation scoring backend (deepeval/ragas need matching extras)",
     )
     e.add_argument(
-        "--k", type=int, default=5, help="cutoff for retrieval metrics (Recall@k, NDCG@k, ...)"
+        "--k",
+        type=_positive_int,
+        default=5,
+        help="cutoff for retrieval metrics (Recall@k, NDCG@k, ...)",
     )
-    e.add_argument(
+    e_match = e.add_mutually_exclusive_group()
+    e_match.add_argument(
+        "--exact",
+        action="store_true",
+        help="require exact chunk equality for retrieval relevance",
+    )
+    e_match.add_argument(
         "--semantic",
         action="store_true",
         help="use embedding cosine for chunk relevance instead of token overlap (needs [openai])",
     )
     e.add_argument(
         "--fail-under",
-        type=float,
+        type=_unit_float,
         default=None,
         help="CI gate: exit 1 if overall generation score < this (0-1)",
     )
@@ -397,7 +448,10 @@ def build_parser() -> argparse.ArgumentParser:
     df.add_argument("--baseline", required=True, help="baseline results.json (a known-good run)")
     df.add_argument("--candidate", required=True, help="new results.json to compare")
     df.add_argument(
-        "--tolerance", type=float, default=0.02, help="allowed drop before flagging a regression"
+        "--tolerance",
+        type=_nonnegative_float,
+        default=0.02,
+        help="allowed drop before flagging a regression",
     )
     df.add_argument(
         "--allow-judge-mismatch", action="store_true", help="compare even if judge models differ"
@@ -413,9 +467,15 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("--out", default="comparison.json")
     c.add_argument("--html", default=None, help="also write an HTML comparison report here")
     c.add_argument("--model", default=None)
-    c.add_argument("--k", type=int, default=5)
+    c.add_argument("--k", type=_positive_int, default=5)
     c.add_argument("--seed", type=int, default=0)
-    c.add_argument(
+    c_match = c.add_mutually_exclusive_group()
+    c_match.add_argument(
+        "--exact",
+        action="store_true",
+        help="require exact chunk equality for retrieval relevance",
+    )
+    c_match.add_argument(
         "--semantic",
         action="store_true",
         help="embedding cosine for retrieval relevance (needs [openai])",
@@ -431,7 +491,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv=None) -> int:
     args = build_parser().parse_args(argv)
-    return args.func(args)
+    try:
+        return args.func(args)
+    except (OSError, ValueError) as e:
+        _eprint(f"error: {e}")
+        return 2
 
 
 if __name__ == "__main__":

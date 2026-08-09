@@ -158,8 +158,18 @@ def validate_goldenset(path: str, corpus: str | None = None) -> dict[str, Any]:
                     line=line,
                     id=record_id,
                 )
+            if difficulty == "multi_doc" and source_list is not None and len(set(source_list)) < 2:
+                _issue(
+                    warnings,
+                    "multi_doc_single_source",
+                    "multi_doc cases should cite at least two distinct sources",
+                    line=line,
+                    id=record_id,
+                )
 
     coverage = _coverage(corpus, source_counts, warnings) if corpus else None
+    if not records:
+        _issue(errors, "empty_goldenset", "golden set must contain at least one record")
     return {
         "kind": "goldenset_validation",
         "schema_version": 1,
@@ -246,6 +256,12 @@ def _coverage(
     covered = sorted(corpus_set & used_set)
     missing = sorted(corpus_set - used_set)
     unknown = sorted(used_set - corpus_set)
+    if unknown:
+        _issue(
+            warnings,
+            "unknown_sources",
+            f"golden set cites {len(unknown)} source(s) outside the loaded corpus",
+        )
     return {
         "corpus": corpus,
         "total_sources": len(corpus_sources),
@@ -269,9 +285,9 @@ def _string(value: Any) -> str:
 
 
 def _string_list(value: Any) -> list[str] | None:
-    if not isinstance(value, list):
+    if not isinstance(value, list) or any(not isinstance(v, str) for v in value):
         return None
-    return [v.strip() for v in value if isinstance(v, str) and v.strip()]
+    return [v.strip() for v in value if v.strip()]
 
 
 def _normalize_question(question: str) -> str:

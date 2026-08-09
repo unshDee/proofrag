@@ -18,11 +18,16 @@ import os
 import warnings
 from typing import Any
 
-from langchain_core.outputs import Generation, LLMResult
-
 from ..embeddings import DEFAULT_EMBED_MODEL
+from ..goldenset import goldenset_fingerprint
 from ..llm import LLM, LLMError, openai_client
-from ..metrics import RETRIEVAL_METRICS, lexical_matcher, retrieval_metrics
+from ..metrics import (
+    RETRIEVAL_METRICS,
+    lexical_matcher,
+    matcher_fingerprint,
+    retrieval_metrics,
+)
+from ..run import join_predictions
 from . import BackendError
 
 GENERATION_METRICS = ["faithfulness", "answer_relevancy", "factual_correctness"]
@@ -33,6 +38,7 @@ class _ProofragRagasLLM:
 
     def __init__(self, llm: LLM):
         try:
+            from langchain_core.outputs import Generation, LLMResult
             from ragas.llms.base import BaseRagasLLM
         except ImportError as e:  # pragma: no cover - import guard
             raise BackendError("Ragas backend needs: pip install 'proofrag[ragas]'") from e
@@ -45,7 +51,7 @@ class _ProofragRagasLLM:
                 temperature: float | None = 0.01,
                 stop: list[str] | None = None,
                 callbacks=None,
-            ) -> LLMResult:
+            ) -> Any:
                 text = prompt.to_string() if hasattr(prompt, "to_string") else str(prompt)
                 generations = []
                 for _ in range(n):
@@ -65,7 +71,7 @@ class _ProofragRagasLLM:
                 temperature: float | None = 0.01,
                 stop: list[str] | None = None,
                 callbacks=None,
-            ) -> LLMResult:
+            ) -> Any:
                 return await asyncio.to_thread(
                     self.generate_text,
                     prompt,
@@ -75,7 +81,7 @@ class _ProofragRagasLLM:
                     callbacks=callbacks,
                 )
 
-            def is_finished(self, response: LLMResult) -> bool:
+            def is_finished(self, response: Any) -> bool:
                 return True
 
         self.inner = ProofragRagasLLM()
@@ -118,6 +124,8 @@ def evaluate_ragas(
     matcher=None,
 ) -> dict:
     """Score predictions with Ragas metrics; keep proofrag retrieval metrics."""
+    if k <= 0:
+        raise ValueError("k must be greater than zero")
     cfg = LLM(model=model)
     llm = _ProofragRagasLLM(cfg).inner
     embeddings = _ragas_embeddings()
@@ -126,15 +134,21 @@ def evaluate_ragas(
     samples, joined = _samples(goldenset, predictions)
     result = _evaluate_ragas_dataset(samples, metrics)
     rows = list(getattr(result, "scores", []))
+    if len(rows) != len(joined):
+        raise BackendError(f"Ragas returned {len(rows)} scores for {len(joined)} cases")
 
     matcher = matcher or lexical_matcher()
     records: list[dict] = []
-    for (g, pred), row in zip(joined, rows, strict=False):
+    errors: list[dict[str, str]] = []
+    for (g, pred), row in zip(joined, rows, strict=True):
         answer = pred.get("answer", "")
         retrieved = pred.get("retrieved_contexts", []) or []
         scores = {metric: _score(row.get(metric)) for metric in generation_metrics}
         if not retrieved and "faithfulness" in scores:
             scores["faithfulness"] = None
+        for metric, score in scores.items():
+            if score is None and not (metric == "faithfulness" and not retrieved):
+                errors.append({"id": str(g["id"]), "error": f"{metric} unavailable"})
         records.append(
             {
                 "id": g["id"],
@@ -152,12 +166,15 @@ def evaluate_ragas(
         )
 
     return {
-        "judge_fingerprint": f"ragas/{cfg.provider}:{cfg.model}",
+        "judge_fingerprint": f"ragas/{cfg.fingerprint}",
         "backend": "ragas",
         "generation_metrics": generation_metrics,
         "created": _dt.datetime.now(_dt.UTC).isoformat(timespec="seconds"),
         "k": k,
+        "matcher": matcher_fingerprint(matcher),
+        "goldenset_fingerprint": goldenset_fingerprint(goldenset),
         "n": len(records),
+        "evaluation_errors": errors,
         "aggregate": _aggregate(records, generation_metrics),
         "records": records,
     }
@@ -194,13 +211,9 @@ def _samples(
     except ImportError as e:  # pragma: no cover - import guard
         raise BackendError("Ragas backend needs: pip install 'proofrag[ragas]'") from e
 
-    preds = {p["id"]: p for p in predictions}
     samples: list[Any] = []
     joined: list[tuple[dict, dict]] = []
-    for g in goldenset:
-        pred = preds.get(g["id"])
-        if pred is None:
-            continue
+    for g, pred in join_predictions(goldenset, predictions):
         retrieved = pred.get("retrieved_contexts", []) or []
         sample = SingleTurnSample(
             user_input=g["question"],
@@ -232,7 +245,7 @@ def _score(value) -> float | None:
         score = float(value)
     except (TypeError, ValueError):
         return None
-    if math.isnan(score):
+    if not math.isfinite(score):
         return None
     return round(max(0.0, min(1.0, score)), 3)
 

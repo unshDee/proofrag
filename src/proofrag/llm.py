@@ -7,14 +7,14 @@ The judge model is pinned and surfaced as a `fingerprint` so scores stay compara
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
-import re
 from typing import Any
 
 # Cheap-by-default. Override with PROOFRAG_MODEL.
 DEFAULT_ANTHROPIC_MODEL = "claude-haiku-4-5-20251001"
-DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
+DEFAULT_OPENAI_MODEL = "gpt-4o-mini-2024-07-18"
 
 
 class LLMError(RuntimeError):
@@ -47,11 +47,20 @@ class LLM:
     @property
     def fingerprint(self) -> str:
         """Stable id of the judge backend, recorded in every scorecard."""
-        return f"{self.provider}:{self.model}"
+        endpoint = os.environ.get("OPENAI_BASE_URL") if self.provider == "openai" else None
+        endpoint_hash = (
+            f":endpoint={hashlib.sha256(endpoint.encode()).hexdigest()[:8]}" if endpoint else ""
+        )
+        return f"{self.provider}:{self.model}:temperature=0{endpoint_hash}"
 
     def complete_json(self, system: str, prompt: str) -> dict[str, Any]:
         """Complete and parse the first JSON object out of the response."""
-        return _extract_json(self._complete(system, prompt))
+        try:
+            return _extract_json(self._complete(system, prompt))
+        except LLMError:
+            raise
+        except Exception as e:  # noqa: BLE001 - normalize provider SDK failures for the CLI
+            raise LLMError(f"{self.provider} request failed: {e}") from e
 
     # -- backends ---------------------------------------------------------
 
@@ -72,6 +81,7 @@ class LLM:
         msg = self._client.messages.create(
             model=self.model,
             max_tokens=2048,
+            temperature=0,
             system=system,
             messages=[{"role": "user", "content": prompt}],
         )
@@ -116,18 +126,18 @@ def openai_client(require_key: bool = True):
 def _extract_json(text: str) -> dict:
     """Pull the first JSON object out of a model response (handles code fences)."""
     text = text.strip()
-    fence = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
-    if fence:
-        text = fence.group(1)
-    start = text.find("{")
-    if start == -1:
-        raise LLMError(f"No JSON object in response: {text[:200]!r}")
-    depth = 0
-    for i in range(start, len(text)):
-        if text[i] == "{":
-            depth += 1
-        elif text[i] == "}":
-            depth -= 1
-            if depth == 0:
-                return json.loads(text[start : i + 1])
-    raise LLMError(f"Unbalanced JSON in response: {text[:200]!r}")
+    decoder = json.JSONDecoder(parse_constant=_invalid_constant)
+    for start, char in enumerate(text):
+        if char != "{":
+            continue
+        try:
+            value, _end = decoder.raw_decode(text[start:])
+        except (json.JSONDecodeError, ValueError):
+            continue
+        if isinstance(value, dict):
+            return value
+    raise LLMError(f"No valid JSON object in response: {text[:200]!r}")
+
+
+def _invalid_constant(value: str):
+    raise ValueError(f"invalid JSON constant {value}")

@@ -7,6 +7,7 @@ from proofrag.backends.deepeval_backend import _aggregate as de_aggregate
 from proofrag.backends.deepeval_backend import _measure as de_measure
 from proofrag.backends.deepeval_backend import _rationale as de_rationale
 from proofrag.backends.ragas_backend import _aggregate as ragas_aggregate
+from proofrag.backends.ragas_backend import _score as ragas_score
 from proofrag.backends.ragas_backend import evaluate_ragas
 from proofrag.compare import compare
 from proofrag.corpus import _split
@@ -208,6 +209,20 @@ class _FailingDeepEvalMetric:
         raise RuntimeError("metric unavailable")
 
 
+class _NonFiniteDeepEvalMetric:
+    score = float("nan")
+
+    def measure(self, tc):
+        return None
+
+
+class _OutOfRangeDeepEvalMetric:
+    score = 1.1
+
+    def measure(self, tc):
+        return None
+
+
 def test_deepeval_measure_keeps_score_and_reason():
     score, reason = de_measure(_FakeDeepEvalMetric(), object())
 
@@ -217,6 +232,14 @@ def test_deepeval_measure_keeps_score_and_reason():
 
 def test_deepeval_measure_handles_metric_failures():
     assert de_measure(_FailingDeepEvalMetric(), object()) == (None, "")
+    assert de_measure(_NonFiniteDeepEvalMetric(), object()) == (None, "")
+    assert de_measure(_OutOfRangeDeepEvalMetric(), object()) == (None, "")
+
+
+def test_ragas_score_rejects_non_finite_values():
+    assert ragas_score(float("nan")) is None
+    assert ragas_score(float("inf")) is None
+    assert ragas_score(float("-inf")) is None
 
 
 def test_deepeval_rationale_summarizes_reasons_and_missing_metrics():

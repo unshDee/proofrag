@@ -24,6 +24,8 @@ uv tool install "proofrag[anthropic]"     # or: pipx install "proofrag[anthropic
 Use `[openai]` instead of `[anthropic]` for an OpenAI-compatible/local backend.
 Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY`
 (`OPENAI_BASE_URL` for local/Ollama). No key? `proofrag demo` renders a sample scorecard.
+If both keys exist, auto-detection chooses Anthropic; use `PROOFRAG_PROVIDER=openai`
+to override. Proofrag does not auto-load `.env`, so source it first.
 
 ## The loop
 1. **Inspect and generate from the user's corpus.**
@@ -49,6 +51,10 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
    gold contexts, unanswerable cases that still cite context, source coverage, and a
    stable fingerprint. It exits non-zero on hard errors; add `--strict` to fail on
    warnings too.
+
+   Manually search the full corpus for every `unanswerable` candidate, and verify
+   both distinct sources are necessary for every `multi_doc` case. Schema validation
+   cannot prove either semantic property.
 
 3. **Run the user's RAG over every question to produce predictions.**
    Prefer `proofrag run` when the app exposes a local HTTP endpoint or Python callable:
@@ -78,7 +84,9 @@ Credentials: `ANTHROPIC_API_KEY` (default, cheap Haiku judge) or `OPENAI_API_KEY
    ```
    Scores groundedness, correctness, completeness, citation_quality (LLM-as-judge,
    pinned + fingerprinted) and rank-aware retrieval metrics — Recall@k, Precision@k,
-   NDCG@k, MRR (`--k` sets the cutoff; lexical by default, `--semantic` for embeddings).
+   NDCG@k, MRR (`--k` sets the cutoff; Jaccard by default, `--exact` for original
+   chunks, or `--semantic` for embeddings). Evaluation fails if prediction IDs do not
+   exactly cover the golden set or any judge call fails.
    To score generation with DeepEval instead, add `--backend deepeval` (needs the
    `proofrag[deepeval]` extra; metrics become faithfulness / answer_relevancy / correctness).
    To score with Ragas instead, add `--backend ragas` (needs the `proofrag[ragas]`
@@ -111,6 +119,7 @@ To wire this into GitHub Actions, use the bundled composite action
 commit a baseline results.json from a good run, then diff every PR against it. The
 action writes a GitHub Actions job summary and uploads the scorecard/results artifact
 by default, including when a gate fails.
+Diff rejects mismatched datasets, backends, cutoffs, matchers, and metric schemas.
 
 ## A/B comparison (blind)
 To compare two variants (vector vs GraphRAG, two prompts, two models), run each over
@@ -131,6 +140,8 @@ counts + per-variant retrieval metrics + an HTML report. Render later with
 - LLM-as-judge has variance — treat single-point differences cautiously; the
   retrieval metrics are deterministic and separate retriever from generator faults.
 - A low score on `unanswerable` cases means the system hallucinates instead of refusing.
+- `citation_quality` means attribution to retrieved context, not literal citation syntax
+  or URL verification.
 
 ## Reference
 - Engine + source: https://github.com/unshDee/proofrag (`src/proofrag/`).

@@ -35,7 +35,27 @@ def _jaccard(a: str, b: str) -> float:
 
 def lexical_matcher(threshold: float = 0.4) -> Matcher:
     """Default matcher: relevant if token-overlap (Jaccard) >= threshold."""
-    return lambda gold, chunk: _jaccard(gold, chunk) >= threshold
+
+    def match(gold: str, chunk: str) -> bool:
+        return _jaccard(gold, chunk) >= threshold
+
+    match.__name__ = f"lexical_jaccard_{threshold:g}"
+    return match
+
+
+def exact_matcher() -> Matcher:
+    """Match only identical chunks, ignoring surrounding whitespace."""
+
+    def match(gold: str, chunk: str) -> bool:
+        return gold.strip() == chunk.strip()
+
+    match.__name__ = "exact"
+    return match
+
+
+def matcher_fingerprint(matcher: Matcher) -> str:
+    """Return a compact matcher identifier for reproducible result metadata."""
+    return getattr(matcher, "__name__", matcher.__class__.__name__)
 
 
 def _relevance(gold_contexts: list[str], chunk: str, matcher: Matcher) -> bool:
@@ -62,9 +82,32 @@ def precision_at_k(gold_contexts, retrieved, k, matcher) -> float:
 
 def ndcg_at_k(gold_contexts, retrieved, k, matcher) -> float:
     """Normalized DCG@k with binary relevance — rewards relevant chunks ranked high."""
-    rels = [1.0 if _relevance(gold_contexts, c, matcher) else 0.0 for c in retrieved[:k]]
+    # Track the maximum one-to-one matching after each retrieved chunk. A plain
+    # greedy assignment can waste an ambiguous chunk on evidence that a later,
+    # more specific chunk is uniquely able to match.
+    chunk_matches: list[list[int]] = []
+    gold_to_chunk: dict[int, int] = {}
+
+    def augment(chunk_index: int, seen_gold: set[int]) -> bool:
+        for gold_index in chunk_matches[chunk_index]:
+            if gold_index in seen_gold:
+                continue
+            seen_gold.add(gold_index)
+            previous = gold_to_chunk.get(gold_index)
+            if previous is None or augment(previous, seen_gold):
+                gold_to_chunk[gold_index] = chunk_index
+                return True
+        return False
+
+    rels: list[float] = []
+    for chunk_index, chunk in enumerate(retrieved[:k]):
+        chunk_matches.append(
+            [i for i, gold_context in enumerate(gold_contexts) if matcher(gold_context, chunk)]
+        )
+        rels.append(1.0 if augment(chunk_index, set()) else 0.0)
     dcg = sum(r / math.log2(i + 2) for i, r in enumerate(rels))
-    idcg = sum(r / math.log2(i + 2) for i, r in enumerate(sorted(rels, reverse=True)))
+    ideal_hits = min(len(gold_contexts), k)
+    idcg = sum(1.0 / math.log2(i + 2) for i in range(ideal_hits))
     return dcg / idcg if idcg > 0 else 0.0
 
 

@@ -153,3 +153,48 @@ def test_format_report_includes_counts_and_issues(tmp_path):
     assert "goldenset validation: PASS" in out
     assert "single_doc=1" in out
     assert "answerable_missing_sources" in out
+
+
+def test_validate_rejects_empty_and_non_string_lists(tmp_path):
+    empty = tmp_path / "empty.jsonl"
+    empty.write_text("", encoding="utf-8")
+    assert {issue["code"] for issue in validate_goldenset(str(empty))["errors"]} == {
+        "empty_goldenset"
+    }
+
+    invalid = tmp_path / "invalid.jsonl"
+    _write_jsonl(
+        invalid,
+        [
+            {
+                "id": "q001",
+                "question": "Question?",
+                "gold_answer": "Answer.",
+                "gold_contexts": [123],
+                "difficulty": "single_doc",
+                "sources": [456],
+            }
+        ],
+    )
+    codes = {issue["code"] for issue in validate_goldenset(str(invalid))["errors"]}
+    assert {"invalid_gold_contexts", "invalid_sources"} <= codes
+
+
+def test_validate_warns_when_multi_doc_uses_one_source(tmp_path):
+    goldenset = tmp_path / "single-source.jsonl"
+    _write_jsonl(
+        goldenset,
+        [
+            {
+                "id": "q001",
+                "question": "Question?",
+                "gold_answer": "Answer.",
+                "gold_contexts": ["First.", "Second."],
+                "difficulty": "multi_doc",
+                "sources": ["same.md", "same.md"],
+            }
+        ],
+    )
+
+    codes = {issue["code"] for issue in validate_goldenset(str(goldenset))["warnings"]}
+    assert "multi_doc_single_source" in codes

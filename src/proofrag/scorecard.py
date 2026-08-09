@@ -43,7 +43,7 @@ def _gen_short(name: str) -> str:
 
 def _gen_metrics(results: dict) -> list[str]:
     """Generation metric names for this run — backend-dependent, with a fallback."""
-    return results.get("generation_metrics") or JUDGE_DIMENSIONS
+    return [str(name) for name in (results.get("generation_metrics") or JUDGE_DIMENSIONS)]
 
 
 def _ret_labels(k: int) -> dict:
@@ -116,9 +116,9 @@ def render(results: dict) -> str:
         cells = "".join(_num_cell(s.get(d)) for d in gen)
         ndcg = r["retrieval"]["ndcg_at_k"] if r.get("retrieval") else None
         rows.append(
-            f"<tr><td class='q'>{html.escape(r['question'])}"
-            f"<div class='why'>{html.escape(r.get('rationale', ''))}</div></td>"
-            f"<td><span class='tag'>{html.escape(r.get('difficulty', ''))}</span></td>"
+            f"<tr><td class='q'>{html.escape(str(r['question']))}"
+            f"<div class='why'>{html.escape(str(r.get('rationale', '')))}</div></td>"
+            f"<td><span class='tag'>{html.escape(str(r.get('difficulty', '')))}</span></td>"
             f"{cells}{_num_cell(ndcg)}</tr>"
         )
     failing = "".join(rows) or f"<tr><td colspan='{len(gen) + 2}'>No records.</td></tr>"
@@ -127,10 +127,10 @@ def render(results: dict) -> str:
         overall=overall,
         overall_grade=_grade(overall / 100) if records else "bad",
         n=results.get("n", 0),
-        judge=html.escape(results.get("judge_fingerprint", "unknown")),
-        created=html.escape(results.get("created", "")),
-        backend=html.escape(results.get("backend", "proofrag")),
-        gen_names=", ".join(_gen_label(d).lower() for d in gen),
+        judge=html.escape(str(results.get("judge_fingerprint", "unknown"))),
+        created=html.escape(str(results.get("created", ""))),
+        backend=html.escape(str(results.get("backend", "proofrag"))),
+        gen_names=html.escape(", ".join(_gen_label(d).lower() for d in gen)),
         ndcg_head=html.escape(ret_labels["ndcg_at_k"]),
         cards=cards,
         gen_bars=gen_bars,
@@ -151,8 +151,8 @@ def _pct(v) -> str:
 
 def render_comparison(result: dict) -> str:
     """Render a blind A/B comparison (from compare.py) to self-contained HTML."""
-    a = html.escape(result.get("a_name", "A"))
-    b = html.escape(result.get("b_name", "B"))
+    a = html.escape(str(result.get("a_name", "A")))
+    b = html.escape(str(result.get("b_name", "B")))
     wins = result.get("wins", {"a": 0, "b": 0, "tie": 0})
     n = max(result.get("n", 0), 1)
     aw, bw, tw = wins.get("a", 0), wins.get("b", 0), wins.get("tie", 0)
@@ -175,11 +175,11 @@ def render_comparison(result: dict) -> str:
     }
     rows = (
         "".join(
-            f"<tr><td class='q'>{html.escape(r['question'])}"
-            f"<div class='why'>{html.escape(r.get('reason', ''))}</div></td>"
+            f"<tr><td class='q'>{html.escape(str(r['question']))}"
+            f"<div class='why'>{html.escape(str(r.get('reason', '')))}</div></td>"
             f"<td>{badge.get(r['winner'], '')}</td>"
-            f"<td class='ans'>{html.escape(r.get('a_answer', '')[:240])}</td>"
-            f"<td class='ans'>{html.escape(r.get('b_answer', '')[:240])}</td></tr>"
+            f"<td class='ans'>{html.escape(str(r.get('a_answer', ''))[:240])}</td>"
+            f"<td class='ans'>{html.escape(str(r.get('b_answer', ''))[:240])}</td></tr>"
             for r in result.get("records", [])
         )
         or "<tr><td colspan='4'>No records.</td></tr>"
@@ -196,8 +196,8 @@ def render_comparison(result: dict) -> str:
         a_pct=a_pct,
         b_pct=b_pct,
         t_pct=t_pct,
-        judge=html.escape(result.get("judge_fingerprint", "unknown")),
-        created=html.escape(result.get("created", "")),
+        judge=html.escape(str(result.get("judge_fingerprint", "unknown"))),
+        created=html.escape(str(result.get("created", ""))),
         ret_rows=ret_rows,
         rows=rows,
     )

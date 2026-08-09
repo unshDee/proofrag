@@ -53,6 +53,10 @@ def load_corpus(
     p = Path(path)
     if not p.exists():
         raise FileNotFoundError(f"Corpus path not found: {path}")
+    if max_chars <= 0:
+        raise ValueError("max_chars must be greater than zero")
+    if p.is_symlink():
+        raise ValueError(f"Corpus path must not be a symlink: {path}")
     root = p.parent if p.is_file() else p
     ignore_patterns = _ignore_patterns(root) if respect_gitignore and root.is_dir() else []
     files = [p] if p.is_file() else _walk_files(root, include, exclude, ignore_patterns)
@@ -61,11 +65,12 @@ def load_corpus(
         text = read_document(f)
         if not text:
             continue
+        chunk_source = f.name if p.is_file() else f.relative_to(root).as_posix()
         for i, body in enumerate(_split(text, max_chars)):
             chunks.append(
                 {
                     "source": str(f),
-                    "chunk_id": f"{f.name}::{i}",
+                    "chunk_id": f"{chunk_source}::{i}",
                     "text": body,
                     "chunk_index": i,
                     "char_count": len(body),
@@ -111,7 +116,12 @@ def read_document(path: Path) -> str:
 
 def _split(text: str, max_chars: int) -> list[str]:
     """Greedy paragraph packing so chunks stay under max_chars where possible."""
-    paras = [p.strip() for p in text.split("\n\n") if p.strip()]
+    if max_chars <= 0:
+        raise ValueError("max_chars must be greater than zero")
+    paras: list[str] = []
+    for raw in text.split("\n\n"):
+        para = raw.strip()
+        paras.extend(para[start : start + max_chars] for start in range(0, len(para), max_chars))
     out: list[str] = []
     buf = ""
     for para in paras:
@@ -134,10 +144,10 @@ def _walk_files(
     exclude = exclude or []
     files: list[Path] = []
     for f in sorted(root.rglob("*")):
-        if not f.is_file():
+        if f.is_symlink() or not f.is_file():
             continue
         rel = f.relative_to(root).as_posix()
-        if _ignored(f, rel, include, exclude, ignore_patterns):
+        if _ignored(rel, include, exclude, ignore_patterns):
             continue
         if f.suffix.lower() in TEXT_EXT:
             files.append(f)
@@ -145,23 +155,31 @@ def _walk_files(
 
 
 def _ignored(
-    path: Path,
     rel: str,
     include: list[str],
     exclude: list[str],
     ignore_patterns: list[str],
 ) -> bool:
-    if any(part in DEFAULT_IGNORE_DIRS for part in path.parts):
+    if any(part in DEFAULT_IGNORE_DIRS for part in Path(rel).parts):
         return True
     if include and not _matches_any(rel, include):
         return True
-    if _matches_any(rel, [*ignore_patterns, *exclude]):
+    if _gitignored(rel, ignore_patterns) or _matches_any(rel, exclude):
         return True
     return False
 
 
 def _matches_any(rel: str, patterns: list[str]) -> bool:
     return any(_matches(rel, p) for p in patterns)
+
+
+def _gitignored(rel: str, patterns: list[str]) -> bool:
+    ignored = False
+    for pattern in patterns:
+        negated = pattern.startswith("!")
+        if _matches(rel, pattern[1:] if negated else pattern):
+            ignored = not negated
+    return ignored
 
 
 def _matches(rel: str, pattern: str) -> bool:
@@ -184,7 +202,7 @@ def _ignore_patterns(root: Path) -> list[str]:
         return [
             line.strip()
             for line in gitignore.read_text(encoding="utf-8", errors="ignore").splitlines()
-            if line.strip() and not line.lstrip().startswith("#") and not line.startswith("!")
+            if line.strip() and not line.lstrip().startswith("#")
         ]
     except OSError:
         return []

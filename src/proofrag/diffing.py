@@ -12,10 +12,12 @@ overridden.
 
 from __future__ import annotations
 
+import math
+
 from .judge import JUDGE_DIMENSIONS
 from .metrics import RETRIEVAL_METRICS
 
-ALL_METRICS = JUDGE_DIMENSIONS + RETRIEVAL_METRICS
+_CONFIG_FIELDS = ["backend", "k", "n", "goldenset_fingerprint", "matcher", "generation_metrics"]
 
 
 def diff(baseline: dict, candidate: dict, tolerance: float = 0.02) -> dict:
@@ -24,14 +26,29 @@ def diff(baseline: dict, candidate: dict, tolerance: float = 0.02) -> dict:
     c = candidate.get("aggregate", {})
     rows = []
     regressed = []
-    for m in ALL_METRICS:
+    declared = [
+        *(baseline.get("generation_metrics") or JUDGE_DIMENSIONS),
+        *(candidate.get("generation_metrics") or JUDGE_DIMENSIONS),
+        *RETRIEVAL_METRICS,
+        *b,
+        *c,
+    ]
+    for m in dict.fromkeys(declared):
         if m not in b and m not in c:
             continue
-        bv, cv = b.get(m), c.get(m)
+        bv, cv = _number(b.get(m)), _number(c.get(m))
         delta = None if bv is None or cv is None else round(cv - bv, 3)
-        is_reg = delta is not None and delta < -tolerance
+        missing = m in b and (m not in c or cv is None)
+        is_reg = missing or (delta is not None and delta < -tolerance)
         rows.append(
-            {"metric": m, "baseline": bv, "candidate": cv, "delta": delta, "regressed": is_reg}
+            {
+                "metric": m,
+                "baseline": bv,
+                "candidate": cv,
+                "delta": delta,
+                "missing": missing,
+                "regressed": is_reg,
+            }
         )
         if is_reg:
             regressed.append(m)
@@ -42,7 +59,24 @@ def diff(baseline: dict, candidate: dict, tolerance: float = 0.02) -> dict:
         "judge_mismatch": baseline.get("judge_fingerprint") != candidate.get("judge_fingerprint"),
         "baseline_judge": baseline.get("judge_fingerprint"),
         "candidate_judge": candidate.get("judge_fingerprint"),
+        "configuration_mismatches": [
+            {
+                "field": field,
+                "baseline": baseline.get(field),
+                "candidate": candidate.get(field),
+            }
+            for field in _CONFIG_FIELDS
+            if (field in baseline or field in candidate)
+            and baseline.get(field) != candidate.get(field)
+        ],
     }
+
+
+def _number(value) -> float | None:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    number = float(value)
+    return number if math.isfinite(number) else None
 
 
 def format_table(result: dict) -> str:

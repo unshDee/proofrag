@@ -6,6 +6,8 @@ of the scorecard there makes proofrag visible directly on the workflow page.
 
 from __future__ import annotations
 
+import html
+
 from .judge import JUDGE_DIMENSIONS
 from .metrics import RETRIEVAL_METRICS
 
@@ -45,9 +47,9 @@ def render_scorecard_markdown(results: dict) -> str:
         f"**Overall generation score:** {_pct(overall)}",
         "",
         f"- Cases: `{results.get('n', len(records))}`",
-        f"- Backend: `{results.get('backend', 'proofrag')}`",
-        f"- Judge: `{results.get('judge_fingerprint', 'unknown')}`",
-        f"- Created: `{results.get('created', '')}`",
+        f"- Backend: `{_inline(results.get('backend', 'proofrag'))}`",
+        f"- Judge: `{_inline(results.get('judge_fingerprint', 'unknown'))}`",
+        f"- Created: `{_inline(results.get('created', ''))}`",
         "",
         "### Metrics",
         "",
@@ -55,7 +57,7 @@ def render_scorecard_markdown(results: dict) -> str:
         "| --- | ---: |",
     ]
     for metric in [*gen, *RETRIEVAL_METRICS]:
-        lines.append(f"| {_label(metric, k)} | {_pct(agg.get(metric))} |")
+        lines.append(f"| {_cell(_label(metric, k))} | {_pct(agg.get(metric))} |")
 
     lines.extend(["", "### Weakest cases", "", "| Question | Difficulty | Gen | NDCG | Note |"])
     lines.append("| --- | --- | ---: | ---: | --- |")
@@ -80,13 +82,13 @@ def render_scorecard_markdown(results: dict) -> str:
 
 def render_comparison_markdown(results: dict) -> str:
     wins = results.get("wins", {})
-    a = str(results.get("a_name", "A"))
-    b = str(results.get("b_name", "B"))
+    a = _inline(results.get("a_name", "A"))
+    b = _inline(results.get("b_name", "B"))
     lines = [
         "## proofrag A/B comparison",
         "",
         f"- Cases: `{results.get('n', 0)}`",
-        f"- Judge: `{results.get('judge_fingerprint', 'unknown')}`",
+        f"- Judge: `{_inline(results.get('judge_fingerprint', 'unknown'))}`",
         f"- {a}: `{wins.get('a', 0)}` wins",
         f"- {b}: `{wins.get('b', 0)}` wins",
         f"- Tie: `{wins.get('tie', 0)}`",
@@ -133,4 +135,8 @@ def _cell(value: object, limit: int = 120) -> str:
     text = " ".join(str(value or "").split())
     if len(text) > limit:
         text = text[: limit - 3].rstrip() + "..."
-    return text.replace("|", "\\|")
+    return html.escape(text, quote=False).replace("|", "\\|")
+
+
+def _inline(value: object) -> str:
+    return html.escape(str(value or ""), quote=False).replace("`", "\\`")
