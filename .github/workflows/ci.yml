@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -22,6 +22,7 @@ jobs:
       - name: Install
         run: uv sync --all-extras
       - name: Lint
+        if: matrix.python-version == '3.14'
         run: uv run python devtools/lint.py
       - name: Test
         run: uv run pytest

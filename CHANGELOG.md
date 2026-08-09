@@ -6,6 +6,41 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-08-10
+
+### Added
+- Audited, reproducible Python-concurrency case study comparing unique-token overlap
+  with SQLite FTS5/BM25 on 30 reviewed questions from hash-checked official sources,
+  including raw artifacts, blind A/B results, failure analysis, and a CI fault injection.
+- Exact-chunk retrieval matching via `evaluate --exact`, `compare --exact`, and the
+  composite Action, alongside the existing Jaccard and semantic matchers.
+- Evaluation metadata now records the golden-set fingerprint, matcher, cutoff, and
+  versioned judge prompt so regression comparisons can verify their preconditions.
+
+### Fixed
+- Evaluation, A/B comparison, and optional scoring backends now reject missing,
+  duplicate, or unexpected prediction IDs instead of silently scoring partial runs.
+- Provider and judge failures are reported as failed runs instead of valid-looking zero
+  scores or ties; golden-set generation likewise fails rather than writing partial data.
+- NDCG@k now normalizes against the known ideal gold contexts and gives each gold context
+  at most one relevance credit, so missing or duplicate evidence cannot score 1.0.
+- `diff` gates backend-specific metrics, treats missing candidate metrics as regressions,
+  and rejects incompatible dataset/backend/k/matcher/metric configurations.
+- Corpus loading skips symlinks, produces unique relative-path chunk IDs, enforces chunk
+  limits for long paragraphs, and no longer ignores a corpus because an ancestor folder
+  happens to be named `build`.
+- HTTP prediction adapters block cross-origin redirects, all remote plaintext
+  requests, and oversized responses; generated HTML/Markdown escapes artifact data.
+- LLM JSON parsing handles braces inside strings and rejects non-finite constants;
+  Anthropic uses temperature zero and OpenAI defaults to a pinned low-cost snapshot.
+- Validation rejects empty sets and non-string context/source lists and warns when a
+  multi-document case cites fewer than two distinct sources.
+
+### Changed
+- CI and local linting are non-mutating, include case-study scripts, and cover Python
+  3.14. Repository-only case-study artifacts are excluded from source distributions.
+- Removed tracked DeepEval telemetry state and added the PEP 561 `py.typed` marker.
+
 ## [0.7.0] - 2026-06-14
 
 ### Added
@@ -120,7 +155,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Self-contained, shareable HTML scorecard, plus a keyless `demo` command.
 - `--fail-under` CI gate; provider-agnostic backend (Anthropic / OpenAI / local).
 
-[Unreleased]: https://github.com/unshDee/proofrag/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/unshDee/proofrag/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/unshDee/proofrag/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/unshDee/proofrag/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/unshDee/proofrag/compare/v0.5.2...v0.6.0
 [0.5.2]: https://github.com/unshDee/proofrag/compare/v0.5.1...v0.5.2
