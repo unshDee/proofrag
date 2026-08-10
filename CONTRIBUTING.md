@@ -62,5 +62,5 @@ Maintainer cuts a [SemVer](https://semver.org/) tag and a GitHub Release from `m
 that triggers the PyPI publish workflow. Versions are derived from git tags.
 
 Release checklist: finalize the changelog, sync all three plugin manifest version
-fields, tag `vX.Y.Z`, publish the GitHub Release, verify PyPI, then move the floating
-`v0` tag to the same commit and verify the composite Action.
+fields, tag `vX.Y.Z`, publish the GitHub Release, verify PyPI, then verify the composite
+Action using that immutable release tag.

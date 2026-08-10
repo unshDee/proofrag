@@ -69,7 +69,7 @@ source = "uv-dynamic-versioning"
 vcs = "git"
 style = "pep440"
 bump = true
-# Only full vX.Y.Z release tags set the version; the moving `v0` Action tag is ignored.
+# Only full vX.Y.Z release tags set the version; partial tags are ignored.
 pattern = '(?x)^v(?P<base>\d+\.\d+\.\d+)$'
 
 [tool.hatch.build.targets.wheel]

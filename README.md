@@ -192,7 +192,7 @@ writes the scorecard, adds a GitHub Actions job summary, uploads the scorecard a
 results as an artifact, and gates on both the floor and the baseline:
 
 ```yaml
-- uses: unshDee/proofrag@v0
+- uses: unshDee/proofrag@v0.7.0
   env:
     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
   with:

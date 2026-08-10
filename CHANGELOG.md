@@ -125,7 +125,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - `proofrag diff` — compare a run against a committed baseline results.json and
   fail on regression (per-metric delta table, `--tolerance`, refuses to compare
   across different judge models unless `--allow-judge-mismatch`).
-- Reusable composite GitHub Action (`action.yml`): `uses: unshDee/proofrag@v0`
+- Reusable composite GitHub Action (`action.yml`): `uses: unshDee/proofrag@v0.3.0`
   installs the CLI, evaluates, writes the scorecard, and gates on the absolute
   floor and/or the baseline. Example workflow in `examples/ci/`.
 
