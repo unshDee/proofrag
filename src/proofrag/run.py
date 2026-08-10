@@ -12,6 +12,7 @@ import importlib
 import inspect
 import json
 import urllib.error
+import urllib.parse
 import urllib.request
 from collections.abc import Callable
 from typing import Any, Literal
@@ -20,10 +21,20 @@ from .goldenset import write_jsonl
 
 CallStyle = Literal["question", "record"]
 Runner = Callable[[dict[str, Any]], Any]
+_MAX_RESPONSE_BYTES = 1024 * 1024
 
 
 class RunError(RuntimeError):
     """Raised when a prediction adapter cannot produce a usable prediction."""
+
+
+class _SameOriginRedirects(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        old = urllib.parse.urlsplit(req.full_url)
+        new = urllib.parse.urlsplit(newurl)
+        if (old.scheme, old.hostname, old.port) != (new.scheme, new.hostname, new.port):
+            raise urllib.error.HTTPError(newurl, code, "cross-origin redirect blocked", headers, fp)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
 def load_callable(spec: str) -> Callable[..., Any]:
@@ -70,6 +81,16 @@ def endpoint_runner(
 ) -> Runner:
     """Build a runner that POSTs `{id, question}` JSON to an HTTP endpoint."""
     extra_headers = headers or {}
+    parsed = urllib.parse.urlsplit(endpoint)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        raise RunError("endpoint must be an http:// or https:// URL")
+    if parsed.username or parsed.password:
+        raise RunError("endpoint credentials must be passed as headers, not embedded in the URL")
+    if parsed.scheme != "https" and parsed.hostname not in {"127.0.0.1", "::1", "localhost"}:
+        raise RunError(
+            "remote endpoints must use HTTPS; plaintext HTTP is allowed only on loopback"
+        )
+    opener = urllib.request.build_opener(_SameOriginRedirects())
 
     def run(record: dict[str, Any]) -> Any:
         payload = {"id": record.get("id"), "question": record.get("question", "")}
@@ -80,10 +101,13 @@ def endpoint_runner(
             method="POST",
         )
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as resp:
-                body = resp.read().decode("utf-8")
+            with opener.open(req, timeout=timeout) as resp:
+                raw = resp.read(_MAX_RESPONSE_BYTES + 1)
+                if len(raw) > _MAX_RESPONSE_BYTES:
+                    raise RunError("endpoint response exceeds 1 MiB")
+                body = raw.decode("utf-8")
         except urllib.error.HTTPError as e:
-            detail = e.read().decode("utf-8", errors="replace")[:300]
+            detail = e.read(301).decode("utf-8", errors="replace")[:300]
             raise RunError(f"endpoint returned HTTP {e.code}: {detail}") from e
         except urllib.error.URLError as e:
             raise RunError(f"endpoint request failed: {e.reason}") from e
@@ -114,6 +138,40 @@ def run_predictions(goldenset: list[dict[str, Any]], runner: Runner) -> list[dic
         raw = runner(record)
         predictions.append(normalize_prediction(record, raw))
     return predictions
+
+
+def join_predictions(
+    goldenset: list[dict[str, Any]], predictions: list[dict[str, Any]]
+) -> list[tuple[dict[str, Any], dict[str, Any]]]:
+    """Join by id, rejecting incomplete or ambiguous evaluation inputs."""
+    if not goldenset:
+        raise ValueError("golden set must not be empty")
+    gold = _index_records(goldenset, "golden set")
+    preds = _index_records(predictions, "predictions")
+    missing = sorted(gold.keys() - preds.keys())
+    unexpected = sorted(preds.keys() - gold.keys())
+    if missing or unexpected:
+        parts = []
+        if missing:
+            parts.append(f"missing prediction ids: {', '.join(missing[:10])}")
+        if unexpected:
+            parts.append(f"unexpected prediction ids: {', '.join(unexpected[:10])}")
+        raise ValueError("prediction ids must exactly match the golden set; " + "; ".join(parts))
+    return [(record, preds[record_id]) for record_id, record in gold.items()]
+
+
+def _index_records(records: list[dict[str, Any]], label: str) -> dict[str, dict[str, Any]]:
+    indexed: dict[str, dict[str, Any]] = {}
+    for line, record in enumerate(records, 1):
+        if not isinstance(record, dict):
+            raise ValueError(f"{label} record {line} must be a JSON object")
+        record_id = record.get("id")
+        if not isinstance(record_id, str) or not record_id.strip():
+            raise ValueError(f"{label} record {line} needs a non-empty string id")
+        if record_id in indexed:
+            raise ValueError(f"duplicate id {record_id!r} in {label}")
+        indexed[record_id] = record
+    return indexed
 
 
 def write_predictions(predictions: list[dict[str, Any]], path: str) -> None:

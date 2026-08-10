@@ -1,0 +1,580 @@
+{
+  "judge_fingerprint": "anthropic:claude-haiku-4-5-20251001",
+  "backend": "proofrag",
+  "generation_metrics": [
+    "groundedness",
+    "correctness",
+    "completeness",
+    "citation_quality"
+  ],
+  "created": "2026-08-09T21:08:00+00:00",
+  "k": 5,
+  "n": 30,
+  "aggregate": {
+    "groundedness": 0.913,
+    "correctness": 0.892,
+    "completeness": 0.793,
+    "citation_quality": 0.882,
+    "recall_at_k": 0.87,
+    "precision_at_k": 0.259,
+    "ndcg_at_k": 0.876,
+    "mrr": 0.852
+  },
+  "records": [
+    {
+      "id": "q000",
+      "question": "What built-in data types can be stored in a ShareableList?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation [multiprocessing.shared_memory.rst], the built-in data types that can be stored in a ShareableList are:\n\n* `int` (signed 64-bit)\n* `float`\n* `bool`\n* `str` (less than 10M bytes each when encoded as UTF-8)\n* `bytes` (less than 10M bytes each)\n* `None`",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 0.8
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer is entirely supported by the retrieved context and matches the reference answer perfectly; citation mentions a filename but the source is clearly present in the context."
+    },
+    {
+      "id": "q001",
+      "question": "Can a ShareableList element change data type, and what happens if a replacement string exceeds its allocated storage?",
+      "difficulty": "single_doc",
+      "answer": "Yes, a ShareableList element can change data type. According to the documentation, \"Changing data types is supported as well\" [multiprocessing.shared_memory.rst].\n\nHowever, if a replacement string exceeds its allocated storage space, a `ValueError` is raised with the message \"exceeds available storage for existing str\", and the original value remains unchanged [multiprocessing.shared_memory.rst].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 0.631,
+        "mrr": 0.5
+      },
+      "rationale": "The system answer is fully supported by the retrieved context, accurately matches the reference answer with specific examples and error messages, and properly cites the documentation."
+    },
+    {
+      "id": "q002",
+      "question": "What does the asyncio open_connection function return?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation, the `asyncio.open_connection()` function returns a pair of `(reader, writer)` objects, which are instances of :class:`StreamReader` and :class:`StreamWriter` classes. [asyncio-stream.rst]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 0.5,
+        "mrr": 0.333
+      },
+      "rationale": "Answer directly matches reference answer and is fully supported by retrieved context with appropriate citation."
+    },
+    {
+      "id": "q003",
+      "question": "Why does wait_on_future() deadlock in a ThreadPoolExecutor with max_workers=1?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation, `wait_on_future()` deadlocks because:\n\n1. The single worker thread is executing `wait_on_future()`\n2. Inside that function, it tries to submit another task to the same executor and call `result()` on it\n3. Since there is only one worker thread and it's already occupied executing `wait_on_future()`, the newly submitted task cannot execute\n4. The thread is left waiting for a result that will never complete because no worker is available to run the task\n\nAs stated in the documentation: \"This will never complete because there is only one worker thread and it is executing this function.\" [concurrent.futures.rst]",
+      "scores": {
+        "groundedness": 0.95,
+        "correctness": 0.95,
+        "completeness": 0.9,
+        "citation_quality": 0.9
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "Answer accurately explains the deadlock mechanism with strong support from retrieved context, though slightly less explicit about the task queuing aspect compared to the reference answer."
+    },
+    {
+      "id": "q004",
+      "question": "How does an InterpreterPoolExecutor worker report an uncaught exception raised by its current task?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided discuss exception handling in `ProcessPoolExecutor`, `threading`, and `asyncio` task groups, but they do not contain information about `InterpreterPoolExecutor` or how its workers report uncaught exceptions.",
+      "scores": {
+        "groundedness": 0.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 0.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The system claims insufficient information despite the retrieved context containing a full, accurate answer about InterpreterPoolExecutor exception handling in the first paragraph."
+    },
+    {
+      "id": "q005",
+      "question": "What does queue.Queue.put(item, block=False) raise when no slot is immediately available?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation, `queue.Queue.put(item, block=False)` raises the :exc:`Full` exception when no free slot is immediately available. [queue.rst]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.6,
+        "ndcg_at_k": 0.967,
+        "mrr": 1.0
+      },
+      "rationale": "The answer correctly identifies that queue.Queue.put(item, block=False) raises the Full exception when no slot is immediately available, which is directly supported by the retrieved context stating 'else raise the :exc:`Full` exception' for the block=False case."
+    },
+    {
+      "id": "q006",
+      "question": "What happens when you call shutdown() on a SharedMemoryManager instance?",
+      "difficulty": "single_doc",
+      "answer": "When you call `shutdown()` on a `SharedMemoryManager` instance, it triggers a `unlink()` call on all of the `SharedMemory` objects managed by that process and then stops the process itself. This releases all shared memory blocks that were created through that manager. [multiprocessing.shared_memory.rst]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The system's answer is directly supported by the retrieved context, accurately matches the reference answer, covers all key points (unlink() calls, process termination, shared memory release), and properly attributes information to the source document."
+    },
+    {
+      "id": "q007",
+      "question": "When is a Python thread name reflected at OS level, and what truncation limits do the docs give for Linux and macOS?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation [threading.rst]:\n\n**When reflected at OS level:** A thread name is set at the operating system level when the thread starts. However, changes to a thread's name are only reflected at the OS level when the **currently running thread is renamed**. Setting the name attribute of a different thread only updates the Python Thread object, not the OS level.\n\n**Truncation limits:**\n- **Linux:** 15 bytes\n- **macOS:** 63 bytes",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The system answer accurately extracts all key information from the retrieved context: OS-level reflection timing (when thread starts), truncation limits (15 bytes Linux, 63 bytes macOS), and the restriction that only the currently running thread's renames are reflected at OS level."
+    },
+    {
+      "id": "q008",
+      "question": "What does the kill_workers() method do to terminate worker processes?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation, the `kill_workers()` method attempts to kill all living worker processes immediately by calling `Process.kill()` on each of them. Internally, it also calls `Executor.shutdown()` to ensure that all other resources associated with the executor are freed. After calling this method, the caller should no longer submit tasks to the executor. [concurrent.futures.rst]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.4,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The system answer accurately matches the reference answer and is fully supported by the retrieved documentation, covering all key aspects: Process.kill() usage, Executor.shutdown() call, resource cleanup, and the warning against future task submission."
+    },
+    {
+      "id": "q009",
+      "question": "What happens to tasks in as_completed() if a timeout occurs before all awaitables complete?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation, if a timeout occurs in `as_completed()` before all awaitables are done, a `TimeoutError` is raised. However, **the tasks running the supplied awaitables are not cancelled** — they continue to run in the background. [asyncio-task.rst]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately states that TimeoutError is raised and tasks are not cancelled, directly matching the retrieved context which explicitly states both facts."
+    },
+    {
+      "id": "q010",
+      "question": "For an asyncio.Queue that has not been shut down, what exception does get_nowait() raise when the queue is empty?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation, `get_nowait()` raises :exc:`QueueEmpty` when the queue is empty [asyncio-queue.rst].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The system answer directly matches the gold answer and is fully supported by the retrieved context which explicitly states get_nowait() raises QueueEmpty when the queue is empty."
+    },
+    {
+      "id": "q011",
+      "question": "What exception is raised if the start() method is called more than once on the same thread object?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation, a `RuntimeError` is raised if the `start()` method is called more than once on the same thread object. [threading.rst]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The system's answer directly matches the reference answer and is fully supported by the retrieved context which explicitly states 'This method will raise a :exc:`RuntimeError` if called more than once on the same thread object.'"
+    },
+    {
+      "id": "q012",
+      "question": "What does the done() method return and under what conditions is a Task considered done?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation [asyncio-task.rst], the `done()` method returns `True` if the Task is *done*.\n\nA Task is considered *done* when:\n1. The wrapped coroutine returned a value\n2. The wrapped coroutine raised an exception\n3. The Task was cancelled",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer is completely supported by the retrieved documentation, matches the reference answer exactly, covers all three conditions for a Task being done, and properly attributes the information."
+    },
+    {
+      "id": "q013",
+      "question": "What is the default behavior of the limit argument in the get_stack method for Task objects?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation, the default behavior of the *limit* argument in the `get_stack()` method is that **all available frames are returned** when no limit is specified (i.e., when `limit=None`). [asyncio-task.rst]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer directly matches the reference answer and is fully supported by the retrieved context which explicitly states 'by default all available frames are returned' when limit is not specified."
+    },
+    {
+      "id": "q014",
+      "question": "What happens when a thread calls acquire() on a locked primitive lock?",
+      "difficulty": "single_doc",
+      "answer": "When a thread calls `acquire()` on a locked primitive lock, it blocks until another thread calls `release()` to unlock it. Once unlocked, the `acquire()` call resets the lock to locked and returns. [threading.rst]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The system answer directly matches the reference answer and is fully supported by the retrieved context, which explicitly states the blocking behavior and state transitions."
+    },
+    {
+      "id": "q015",
+      "question": "How do set(), clear(), and wait() affect an asyncio.Event's internal flag, and what is its initial state?",
+      "difficulty": "single_doc",
+      "answer": "Based on the documentation, here's how these methods affect an asyncio.Event's internal flag:\n\n**Initial state:** The flag is set to *false* initially. [asyncio-sync.rst]\n\n**set():** Sets the internal flag to *true*. All tasks waiting for the event to be set will be immediately awakened. [asyncio-sync.rst]\n\n**clear():** Resets (unsets) the internal flag to *false*. Subsequent tasks awaiting on wait() will now block until set() is called again. [asyncio-sync.rst]\n\n**wait():** Blocks until the event is set. If the event is already set, it returns *true* immediately; otherwise it blocks until another task calls set(). [asyncio-sync.rst]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.4,
+        "ndcg_at_k": 0.92,
+        "mrr": 1.0
+      },
+      "rationale": "The system's answer accurately describes all three methods and initial state with full support from the retrieved documentation, matching the reference answer completely."
+    },
+    {
+      "id": "q016",
+      "question": "What happens to the count of unfinished tasks when a consumer coroutine calls task_done?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation, when a consumer coroutine calls `task_done`, the count of unfinished tasks goes down. This indicates that the item was retrieved and all work on it is complete. When the count of unfinished tasks drops to zero, any pending `join` call will unblock. [asyncio-queue.rst]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.4,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer directly matches the reference answer, is fully supported by the retrieved context, and accurately states that task_done decrements the unfinished task count."
+    },
+    {
+      "id": "q017",
+      "question": "What do asyncio streams let async/await code do without callbacks or low-level protocols and transports?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation, asyncio streams allow sending and receiving data without using callbacks or low-level protocols and transports. [asyncio-stream.rst]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 0.7
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "Answer is factually correct and well-supported by context, but citation format '[asyncio-stream.rst]' is imprecise compared to proper documentation section references."
+    },
+    {
+      "id": "q018",
+      "question": "In the queue module example, what method must a consumer thread call to indicate that work on an item is complete?",
+      "difficulty": "single_doc",
+      "answer": "According to the documentation, a consumer thread must call the `task_done()` method to indicate that work on an item is complete. [queue.rst]\n\nThis is shown in the example where after processing an item retrieved with `q.get()`, the worker calls `q.task_done()` to tell the queue that processing on that task is complete.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.4,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer correctly identifies task_done() as the required method, is fully supported by the retrieved context including the code example, and properly cites the source documentation."
+    },
+    {
+      "id": "q019",
+      "question": "What workaround do the Python docs recommend when ShareableList strips trailing NUL bytes from bytes or str values?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts acknowledge that a known issue exists where `bytes` and `str` values in `ShareableList` may have trailing `\\x00` nul bytes silently stripped, and it notes this is considered a bug (referencing issue gh:`106939`), but they do not describe any recommended workaround for this issue. [multiprocessing.shared_memory.rst]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.5,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The system correctly states that the retrieved context does not contain the workaround information, avoiding hallucination, but the answer is incomplete because the reference answer specifies a workaround that should have been found in the documentation."
+    },
+    {
+      "id": "q020",
+      "question": "What happens to a semaphore's internal counter when the acquire method is called and the counter is zero?",
+      "difficulty": "single_doc",
+      "answer": "When the `acquire()` method is called and the semaphore's internal counter is zero, the method blocks and waits until some other task or thread calls `release()` [asyncio-sync.rst, threading.rst].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.4,
+        "ndcg_at_k": 0.92,
+        "mrr": 1.0
+      },
+      "rationale": "The system's answer directly matches the reference answer and is fully supported by multiple passages in the retrieved context that explicitly state acquire() blocks when the counter is zero until release() is called."
+    },
+    {
+      "id": "q021",
+      "question": "How should code handle two lifecycle hazards: a ThreadPoolExecutor initializer that raises, and an asyncio background Task without a strong reference?",
+      "difficulty": "multi_doc",
+      "answer": "Based on the provided documentation:\n\n**ThreadPoolExecutor initializer that raises:** The documentation does not contain information about handling exceptions from ThreadPoolExecutor initializers. [threading.rst]\n\n**asyncio background Task without a strong reference:** Save a reference to the task in a collection. The event loop only keeps weak references to tasks, so tasks may be garbage collected before completion. The recommended approach is to gather background tasks in a collection like a set to maintain strong references: [asyncio-task.rst]\n\n```python\nbackground_tasks = set()\ntask = asyncio.create_task(some_coro())\nbackground_tasks.add(task)\n```\n\nI don't have enough information in the provided context to answer the ThreadPoolExecutor initializer question.",
+      "scores": {
+        "groundedness": 0.8,
+        "correctness": 0.5,
+        "completeness": 0.4,
+        "citation_quality": 0.7
+      },
+      "retrieval": {
+        "recall_at_k": 0.5,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "System correctly addresses asyncio Tasks with proper citations but fails to answer ThreadPoolExecutor part (missing from context) and omits the critical BrokenThreadPool behavior that distinguishes the two hazards."
+    },
+    {
+      "id": "q022",
+      "question": "In the TCP echo-server example, which call is awaited to keep the server serving, and what happens generally when a Task's coroutine awaits a Future?",
+      "difficulty": "multi_doc",
+      "answer": "I don't have enough information in the provided context to answer that. While the documentation excerpts include general information about how Tasks and Futures work together, they do not contain a TCP echo-server example. The excerpts explain that \"If a coroutine awaits on a Future, the Task suspends the execution of the coroutine and waits for the completion of the Future. When the Future is *done*, the execution of the wrapped coroutine resumes,\" but without the actual TCP echo-server example being provided, I cannot identify which specific call is awaited in that example.",
+      "scores": {
+        "groundedness": 0.5,
+        "correctness": 0.5,
+        "completeness": 0.0,
+        "citation_quality": 0.5
+      },
+      "retrieval": {
+        "recall_at_k": 0.5,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 0.631,
+        "mrr": 0.5
+      },
+      "rationale": "System correctly answers the second part about Task/Future behavior (supported by context) but cannot answer the first part about the TCP echo-server example since that specific example is absent from the retrieved context."
+    },
+    {
+      "id": "q023",
+      "question": "Why might using shared memory with ProcessPoolExecutor be preferable to message-based communication between worker processes, and what challenges might arise from process pool failures?",
+      "difficulty": "multi_doc",
+      "answer": "I don't have enough information in the provided context to answer that.\n\nThe documentation excerpts discuss shared memory's `track` parameter for resource cleanup and describe `ProcessPoolExecutor`'s use of the `multiprocessing` module, but they do not contain information comparing shared memory communication to message-based communication, nor do they discuss challenges arising from process pool failures.",
+      "scores": {
+        "groundedness": 0.95,
+        "correctness": 0.95,
+        "completeness": 0.1,
+        "citation_quality": 0.95
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "System correctly identifies that the retrieved context lacks information about shared memory vs message-based tradeoffs and process pool failure handling, accurately declining to hallucinate, but this makes the answer extremely incomplete relative to the reference answer's scope."
+    },
+    {
+      "id": "q024",
+      "question": "How do an asyncio.Condition and the stream operations in the TCP echo-client example solve different coordination problems?",
+      "difficulty": "multi_doc",
+      "answer": "Based on the provided documentation excerpts:\n\n**asyncio.Condition** solves task coordination problems by combining lock and event functionality to coordinate exclusive access to shared resources between different tasks interested in particular states of that resource. [asyncio-sync.rst]\n\n**Stream operations in the TCP echo-client** solve data flow coordination problems - they handle the sequencing of network I/O operations. Specifically, `writer.write()` sends data, `await writer.drain()` waits for the buffer to flush, `await reader.read()` waits for incoming data, and `await writer.wait_closed()` ensures the connection is fully closed before proceeding. [asyncio-stream.rst]\n\nIn summary: Condition coordinates task synchronization around shared state, while streams coordinate the timing of I/O operations in a network protocol.",
+      "scores": {
+        "groundedness": 0.85,
+        "correctness": 0.75,
+        "completeness": 0.7,
+        "citation_quality": 0.8
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.4,
+        "ndcg_at_k": 0.571,
+        "mrr": 0.333
+      },
+      "rationale": "Answer accurately describes both concepts from retrieved context but misses that Condition uses 'async with' as preferred form and doesn't emphasize that multiple Conditions can share one Lock; stream operations are well-explained but context doesn't explicitly show the full echo-client example flow"
+    },
+    {
+      "id": "q025",
+      "question": "What happens if Future.set_exception() is called after the Future is already done, and why can a thread awakened by Condition.notify() still not return from wait() immediately?",
+      "difficulty": "multi_doc",
+      "answer": "Based on the provided documentation:\n\n**What happens if Future.set_exception() is called after the Future is already done:**\n\nAccording to the concurrent.futures.rst documentation, \"This method raises `concurrent.futures.InvalidStateError` if the `Future` is already done.\" [concurrent.futures.rst]\n\n**Why a thread awakened by Condition.notify() still may not return from wait() immediately:**\n\nThe threading.rst documentation states that when a thread is awakened by `notify()`, it \"re-acquires the lock and returns.\" However, the thread cannot return immediately if it cannot acquire the lock because other threads are holding it. The `wait()` method must successfully re-acquire the underlying lock before it can return, which may require waiting for other threads to release it. [threading.rst]",
+      "scores": {
+        "groundedness": 0.6,
+        "correctness": 0.5,
+        "completeness": 0.3,
+        "citation_quality": 0.4
+      },
+      "retrieval": {
+        "recall_at_k": 0.5,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 0.5,
+        "mrr": 0.333
+      },
+      "rationale": "First part about Future.set_exception() is well-grounded and correct; second part about Condition.notify() is partially supported but the answer infers the key mechanism (lock not being released by notify) rather than stating it explicitly as the reference does."
+    },
+    {
+      "id": "q026",
+      "question": "Compare what qsize() tells callers and how shutdown affects puts and gets for asyncio.Queue and queue.Queue.",
+      "difficulty": "multi_doc",
+      "answer": "Based on the provided documentation:\n\n**qsize() behavior:**\n- **asyncio.Queue**: Returns the number of items in the queue. The size is always known and can be returned by calling qsize() [asyncio-queue.rst]\n- **queue.Queue**: No qsize() method is documented in the provided excerpts.\n\n**shutdown() effects on put() and get():**\n\n**asyncio.Queue:**\n- **put()**: Raises QueueShutDown if the queue has been shut down. Currently blocked callers are unblocked and raise QueueShutDown [asyncio-queue.rst]\n- **get()**: Not explicitly documented in the provided excerpts [asyncio-queue.rst]\n\n**queue.Queue:**\n- **put()**: Raises ShutDown if the queue has been shut down. Currently blocked callers are unblocked and raise ShutDown [queue.rst]\n- **get()**: Once the queue is empty, future calls raise ShutDown [queue.rst]\n\n**Key difference**: The queue.Queue documentation provides additional detail that get() behavior depends on whether the queue is empty, whereas the asyncio.Queue documentation does not detail get() behavior after shutdown in the provided excerpts.",
+      "scores": {
+        "groundedness": 0.75,
+        "correctness": 0.6,
+        "completeness": 0.4,
+        "citation_quality": 0.7
+      },
+      "retrieval": {
+        "recall_at_k": 0.5,
+        "precision_at_k": 0.4,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "Answer is grounded in retrieved context but misses key details about qsize() being approximate for queue.Queue, fails to clearly distinguish the two implementations, and omits important information about graceful shutdown allowing draining of loaded items."
+    },
+    {
+      "id": "q027",
+      "question": "What measured throughput or latency improvement does multiprocessing.shared_memory provide over multiprocessing.Queue for a 1 GiB NumPy array?",
+      "difficulty": "unanswerable",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided show how to use `multiprocessing.shared_memory` and `multiprocessing.Queue`, but they do not include any performance benchmarks, throughput measurements, or latency comparisons between these two approaches.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": null,
+      "rationale": "The system correctly identified that the retrieved context lacks performance benchmarks and appropriately declined to answer, matching the reference answer exactly."
+    },
+    {
+      "id": "q028",
+      "question": "What is the maximum number of daemon threads that can be created in a single Python process?",
+      "difficulty": "unanswerable",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided discuss threading concepts like the GIL and how threading operates within a single process, but they do not contain information about limits on the number of daemon threads that can be created.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": null,
+      "rationale": "The system's answer correctly identifies that the retrieved context does not contain information about daemon thread limits, matching the reference answer perfectly."
+    },
+    {
+      "id": "q029",
+      "question": "For what input size does the documented asyncio factorial example become faster than a synchronous iterative implementation?",
+      "difficulty": "unanswerable",
+      "answer": "I don't have enough information in the provided context to answer that. The documentation excerpts provided do not contain a factorial example or any comparison between asyncio and synchronous iterative implementations for calculating factorials.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": null,
+      "rationale": "The system answer correctly identifies that the retrieved context does not contain information about an asyncio factorial example, matching the reference answer precisely."
+    }
+  ]
+}

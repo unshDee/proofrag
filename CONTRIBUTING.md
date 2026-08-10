@@ -42,7 +42,7 @@ set -a && source .env && set +a
    `feat: …`, `fix: …`, `docs: …`, `chore: …`, `refactor: …`, `test: …`.
 3. Keep the change scoped — one logical thing per PR.
 4. Make sure `make lint` and `make test` pass locally.
-5. Open a PR into `main`. CI (lint + tests on Python 3.11–3.13) must pass.
+5. Open a PR into `main`. CI (lint + tests on Python 3.11–3.14) must pass.
 6. PRs are **squash-merged** — your PR becomes one clean commit on `main`.
 7. Note user-facing changes under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md).
 
@@ -52,6 +52,7 @@ set -a && source .env && set +a
 - `src/proofrag/` — the engine: `corpus`, `goldenset`, `judge`, `metrics`,
   `embeddings`, `scorecard`, `llm`, `cli`
 - `examples/docs-rag/` — a runnable end-to-end example
+- `case_studies/` — audited, reproducible public evaluations (excluded from PyPI)
 - `.claude-plugin/` — plugin + marketplace manifests
 - `tests/` — offline smoke tests
 
@@ -59,3 +60,7 @@ set -a && source .env && set +a
 
 Maintainer cuts a [SemVer](https://semver.org/) tag and a GitHub Release from `main`;
 that triggers the PyPI publish workflow. Versions are derived from git tags.
+
+Release checklist: finalize the changelog, sync all three plugin manifest version
+fields, tag `vX.Y.Z`, publish the GitHub Release, verify PyPI, then verify the composite
+Action using that immutable release tag.

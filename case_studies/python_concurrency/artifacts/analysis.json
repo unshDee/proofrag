@@ -1,0 +1,781 @@
+{
+  "study": "Python concurrency documentation: token overlap vs SQLite FTS5/BM25",
+  "created_utc": "2026-08-09T21:09:04+00:00",
+  "integrity": {
+    "goldenset_n": 30,
+    "goldenset_sha256": "d8dbb57996d021c06b2876ebf488fd5c482aaa71aa418ea759839ab0fa570088",
+    "validation_fingerprint": "sha256:d8dbb57996d021c0",
+    "validation_errors": [],
+    "validation_warnings": [],
+    "difficulty_counts": {
+      "single_doc": 21,
+      "multi_doc": 6,
+      "unanswerable": 3
+    },
+    "source_coverage": "8/8",
+    "source_question_appearances": {
+      "asyncio-queue.rst": 3,
+      "asyncio-stream.rst": 4,
+      "asyncio-sync.rst": 3,
+      "asyncio-task.rst": 5,
+      "concurrent.futures.rst": 6,
+      "multiprocessing.shared_memory.rst": 5,
+      "queue.rst": 3,
+      "threading.rst": 4
+    },
+    "prediction_id_coverage": "30/30 for every variant",
+    "result_id_coverage": "30/30 for every variant"
+  },
+  "corpus": {
+    "sources": 8,
+    "chunks": 333,
+    "chars": 195561,
+    "avg_chunk_chars": 587,
+    "extensions": {
+      ".rst": 333
+    },
+    "max_chunk_chars": 1181,
+    "release": "v3.14.7",
+    "upstream_commit": "823f0323ee6ec1402088b73bce1a38473cac36dc",
+    "download_bytes": 202098
+  },
+  "variants": {
+    "overlap": {
+      "aggregate": {
+        "groundedness": 0.913,
+        "correctness": 0.892,
+        "completeness": 0.793,
+        "citation_quality": 0.882,
+        "recall_at_k": 0.87,
+        "precision_at_k": 0.259,
+        "ndcg_at_k": 0.876,
+        "mrr": 0.852
+      },
+      "overall_generation": 0.87,
+      "by_difficulty": {
+        "single_doc": {
+          "n": 21,
+          "generation": {
+            "groundedness": 0.95,
+            "correctness": 0.95,
+            "completeness": 0.9,
+            "citation_quality": 0.924,
+            "overall": 0.931
+          },
+          "retrieval": {
+            "recall_at_k": 0.976,
+            "precision_at_k": 0.267,
+            "ndcg_at_k": 0.949,
+            "mrr": 0.944
+          }
+        },
+        "multi_doc": {
+          "n": 6,
+          "generation": {
+            "groundedness": 0.742,
+            "correctness": 0.633,
+            "completeness": 0.317,
+            "citation_quality": 0.675,
+            "overall": 0.592
+          },
+          "retrieval": {
+            "recall_at_k": 0.5,
+            "precision_at_k": 0.233,
+            "ndcg_at_k": 0.617,
+            "mrr": 0.528
+          }
+        },
+        "unanswerable": {
+          "n": 3,
+          "generation": {
+            "groundedness": 1.0,
+            "correctness": 1.0,
+            "completeness": 1.0,
+            "citation_quality": 1.0,
+            "overall": 1.0
+          },
+          "retrieval": null
+        }
+      },
+      "retrieval_rates": {
+        "denominator": 27,
+        "any_hit": 26,
+        "full_context_hit": 21,
+        "zero_hit": 1,
+        "multi_doc_full_evidence": 1,
+        "multi_doc_denominator": 6
+      },
+      "safe_refusals": {
+        "count": 3,
+        "denominator": 3
+      },
+      "prediction_integrity": {
+        "n": 30,
+        "unique_ids": 30,
+        "min_contexts": 5,
+        "max_contexts": 5,
+        "max_joined_context_chars": 3695,
+        "joined_contexts_over_4000": 0,
+        "empty_answers": 0
+      },
+      "judge_errors": 0,
+      "weakest_cases": [
+        {
+          "id": "q004",
+          "difficulty": "single_doc",
+          "generation": 0.0,
+          "recall_at_5": 1.0,
+          "rationale": "The system claims insufficient information despite the retrieved context containing a full, accurate answer about InterpreterPoolExecutor exception handling in the first paragraph."
+        },
+        {
+          "id": "q022",
+          "difficulty": "multi_doc",
+          "generation": 0.375,
+          "recall_at_5": 0.5,
+          "rationale": "System correctly answers the second part about Task/Future behavior (supported by context) but cannot answer the first part about the TCP echo-server example since that specific example is absent from the retrieved context."
+        },
+        {
+          "id": "q025",
+          "difficulty": "multi_doc",
+          "generation": 0.45,
+          "recall_at_5": 0.5,
+          "rationale": "First part about Future.set_exception() is well-grounded and correct; second part about Condition.notify() is partially supported but the answer infers the key mechanism (lock not being released by notify) rather than stating it explicitly as the reference does."
+        },
+        {
+          "id": "q021",
+          "difficulty": "multi_doc",
+          "generation": 0.6,
+          "recall_at_5": 0.5,
+          "rationale": "System correctly addresses asyncio Tasks with proper citations but fails to answer ThreadPoolExecutor part (missing from context) and omits the critical BrokenThreadPool behavior that distinguishes the two hazards."
+        },
+        {
+          "id": "q026",
+          "difficulty": "multi_doc",
+          "generation": 0.613,
+          "recall_at_5": 0.5,
+          "rationale": "Answer is grounded in retrieved context but misses key details about qsize() being approximate for queue.Queue, fails to clearly distinguish the two implementations, and omits important information about graceful shutdown allowing draining of loaded items."
+        }
+      ],
+      "recall_below_one": [
+        "q019",
+        "q021",
+        "q022",
+        "q023",
+        "q025",
+        "q026"
+      ],
+      "diagnostic_quadrants": {
+        "retrieval_linked": [
+          "q021",
+          "q022",
+          "q025",
+          "q026"
+        ],
+        "generation_side": [
+          "q004"
+        ],
+        "suspicious_or_prior_knowledge": [
+          "q019",
+          "q023"
+        ]
+      }
+    },
+    "fts5": {
+      "aggregate": {
+        "groundedness": 0.92,
+        "correctness": 0.87,
+        "completeness": 0.857,
+        "citation_quality": 0.925,
+        "recall_at_k": 0.907,
+        "precision_at_k": 0.281,
+        "ndcg_at_k": 0.908,
+        "mrr": 0.889
+      },
+      "overall_generation": 0.893,
+      "by_difficulty": {
+        "single_doc": {
+          "n": 21,
+          "generation": {
+            "groundedness": 0.96,
+            "correctness": 0.95,
+            "completeness": 0.967,
+            "citation_quality": 0.964,
+            "overall": 0.96
+          },
+          "retrieval": {
+            "recall_at_k": 0.976,
+            "precision_at_k": 0.267,
+            "ndcg_at_k": 0.921,
+            "mrr": 0.905
+          }
+        },
+        "multi_doc": {
+          "n": 6,
+          "generation": {
+            "groundedness": 0.742,
+            "correctness": 0.525,
+            "completeness": 0.4,
+            "citation_quality": 0.75,
+            "overall": 0.604
+          },
+          "retrieval": {
+            "recall_at_k": 0.667,
+            "precision_at_k": 0.333,
+            "ndcg_at_k": 0.862,
+            "mrr": 0.833
+          }
+        },
+        "unanswerable": {
+          "n": 3,
+          "generation": {
+            "groundedness": 1.0,
+            "correctness": 1.0,
+            "completeness": 1.0,
+            "citation_quality": 1.0,
+            "overall": 1.0
+          },
+          "retrieval": null
+        }
+      },
+      "retrieval_rates": {
+        "denominator": 27,
+        "any_hit": 27,
+        "full_context_hit": 22,
+        "zero_hit": 0,
+        "multi_doc_full_evidence": 2,
+        "multi_doc_denominator": 6
+      },
+      "safe_refusals": {
+        "count": 3,
+        "denominator": 3
+      },
+      "prediction_integrity": {
+        "n": 30,
+        "unique_ids": 30,
+        "min_contexts": 5,
+        "max_contexts": 5,
+        "max_joined_context_chars": 3908,
+        "joined_contexts_over_4000": 0,
+        "empty_answers": 0
+      },
+      "judge_errors": 0,
+      "weakest_cases": [
+        {
+          "id": "q021",
+          "difficulty": "multi_doc",
+          "generation": 0.45,
+          "recall_at_5": 0.5,
+          "rationale": "Answer correctly handles asyncio weak references but misses the critical BrokenThreadPool behavior for ThreadPoolExecutor initializer failures, instead discussing ExecutionFailed which applies only to ProcessPoolExecutor."
+        },
+        {
+          "id": "q022",
+          "difficulty": "multi_doc",
+          "generation": 0.45,
+          "recall_at_5": 0.5,
+          "rationale": "First part correctly identifies `await server.serve_forever()` from context, but second part about Task/Future behavior is entirely missing from retrieved context, making answer incomplete and unable to address half the question."
+        },
+        {
+          "id": "q023",
+          "difficulty": "multi_doc",
+          "generation": 0.45,
+          "recall_at_5": 0.5,
+          "rationale": "System correctly addresses shared memory benefits from context but fails to address the critical ProcessPoolExecutor failure handling and BrokenProcessPool exception that are central to the reference answer, appearing instead to acknowledge this gap."
+        },
+        {
+          "id": "q024",
+          "difficulty": "multi_doc",
+          "generation": 0.5,
+          "recall_at_5": 0.5,
+          "rationale": "System correctly acknowledged missing context about asyncio.Condition rather than hallucinating, but failed to answer the question by not utilizing available stream information or attempting partial explanation."
+        },
+        {
+          "id": "q007",
+          "difficulty": "single_doc",
+          "generation": 0.575,
+          "recall_at_5": 1.0,
+          "rationale": "The answer correctly identifies truncation limits and the behavior for currently running threads, but incompletely states that OS-level names are set 'when the thread starts' on supported platforms, instead claiming they're set only 'when currently running thread is renamed.'"
+        }
+      ],
+      "recall_below_one": [
+        "q019",
+        "q021",
+        "q022",
+        "q023",
+        "q024"
+      ],
+      "diagnostic_quadrants": {
+        "retrieval_linked": [
+          "q021",
+          "q022",
+          "q023",
+          "q024"
+        ],
+        "generation_side": [
+          "q007"
+        ],
+        "suspicious_or_prior_knowledge": [
+          "q019"
+        ]
+      }
+    },
+    "fts5_reversed": {
+      "aggregate": {
+        "groundedness": 1.0,
+        "correctness": 0.4,
+        "completeness": 0.1,
+        "citation_quality": 1.0,
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "overall_generation": 0.625,
+      "by_difficulty": {
+        "single_doc": {
+          "n": 21,
+          "generation": {
+            "groundedness": 1.0,
+            "correctness": 0.19,
+            "completeness": 0.0,
+            "citation_quality": 1.0,
+            "overall": 0.548
+          },
+          "retrieval": {
+            "recall_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "ndcg_at_k": 0.0,
+            "mrr": 0.0
+          }
+        },
+        "multi_doc": {
+          "n": 6,
+          "generation": {
+            "groundedness": 1.0,
+            "correctness": 0.833,
+            "completeness": 0.0,
+            "citation_quality": 1.0,
+            "overall": 0.708
+          },
+          "retrieval": {
+            "recall_at_k": 0.0,
+            "precision_at_k": 0.0,
+            "ndcg_at_k": 0.0,
+            "mrr": 0.0
+          }
+        },
+        "unanswerable": {
+          "n": 3,
+          "generation": {
+            "groundedness": 1.0,
+            "correctness": 1.0,
+            "completeness": 1.0,
+            "citation_quality": 1.0,
+            "overall": 1.0
+          },
+          "retrieval": null
+        }
+      },
+      "retrieval_rates": {
+        "denominator": 27,
+        "any_hit": 0,
+        "full_context_hit": 0,
+        "zero_hit": 27,
+        "multi_doc_full_evidence": 0,
+        "multi_doc_denominator": 6
+      },
+      "safe_refusals": {
+        "count": 3,
+        "denominator": 3
+      },
+      "prediction_integrity": {
+        "n": 30,
+        "unique_ids": 30,
+        "min_contexts": 5,
+        "max_contexts": 5,
+        "max_joined_context_chars": 4071,
+        "joined_contexts_over_4000": 1,
+        "empty_answers": 0
+      },
+      "judge_errors": 0,
+      "weakest_cases": [
+        {
+          "id": "q001",
+          "difficulty": "single_doc",
+          "generation": 0.5,
+          "recall_at_5": 0.0,
+          "rationale": "System correctly refused to answer based on irrelevant context, avoiding hallucination, but the retrieved context failed to provide information needed to answer the question correctly."
+        },
+        {
+          "id": "q002",
+          "difficulty": "single_doc",
+          "generation": 0.5,
+          "recall_at_5": 0.0,
+          "rationale": "System correctly refuses to answer without relevant context, avoiding hallucination, but cannot provide the correct information about open_connection's return value."
+        },
+        {
+          "id": "q003",
+          "difficulty": "single_doc",
+          "generation": 0.5,
+          "recall_at_5": 0.0,
+          "rationale": "System correctly refuses to answer based on absent context, but this refusal prevents providing the correct explanation of the deadlock mechanism."
+        },
+        {
+          "id": "q004",
+          "difficulty": "single_doc",
+          "generation": 0.5,
+          "recall_at_5": 0.0,
+          "rationale": "System correctly acknowledged lack of relevant information rather than hallucinating, but cannot answer the question with retrieved context."
+        },
+        {
+          "id": "q005",
+          "difficulty": "single_doc",
+          "generation": 0.5,
+          "recall_at_5": 0.0,
+          "rationale": "The system correctly acknowledges that the retrieved context does not contain information about queue.Queue.put() and appropriately refuses to answer rather than hallucinate, but this results in an incomplete and incorrect response relative to the reference answer."
+        }
+      ],
+      "recall_below_one": [
+        "q000",
+        "q001",
+        "q002",
+        "q003",
+        "q004",
+        "q005",
+        "q006",
+        "q007",
+        "q008",
+        "q009",
+        "q010",
+        "q011",
+        "q012",
+        "q013",
+        "q014",
+        "q015",
+        "q016",
+        "q017",
+        "q018",
+        "q019",
+        "q020",
+        "q021",
+        "q022",
+        "q023",
+        "q024",
+        "q025",
+        "q026"
+      ],
+      "diagnostic_quadrants": {
+        "retrieval_linked": [
+          "q001",
+          "q002",
+          "q003",
+          "q004",
+          "q005",
+          "q006",
+          "q008",
+          "q010",
+          "q011",
+          "q013",
+          "q014",
+          "q015",
+          "q016",
+          "q017",
+          "q018",
+          "q019",
+          "q020",
+          "q021"
+        ],
+        "generation_side": [],
+        "suspicious_or_prior_knowledge": [
+          "q000",
+          "q007",
+          "q009",
+          "q012",
+          "q022",
+          "q023",
+          "q024",
+          "q025",
+          "q026"
+        ]
+      }
+    }
+  },
+  "posthoc_exact_match_sensitivity": {
+    "overlap": {
+      "aggregate": {
+        "recall_at_k": 0.852,
+        "precision_at_k": 0.193,
+        "ndcg_at_k": 0.837,
+        "mrr": 0.802
+      },
+      "by_difficulty": {
+        "single_doc": {
+          "recall_at_k": 0.976,
+          "precision_at_k": 0.2,
+          "ndcg_at_k": 0.923,
+          "mrr": 0.897
+        },
+        "multi_doc": {
+          "recall_at_k": 0.417,
+          "precision_at_k": 0.167,
+          "ndcg_at_k": 0.534,
+          "mrr": 0.472
+        }
+      },
+      "rates": {
+        "denominator": 27,
+        "any_hit": 25,
+        "full_context_hit": 21,
+        "zero_hit": 2
+      },
+      "recall_below_one": [
+        "q019",
+        "q021",
+        "q022",
+        "q023",
+        "q025",
+        "q026"
+      ]
+    },
+    "fts5": {
+      "aggregate": {
+        "recall_at_k": 0.852,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 0.844,
+        "mrr": 0.809
+      },
+      "by_difficulty": {
+        "single_doc": {
+          "recall_at_k": 0.929,
+          "precision_at_k": 0.19,
+          "ndcg_at_k": 0.841,
+          "mrr": 0.802
+        },
+        "multi_doc": {
+          "recall_at_k": 0.583,
+          "precision_at_k": 0.233,
+          "ndcg_at_k": 0.857,
+          "mrr": 0.833
+        }
+      },
+      "rates": {
+        "denominator": 27,
+        "any_hit": 26,
+        "full_context_hit": 20,
+        "zero_hit": 1
+      },
+      "recall_below_one": [
+        "q008",
+        "q019",
+        "q021",
+        "q022",
+        "q023",
+        "q024",
+        "q025"
+      ]
+    },
+    "fts5_reversed": {
+      "aggregate": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "by_difficulty": {
+        "single_doc": {
+          "recall_at_k": 0.0,
+          "precision_at_k": 0.0,
+          "ndcg_at_k": 0.0,
+          "mrr": 0.0
+        },
+        "multi_doc": {
+          "recall_at_k": 0.0,
+          "precision_at_k": 0.0,
+          "ndcg_at_k": 0.0,
+          "mrr": 0.0
+        }
+      },
+      "rates": {
+        "denominator": 27,
+        "any_hit": 0,
+        "full_context_hit": 0,
+        "zero_hit": 27
+      },
+      "recall_below_one": [
+        "q000",
+        "q001",
+        "q002",
+        "q003",
+        "q004",
+        "q005",
+        "q006",
+        "q007",
+        "q008",
+        "q009",
+        "q010",
+        "q011",
+        "q012",
+        "q013",
+        "q014",
+        "q015",
+        "q016",
+        "q017",
+        "q018",
+        "q019",
+        "q020",
+        "q021",
+        "q022",
+        "q023",
+        "q024",
+        "q025",
+        "q026"
+      ]
+    }
+  },
+  "pairwise": {
+    "n": 30,
+    "wins": {
+      "fts5": 13,
+      "overlap": 6,
+      "tie": 11
+    },
+    "fts5_decided_win_rate": 0.684,
+    "fts5_all_case_win_share": 0.433,
+    "tie_rate": 0.367,
+    "by_difficulty": {
+      "single_doc": {
+        "n": 21,
+        "fts5": 6,
+        "overlap": 5,
+        "tie": 10,
+        "fts5_decided_win_rate": 0.545
+      },
+      "multi_doc": {
+        "n": 6,
+        "fts5": 5,
+        "overlap": 1,
+        "tie": 0,
+        "fts5_decided_win_rate": 0.833
+      },
+      "unanswerable": {
+        "n": 3,
+        "fts5": 2,
+        "overlap": 0,
+        "tie": 1,
+        "fts5_decided_win_rate": 1.0
+      }
+    },
+    "judge_errors": 0
+  },
+  "retriever_microbenchmark": {
+    "scope": "retrieval only; warm in-memory index; 900 queries per variant",
+    "fts5_index_build_ms": {
+      "median": 2.457,
+      "p95": 2.662
+    },
+    "query_latency_ms": {
+      "overlap": {
+        "median": 3.173,
+        "p95": 3.262
+      },
+      "fts5": {
+        "median": 0.396,
+        "p95": 0.681
+      }
+    }
+  },
+  "runtime": {
+    "observed_wall_seconds_by_phase": {
+      "goldenset_generate": 52.86,
+      "answer_overlap": 52.49,
+      "answer_fts5": 48.56,
+      "answer_fts5_reversed": 51.61,
+      "evaluate_overlap": 48.26,
+      "evaluate_fts5": 52.58,
+      "evaluate_fts5_reversed": 45.87,
+      "compare": 42.95
+    },
+    "main_workflow_total_seconds": 395.18,
+    "seconds_per_case_across_all_main_phases": 13.17,
+    "notes": "Excludes a 5-case pilot (9.84 s) and one interrupted generation attempt whose completed-call count and duration were not captured."
+  },
+  "usage_proxy": {
+    "method": "Proxy only: persisted system/prompt/output characters divided by four; excludes provider framing and may differ materially from billed tokens.",
+    "phases": {
+      "goldenset_generate": {
+        "calls": 30,
+        "input_chars": 32434,
+        "output_chars": 13261,
+        "approx_input_tokens_chars_div_4": 8109,
+        "approx_output_tokens_chars_div_4": 3316
+      },
+      "answer_overlap": {
+        "calls": 30,
+        "input_chars": 113545,
+        "output_chars": 11745,
+        "approx_input_tokens_chars_div_4": 28387,
+        "approx_output_tokens_chars_div_4": 2937
+      },
+      "evaluate_overlap": {
+        "calls": 30,
+        "input_chars": 140117,
+        "output_chars": 9345,
+        "approx_input_tokens_chars_div_4": 35030,
+        "approx_output_tokens_chars_div_4": 2337
+      },
+      "answer_fts5": {
+        "calls": 30,
+        "input_chars": 109752,
+        "output_chars": 12302,
+        "approx_input_tokens_chars_div_4": 27438,
+        "approx_output_tokens_chars_div_4": 3076
+      },
+      "evaluate_fts5": {
+        "calls": 30,
+        "input_chars": 136666,
+        "output_chars": 8884,
+        "approx_input_tokens_chars_div_4": 34167,
+        "approx_output_tokens_chars_div_4": 2221
+      },
+      "answer_fts5_reversed": {
+        "calls": 30,
+        "input_chars": 118784,
+        "output_chars": 9076,
+        "approx_input_tokens_chars_div_4": 29696,
+        "approx_output_tokens_chars_div_4": 2269
+      },
+      "evaluate_fts5_reversed": {
+        "calls": 30,
+        "input_chars": 142730,
+        "output_chars": 8526,
+        "approx_input_tokens_chars_div_4": 35683,
+        "approx_output_tokens_chars_div_4": 2132
+      },
+      "compare": {
+        "calls": 30,
+        "input_chars": 46584,
+        "output_chars": 6652,
+        "approx_input_tokens_chars_div_4": 11646,
+        "approx_output_tokens_chars_div_4": 1663
+      }
+    },
+    "total_known_calls": 240,
+    "total_approx_input_tokens": 210156,
+    "total_approx_output_tokens": 19951
+  },
+  "reproducibility": {
+    "model": "anthropic:claude-haiku-4-5-20251001",
+    "backend": "proofrag",
+    "k": 5,
+    "chunk_chars": 700,
+    "lexical_matcher_jaccard_threshold": 0.4,
+    "goldenset_sampling_seed": 21661,
+    "comparison_position_seed": 0,
+    "python": "3.12.12",
+    "sqlite": "3.50.4",
+    "platform": "macOS-26.6.1-arm64-arm-64bit",
+    "machine": "arm64",
+    "logical_cpu_count": 10,
+    "answer_system_prompt_sha256": "152e143474a6539942dc659e150a7a4805fc833f4d5b999c29639d80ce0bc688",
+    "judge_system_prompt_sha256": "0da1040b2f8d4934a0eaedb062fb294a1fe1a284f2be494c979d2cc212682e4e"
+  }
+}

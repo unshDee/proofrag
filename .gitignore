@@ -6,6 +6,8 @@ dist/
 .venv/
 venv/
 .pytest_cache/
+.deepeval/
+.claude/settings.local.json
 .DS_Store
 # eval artifacts (commit goldenset.jsonl deliberately, ignore the rest)
 results.json
@@ -15,4 +17,6 @@ scorecard.html
 .env
 .env.*
 !.env.example
-.venv/
+
+# Case-study corpora are downloaded from pinned, hashed upstream sources.
+case_studies/*/corpus/

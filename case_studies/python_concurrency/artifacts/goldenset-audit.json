@@ -1,0 +1,37 @@
+{
+  "review_date": "2026-08-09",
+  "reviewed_records": 30,
+  "edited_records": 17,
+  "unchanged_records": 13,
+  "rejected_records": 0,
+  "edited_ids": [
+    "q001",
+    "q003",
+    "q004",
+    "q005",
+    "q007",
+    "q008",
+    "q010",
+    "q015",
+    "q017",
+    "q019",
+    "q021",
+    "q022",
+    "q024",
+    "q025",
+    "q026",
+    "q027",
+    "q029"
+  ],
+  "difficulty_counts": {
+    "single_doc": 21,
+    "multi_doc": 6,
+    "unanswerable": 3
+  },
+  "multi_doc_evidence_audited": "6/6; both contexts required for each answer",
+  "unanswerable_full_corpus_audited": "3/3; no requested quantitative answer found",
+  "chunker": "proofrag-0.7.0 paragraph packing; 700-character target",
+  "corpus_hashes_verified": "8/8 against sources.json",
+  "generated_sha256": "775811372aff5a6c43cf56dab59acb0fe15730dcb3dc2bd755bb288f60652397",
+  "goldenset_sha256": "d8dbb57996d021c06b2876ebf488fd5c482aaa71aa418ea759839ab0fa570088"
+}

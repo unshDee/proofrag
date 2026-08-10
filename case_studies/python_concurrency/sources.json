@@ -1,0 +1,58 @@
+{
+  "source": "Official CPython documentation",
+  "release": "v3.14.7",
+  "commit": "823f0323ee6ec1402088b73bce1a38473cac36dc",
+  "license": "Python Software Foundation License Version 2",
+  "license_url": "https://raw.githubusercontent.com/python/cpython/823f0323ee6ec1402088b73bce1a38473cac36dc/LICENSE",
+  "license_file": "LICENSE.python",
+  "files": [
+    {
+      "name": "asyncio-queue.rst",
+      "url": "https://raw.githubusercontent.com/python/cpython/823f0323ee6ec1402088b73bce1a38473cac36dc/Doc/library/asyncio-queue.rst",
+      "bytes": 7682,
+      "sha256": "c7312064e8c18f1e45656bbabb59949cdd0adf258f32595d073b2e66593244d2"
+    },
+    {
+      "name": "asyncio-stream.rst",
+      "url": "https://raw.githubusercontent.com/python/cpython/823f0323ee6ec1402088b73bce1a38473cac36dc/Doc/library/asyncio-stream.rst",
+      "bytes": 18016,
+      "sha256": "afc4687dca45f27cbe19750686e48a1d20bd48875c615a262e991f7331e74eb9"
+    },
+    {
+      "name": "asyncio-sync.rst",
+      "url": "https://raw.githubusercontent.com/python/cpython/823f0323ee6ec1402088b73bce1a38473cac36dc/Doc/library/asyncio-sync.rst",
+      "bytes": 12876,
+      "sha256": "ce9b6b4f31a3efaa71d58756696da49ec44b2c5547288c4009d4053273081f88"
+    },
+    {
+      "name": "asyncio-task.rst",
+      "url": "https://raw.githubusercontent.com/python/cpython/823f0323ee6ec1402088b73bce1a38473cac36dc/Doc/library/asyncio-task.rst",
+      "bytes": 51411,
+      "sha256": "fec575ef139ea66769f9a1aa73e61933de267daf94c5c924e00af922f8a53a74"
+    },
+    {
+      "name": "concurrent.futures.rst",
+      "url": "https://raw.githubusercontent.com/python/cpython/823f0323ee6ec1402088b73bce1a38473cac36dc/Doc/library/concurrent.futures.rst",
+      "bytes": 29730,
+      "sha256": "a860180e171dce9f4d7925813fb9644eb24085c8ca34e1a26c1e933499cdfe7c"
+    },
+    {
+      "name": "multiprocessing.shared_memory.rst",
+      "url": "https://raw.githubusercontent.com/python/cpython/823f0323ee6ec1402088b73bce1a38473cac36dc/Doc/library/multiprocessing.shared_memory.rst",
+      "bytes": 17528,
+      "sha256": "10f04327f469db0cca9f84d735a5660fa03da5fa9363559bab22940385938f5c"
+    },
+    {
+      "name": "queue.rst",
+      "url": "https://raw.githubusercontent.com/python/cpython/823f0323ee6ec1402088b73bce1a38473cac36dc/Doc/library/queue.rst",
+      "bytes": 12258,
+      "sha256": "f621645ca7cae6602e5fc0ce64f4342ac741ace30cd98e42b45cb77d657b5ba8"
+    },
+    {
+      "name": "threading.rst",
+      "url": "https://raw.githubusercontent.com/python/cpython/823f0323ee6ec1402088b73bce1a38473cac36dc/Doc/library/threading.rst",
+      "bytes": 52597,
+      "sha256": "19b4cb7d9eb59874a76812e850e7f67b71c501d774c8af5c91139b4fc6713b92"
+    }
+  ]
+}

@@ -32,6 +32,9 @@ inputs:
   semantic:
     description: "Use embedding cosine for chunk relevance (needs the openai extra + key)."
     default: "false"
+  exact:
+    description: "Require exact chunk equality for retrieval relevance."
+    default: "false"
   extra:
     description: "proofrag extra to install: anthropic or openai."
     default: "anthropic"
@@ -73,6 +76,7 @@ runs:
         TOLERANCE: ${{ inputs.tolerance }}
         K: ${{ inputs.k }}
         SEMANTIC: ${{ inputs.semantic }}
+        EXACT: ${{ inputs.exact }}
         EXTRA: ${{ inputs.extra }}
         VERSION: ${{ inputs.version }}
       run: |
@@ -83,6 +87,7 @@ runs:
 
         ARGS=(--goldenset "$GOLDENSET" --predictions "$PREDICTIONS" --out "$RESULTS" --k "$K")
         [ "$SEMANTIC" = "true" ] && ARGS+=(--semantic)
+        [ "$EXACT" = "true" ] && ARGS+=(--exact)
         [ -n "$FAIL_UNDER" ] && ARGS+=(--fail-under "$FAIL_UNDER")
         status=0
         "${RUN[@]}" evaluate "${ARGS[@]}" || status=$?

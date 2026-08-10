@@ -1,6 +1,6 @@
 {
   "name": "proofrag",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Evaluate a RAG/LLM app: generate a golden set from your docs, run LLM-as-judge + retrieval metrics, and produce a shareable HTML scorecard with a CI gate.",
   "author": { "name": "Ansh Dawda", "email": "ansh.dawda@gmail.com" },
   "homepage": "https://github.com/unshDee/proofrag",

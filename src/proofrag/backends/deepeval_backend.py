@@ -12,10 +12,18 @@ AnthropicModel, OpenAI -> GPTModel. Retrieval metrics stay proofrag's own.
 from __future__ import annotations
 
 import datetime as _dt
+import math
 import os
 
+from ..goldenset import goldenset_fingerprint
 from ..llm import LLM
-from ..metrics import RETRIEVAL_METRICS, lexical_matcher, retrieval_metrics
+from ..metrics import (
+    RETRIEVAL_METRICS,
+    lexical_matcher,
+    matcher_fingerprint,
+    retrieval_metrics,
+)
+from ..run import join_predictions
 from . import BackendError
 
 GENERATION_METRICS = ["faithfulness", "answer_relevancy", "correctness"]
@@ -56,7 +64,10 @@ def _build_metrics(model):
 def _measure(metric, tc):
     try:
         metric.measure(tc)
-        score = round(float(metric.score), 3)
+        raw_score = float(metric.score)
+        if not math.isfinite(raw_score) or not 0.0 <= raw_score <= 1.0:
+            return None, ""
+        score = round(raw_score, 3)
         return score, _reason(metric)
     except Exception:  # noqa: BLE001 - one metric failing shouldn't abort the run
         return None, ""
@@ -87,6 +98,8 @@ def evaluate_deepeval(
     matcher=None,
 ) -> dict:
     """Score predictions with DeepEval metrics; keep proofrag retrieval metrics."""
+    if k <= 0:
+        raise ValueError("k must be greater than zero")
     os.environ.setdefault("DEEPEVAL_TELEMETRY_OPT_OUT", "YES")
     cfg = LLM(model=model)  # resolves provider/model from env, no SDK import
     dm = _deepeval_model(cfg.provider, cfg.model)
@@ -95,13 +108,11 @@ def evaluate_deepeval(
 
     matcher = matcher or lexical_matcher()
     faith, rel, corr = _build_metrics(dm)
-    preds = {p["id"]: p for p in predictions}
+    joined = join_predictions(goldenset, predictions)
 
     records: list[dict] = []
-    for g in goldenset:
-        pred = preds.get(g["id"])
-        if pred is None:
-            continue
+    errors: list[dict[str, str]] = []
+    for g, pred in joined:
         answer = pred.get("answer", "")
         retrieved = pred.get("retrieved_contexts", []) or []
         tc = LLMTestCase(
@@ -115,6 +126,9 @@ def evaluate_deepeval(
             "answer_relevancy": _measure(rel, tc),
             "correctness": _measure(corr, tc),
         }
+        for metric, (score, _reason_text) in measurements.items():
+            if score is None and not (metric == "faithfulness" and not retrieved):
+                errors.append({"id": str(g["id"]), "error": f"{metric} unavailable"})
         scores = {metric: score for metric, (score, _reason_text) in measurements.items()}
         records.append(
             {
@@ -133,12 +147,15 @@ def evaluate_deepeval(
         )
 
     return {
-        "judge_fingerprint": f"deepeval/{cfg.provider}:{cfg.model}",
+        "judge_fingerprint": f"deepeval/{cfg.fingerprint}",
         "backend": "deepeval",
         "generation_metrics": list(GENERATION_METRICS),
         "created": _dt.datetime.now(_dt.UTC).isoformat(timespec="seconds"),
         "k": k,
+        "matcher": matcher_fingerprint(matcher),
+        "goldenset_fingerprint": goldenset_fingerprint(goldenset),
         "n": len(records),
+        "evaluation_errors": errors,
         "aggregate": _aggregate(records),
         "records": records,
     }

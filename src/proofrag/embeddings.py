@@ -47,4 +47,5 @@ def embedding_matcher(threshold: float = 0.75, model: str | None = None) -> Matc
     def match(gold: str, chunk: str) -> bool:
         return _cosine(embed(gold), embed(chunk)) >= threshold
 
+    match.__name__ = f"semantic_cosine_{model}_{threshold:g}"
     return match

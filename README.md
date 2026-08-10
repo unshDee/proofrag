@@ -75,7 +75,7 @@ proofrag validate --goldenset goldenset.jsonl --corpus ./docs --out validation.j
 proofrag run --goldenset goldenset.jsonl --endpoint http://localhost:8000/ask --out predictions.jsonl
 # or: proofrag run --goldenset goldenset.jsonl --callable myapp.rag:answer --out predictions.jsonl
 
-# 4. Judge: groundedness, correctness, completeness, citation quality + retrieval metrics
+# 4. Judge: groundedness, correctness, completeness, context attribution + retrieval metrics
 proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
 
 # 5. Shareable HTML scorecard
@@ -135,6 +135,10 @@ proofrag validate --goldenset goldenset.jsonl --corpus ./docs --out validation.j
 It exits non-zero on hard errors. Add `--strict` to fail on warnings too when you
 want CI to enforce review hygiene.
 
+Generated `unanswerable` questions are candidates, not proof of absence: search the
+full corpus before accepting them. For `multi_doc`, confirm both distinct sources are
+actually required. The validator catches structural problems; human review owns meaning.
+
 ## Prediction adapters
 
 The only app-specific step is producing `predictions.jsonl`. You can still write
@@ -177,7 +181,8 @@ proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
 ```bash
 proofrag diff --baseline baseline.json --candidate results.json --tolerance 0.02
 # prints a per-metric delta table; exits 1 if any metric dropped > tolerance.
-# Refuses to compare across different judge models unless --allow-judge-mismatch.
+# Refuses incompatible datasets, backends, k values, matchers, or metric schemas.
+# Different judge models also require an explicit --allow-judge-mismatch override.
 ```
 
 ### GitHub Action
@@ -187,7 +192,7 @@ writes the scorecard, adds a GitHub Actions job summary, uploads the scorecard a
 results as an artifact, and gates on both the floor and the baseline:
 
 ```yaml
-- uses: unshDee/proofrag@v0
+- uses: unshDee/proofrag@v0.7.0
   env:
     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
   with:
@@ -223,6 +228,17 @@ proofrag compare --goldenset goldenset.jsonl \
 Deterministic retrieval metrics for each variant sit beside the verdict, so you can
 tell whether a win came from better retrieval or better generation.
 
+## Case study: overlap vs SQLite FTS5
+
+The audited [Python concurrency case study](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/REPORT.md)
+uses 30 reviewed questions from immutable, hash-checked official Python 3.14 sources.
+SQLite FTS5 won 13 blind comparisons, token overlap won 6, and 11 tied. The largest
+retrieval difference appeared on multi-document questions—not the overall average.
+
+Read the [method and limitations](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/REPORT.md), run the
+[reproduction workflow](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/README.md), or inspect the
+[self-contained comparison](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/artifacts/comparison.html).
+
 ## What makes it different
 
 - **Golden set from your corpus** — the wedge. Difficulty tiers: single-doc,
@@ -231,9 +247,10 @@ tell whether a win came from better retrieval or better generation.
   and a stable fingerprint help teams review generated evals before committing them.
 - **Retriever vs generator split** — rank-aware retrieval metrics (Recall@k,
   Precision@k, NDCG@k, MRR) separate "the context never arrived / ranked too low"
-  from "the model fluffed it." Lexical by default; `--semantic` for embedding match.
-- **Pinned, fingerprinted judge** — every scorecard records its judge model, so you
-  never compare scores produced by different judges.
+  from "the model fluffed it." Jaccard overlap is the default; use `--exact` when
+  predictions return original chunks, or `--semantic` for embedding match.
+- **Pinned, fingerprinted evaluation** — scorecards record judge, prompt version,
+  matcher, cutoff, and golden-set fingerprint; `diff` rejects incompatible runs.
 - **Cheap & portable** — defaults to a small model; Anthropic, OpenAI, or local/Ollama
   (`OPENAI_BASE_URL`). Self-contained HTML, zero JS, zero external assets.
 - **Prediction adapters** — `proofrag run` can call an HTTP endpoint or Python
@@ -285,6 +302,10 @@ compare, and the DeepEval/Ragas backends — uses it:
 | **OpenAI** | `OPENAI_API_KEY` | |
 | **OpenAI-compatible / local** | `OPENAI_BASE_URL` (e.g. Ollama, vLLM, LM Studio) | API key optional — local servers accept any token |
 
+If both API keys are present, Anthropic wins auto-detection. Set
+`PROOFRAG_PROVIDER=openai` to choose OpenAI explicitly. A local `.env` is not loaded
+automatically; run `set -a && source .env && set +a` first.
+
 `--semantic` retrieval matching uses **embeddings**, which only exist on the
 OpenAI-compatible path (Anthropic has no embeddings API), so it needs
 `OPENAI_API_KEY` or `OPENAI_BASE_URL` even when your judge is Anthropic.
@@ -297,7 +318,7 @@ OpenAI-compatible path (Anthropic has no embeddings API), so it needs
 | `OPENAI_API_KEY` | — | OpenAI provider |
 | `OPENAI_BASE_URL` | — | OpenAI-compatible / local endpoint (key optional) |
 | `PROOFRAG_PROVIDER` | auto | force `anthropic` or `openai` |
-| `PROOFRAG_MODEL` | Haiku / gpt-4o-mini | judge & generator model |
+| `PROOFRAG_MODEL` | Haiku 4.5 / gpt-4o-mini-2024-07-18 | judge & generator model |
 | `PROOFRAG_EMBED_MODEL` | text-embedding-3-small | embedding model for `--semantic` |
 
 ## Contributing
