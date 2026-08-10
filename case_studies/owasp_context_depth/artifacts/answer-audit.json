@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "reviewer": "project audit",
+  "review_scope": "Manual semantic review against retained retrieval contexts; not independent human or security-domain-expert validation.",
+  "variants": {
+    "top6": "comparison variant A; six retained contexts",
+    "top3": "comparison variant B; the exact first three contexts from top6"
+  },
+  "reviewed_ids": [
+    "q000",
+    "q002",
+    "q006",
+    "q010",
+    "q012",
+    "q013",
+    "q017",
+    "q019",
+    "q020",
+    "q021",
+    "q022",
+    "q023"
+  ],
+  "selection": {
+    "non_tie_ids": [
+      "q000",
+      "q002",
+      "q006",
+      "q010",
+      "q012",
+      "q013",
+      "q017",
+      "q019",
+      "q020",
+      "q021",
+      "q022",
+      "q023"
+    ],
+    "unanswerable_ids": [
+      "q013",
+      "q022",
+      "q023"
+    ],
+    "reviewed_count": 12
+  },
+  "safe_refusals": {
+    "correct_corpus_unanswerable": {
+      "top6": 3,
+      "top3": 3
+    },
+    "explicit_insufficiency_all_24": {
+      "top6": 4,
+      "top3": 5
+    },
+    "answerable_cases_with_retrieval_bounded_insufficiency": {
+      "top6": [
+        "q018"
+      ],
+      "top3": [
+        "q018",
+        "q020"
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "q000",
+      "assessment": "Both answers are correct and grounded; top3 states the session-fixation purpose more directly."
+    },
+    {
+      "id": "q002",
+      "assessment": "Top3 directly answers the requested notification/confirmation pair. Top6 is evidence-backed but unnecessarily adds the alternate current-address confirmation process."
+    },
+    {
+      "id": "q006",
+      "assessment": "Both answers fully match the retained credit-card and repository-protection evidence; the decided win is stylistic, not substantive."
+    },
+    {
+      "id": "q010",
+      "assessment": "Both answers fully match the password-strength passage; the decided win is stylistic, not substantive."
+    },
+    {
+      "id": "q012",
+      "assessment": "Both answers correctly explain client-side timeout manipulation; the decided win is stylistic, not substantive."
+    },
+    {
+      "id": "q013",
+      "assessment": "Both variants correctly refuse: none of the retained contexts identifies a Rust crate or version. The absolute judge nevertheless assigned top6 four zeros with a rationale that it failed to answer, while assigning the equivalent top3 refusal four ones; the blind judge preferred top6. The raw outputs are retained without rerunning or selecting a favorable result."
+    },
+    {
+      "id": "q017",
+      "assessment": "Neither variant recovers the gold current-credentials requirement. Top6 substitutes an MFA recommendation; top3 explicitly acknowledges that the required check is absent. Both correctly explain why password plus PIN is not MFA."
+    },
+    {
+      "id": "q019",
+      "assessment": "Both answers distinguish client-side authentication from stored-hash protection, but both generalize beyond the retained evidence. Top6 asserts broad man-in-the-middle protection; top3 asserts prevention of unauthorized access through certificate possession. Both narrow peppering to password shucking instead of clearly stating the gold database-only compromise boundary. Top3 stays closer to the retained certificate storage/presentation evidence."
+    },
+    {
+      "id": "q020",
+      "assessment": "Top6 gives the factually intended work-factor versus entropy contrast, but the retained top6 work-factor excerpt only discusses upgrades and does not state per-guess computational cost. Top3 safely refuses the unsupported half."
+    },
+    {
+      "id": "q021",
+      "assessment": "Both answers are fully grounded and correctly distinguish injection risk from phishing protection; top3 is more concise."
+    },
+    {
+      "id": "q022",
+      "assessment": "Both variants correctly refuse: the retained contexts contain no commercial MFA ranking or price. The decided win is not a substantive correctness difference."
+    },
+    {
+      "id": "q023",
+      "assessment": "Both variants correctly refuse: the retained contexts contain no iOS SDK classes or minimum version. The decided win is not a substantive correctness difference."
+    }
+  ],
+  "judge_disagreements": [
+    {
+      "id": "q013",
+      "note": "The absolute top6 judgment is internally inconsistent with the equivalent top3 judgment and the blind preference. Manual audit counts both as correct safe refusals."
+    },
+    {
+      "id": "q017",
+      "note": "The judge preferred top6, but its MFA recommendation does not answer the gold current-credentials requirement; top3 is more transparent about missing evidence."
+    },
+    {
+      "id": "q020",
+      "note": "The judge preferred top6 for completeness, while a strict retained-context audit finds its per-guess work-factor explanation unsupported by the retrieved excerpts."
+    }
+  ],
+  "q013_sensitivity": {
+    "method": "Replace only q013 top6's four raw zero generation scores with 1.0 to quantify the identified judge inconsistency; do not alter retained raw results.",
+    "raw_top6": {
+      "groundedness": 0.875,
+      "correctness": 0.854167,
+      "completeness": 0.854167,
+      "citation_quality": 0.791667,
+      "overall": 0.84375
+    },
+    "sensitivity_top6": {
+      "groundedness": 0.916667,
+      "correctness": 0.895833,
+      "completeness": 0.895833,
+      "citation_quality": 0.833333,
+      "overall": 0.885417
+    },
+    "impact_per_metric": 0.041667,
+    "decision_impact": "The pre-registered decision still fails: completeness improves by only 0.020833 versus the required 0.05, and the unchanged blind top6 win rate is 5/12 (41.7%). Corrected groundedness ties top3."
+  },
+  "notes": [
+    "All three corpus-unanswerable cases received safe refusals from both variants.",
+    "Five of the twelve decided comparisons are marginal style choices with no substantive correctness difference (q006, q010, q012, q022, q023).",
+    "The audit separates factual plausibility from grounding in the exact retained contexts."
+  ]
+}

@@ -11,7 +11,6 @@ Set TypingSpeed 32ms
 Set PlaybackSpeed 1.4
 
 Hide
-Type "cd /Users/ansh/Documents/projects/proofrag" Enter
 Type "export VIRTUAL_ENV_DISABLE_PROMPT=1 && source .venv/bin/activate" Enter
 Type "export PS1='$ '" Enter
 Type "set -a && source .env && set +a && clear" Enter

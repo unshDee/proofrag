@@ -1,0 +1,38 @@
+{
+  "kind": "http_rfc_goldenset_audit",
+  "schema_version": 2,
+  "ok": true,
+  "generated_goldenset_sha256": "cad443de0cd98135b688e2b8b5febc8ae113c0d60c26d338ebd973809aa4640b",
+  "goldenset_sha256": "72199ecc772d92cd1ac540d503f181812b5817976a04d018c50bca8d26bebe2d",
+  "records": 21,
+  "corpus_chunks": 1859,
+  "difficulty_counts": {
+    "single_doc": 15,
+    "multi_doc": 4,
+    "unanswerable": 2
+  },
+  "study_group_counts": {
+    "structure": 8,
+    "lexical": 7,
+    "multi": 4,
+    "unanswerable": 2
+  },
+  "single_source_counts": {
+    "9110": 3,
+    "9111": 2,
+    "9112": 2,
+    "9113": 2,
+    "9114": 2,
+    "9204": 2,
+    "9931": 2
+  },
+  "review_decision_counts": {
+    "accepted": 9,
+    "edited": 5,
+    "replaced": 7
+  },
+  "reviewer": "project audit",
+  "reviewed_at": "2026-08-10",
+  "validation_scope": "Project-authored semantic audit against the pinned RFC corpus; not independent human validation.",
+  "errors": []
+}

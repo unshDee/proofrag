@@ -1,0 +1,31 @@
+{
+  "kind": "goldenset_validation",
+  "schema_version": 1,
+  "path": "case_studies/owasp_context_depth/goldenset.jsonl",
+  "fingerprint": "sha256:43b27c86dc24de0d",
+  "n": 24,
+  "difficulty_counts": {
+    "multi_doc": 5,
+    "single_doc": 16,
+    "unanswerable": 3
+  },
+  "source_counts": {
+    "case_studies/owasp_context_depth/corpus/Authentication_Cheat_Sheet.md": 6,
+    "case_studies/owasp_context_depth/corpus/Credential_Stuffing_Prevention_Cheat_Sheet.md": 1,
+    "case_studies/owasp_context_depth/corpus/Forgot_Password_Cheat_Sheet.md": 1,
+    "case_studies/owasp_context_depth/corpus/Multifactor_Authentication_Cheat_Sheet.md": 3,
+    "case_studies/owasp_context_depth/corpus/Password_Storage_Cheat_Sheet.md": 5,
+    "case_studies/owasp_context_depth/corpus/Session_Management_Cheat_Sheet.md": 10
+  },
+  "coverage": {
+    "corpus": "case_studies/owasp_context_depth/corpus",
+    "total_sources": 6,
+    "covered_sources": 6,
+    "coverage": 1.0,
+    "missing_sources": [],
+    "unknown_sources": []
+  },
+  "errors": [],
+  "warnings": [],
+  "ok": true
+}

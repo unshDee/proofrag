@@ -115,7 +115,7 @@ Regression vs a committed baseline (a known-good results.json):
 proofrag diff --baseline baseline.json --candidate results.json --tolerance 0.02
 ```
 To wire this into GitHub Actions, use the bundled composite action
-`uses: unshDee/proofrag@v0.7.0` (see the repo README / `examples/ci/`). Tell the user to
+`uses: unshDee/proofrag@v0.8.0` (see the repo README / `examples/ci/`). Tell the user to
 commit a baseline results.json from a good run, then diff every PR against it. The
 action writes a GitHub Actions job summary and uploads the scorecard/results artifact
 by default, including when a gate fails.

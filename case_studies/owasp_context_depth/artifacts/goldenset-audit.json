@@ -1,0 +1,45 @@
+{
+  "kind": "goldenset_project_review_audit",
+  "schema_version": 1,
+  "source_commit": "da4c967e9de854727f72bb2748dd98f76c888b06",
+  "generated_sha256": "c5607d88e82289f1d5c9758b0e40335ebdb4fcdc356b4eb990ec305089e0c5be",
+  "reviewed_sha256": "43b27c86dc24de0d2e53dd80aae0c90166c2e7f3453e2d1bdaba938affbc308b",
+  "reviewed_by": "project audit",
+  "reviewed_at": "2026-08-10",
+  "review_scope": "Project-level semantic and exact-evidence audit; not independent human or domain-expert validation.",
+  "records": 24,
+  "difficulty_counts": {
+    "single_doc": 16,
+    "unanswerable": 3,
+    "multi_doc": 5
+  },
+  "decision_counts": {
+    "accepted": 13,
+    "edited": 6,
+    "replaced": 5
+  },
+  "source_coverage": {
+    "covered": 6,
+    "total": 6
+  },
+  "corpus_sha256": {
+    "Authentication_Cheat_Sheet.md": "5efff7cd4250a47449e77d99a8612e98935b31bdd1b9067e8ae3fff4bcfad329",
+    "Credential_Stuffing_Prevention_Cheat_Sheet.md": "4d3524a775473d1f7a8d470a604226d2c4c063656863b7a9fba39aa9d7139e88",
+    "Forgot_Password_Cheat_Sheet.md": "b10808d3a6653fc72f149d8b60a6f5bc1259575df8264cc34eb7d2ab3083ee47",
+    "Multifactor_Authentication_Cheat_Sheet.md": "0c1de91561bd8b449f5a27033e799c6928df3f24cb48a965994f615671612490",
+    "Password_Storage_Cheat_Sheet.md": "59e6ce03452bb2607e690010487389db388af969d43ce6acb535a3e2f128e14e",
+    "Session_Management_Cheat_Sheet.md": "bf6d4c21941abcb844ce884be7f20cf0a884d86c84eb6bd0df3827bcce55e7e2"
+  },
+  "multi_document_cases": [
+    "q017",
+    "q018",
+    "q019",
+    "q020",
+    "q021"
+  ],
+  "full_corpus_unanswerable_cases": [
+    "q013",
+    "q022",
+    "q023"
+  ]
+}

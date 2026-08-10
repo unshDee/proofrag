@@ -1,0 +1,32 @@
+{
+  "kind": "goldenset_validation",
+  "schema_version": 1,
+  "path": "case_studies/http_rfc_metadata/goldenset.jsonl",
+  "fingerprint": "sha256:72199ecc772d92cd",
+  "n": 21,
+  "difficulty_counts": {
+    "multi_doc": 4,
+    "single_doc": 15,
+    "unanswerable": 2
+  },
+  "source_counts": {
+    "case_studies/http_rfc_metadata/corpus/rfc9110.txt": 4,
+    "case_studies/http_rfc_metadata/corpus/rfc9111.txt": 3,
+    "case_studies/http_rfc_metadata/corpus/rfc9112.txt": 3,
+    "case_studies/http_rfc_metadata/corpus/rfc9113.txt": 3,
+    "case_studies/http_rfc_metadata/corpus/rfc9114.txt": 4,
+    "case_studies/http_rfc_metadata/corpus/rfc9204.txt": 3,
+    "case_studies/http_rfc_metadata/corpus/rfc9931.txt": 3
+  },
+  "coverage": {
+    "corpus": "case_studies/http_rfc_metadata/corpus",
+    "total_sources": 7,
+    "covered_sources": 7,
+    "coverage": 1.0,
+    "missing_sources": [],
+    "unknown_sources": []
+  },
+  "errors": [],
+  "warnings": [],
+  "ok": true
+}

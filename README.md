@@ -4,7 +4,7 @@
   <a href="https://pypi.org/project/proofrag/"><img src="https://img.shields.io/pypi/v/proofrag?color=2563eb&label=pypi" alt="PyPI"></a>
   <a href="https://pypi.org/project/proofrag/"><img src="https://img.shields.io/pypi/pyversions/proofrag" alt="Python"></a>
   <a href="https://github.com/unshDee/proofrag/actions/workflows/ci.yml"><img src="https://github.com/unshDee/proofrag/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT"></a>
+  <a href="https://github.com/unshDee/proofrag/blob/v0.8.0/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT"></a>
 </p>
 
 **Point your agent at your docs and your RAG app. Get a golden test set, an
@@ -17,12 +17,12 @@ It's an [Agent Skill](https://agentskills.io) (works in Claude Code, Codex, Curs
 **and** a plain Python CLI — wrapping the eval loop, not reinventing the metrics.
 
 <p align="center">
-  <img src="docs/demo.gif" alt="proofrag — generate a golden set, judge, and score in one loop" width="820">
+  <img src="https://raw.githubusercontent.com/unshDee/proofrag/v0.8.0/docs/demo.gif" alt="proofrag — generate a golden set, judge, and score in one loop" width="820">
 </p>
 
 <p align="center"><em>…and the scorecard it produces:</em></p>
 <p align="center">
-  <img src="docs/scorecard.png" alt="RAG eval scorecard" width="760">
+  <img src="https://raw.githubusercontent.com/unshDee/proofrag/v0.8.0/docs/scorecard.png" alt="RAG eval scorecard" width="760">
 </p>
 
 <p align="center"><em>See a scorecard in 5 seconds — no API key needed:</em></p>
@@ -51,7 +51,8 @@ Then ask *"evaluate my RAG"* (auto-triggered) or type `/proofrag`.
 **Codex / other agents** — `cp -r skills/proofrag .agents/skills/`
 
 The skill drives the `proofrag` CLI; install it with `uv tool install "proofrag[anthropic]"`
-(or `pipx install`, or run ad-hoc via `uvx`). See [AGENTS.md](AGENTS.md) for details.
+(or `pipx install`, or run ad-hoc via `uvx`). See
+[AGENTS.md](https://github.com/unshDee/proofrag/blob/v0.8.0/AGENTS.md) for details.
 
 ## Why this exists
 
@@ -164,7 +165,8 @@ proofrag run --goldenset goldenset.jsonl \
 
 Adapters may return an answer string, a tuple like `(answer, contexts)`, or a dict
 like `{"answer": "...", "retrieved_contexts": ["...", "..."]}`. The endpoint form
-accepts the same JSON response shape. See [`examples/docs-rag/naive_rag.py`](examples/docs-rag/naive_rag.py)
+accepts the same JSON response shape. See
+[`examples/docs-rag/naive_rag.py`](https://github.com/unshDee/proofrag/blob/v0.8.0/examples/docs-rag/naive_rag.py)
 for a fully custom driver.
 
 ## CI gate
@@ -192,7 +194,7 @@ writes the scorecard, adds a GitHub Actions job summary, uploads the scorecard a
 results as an artifact, and gates on both the floor and the baseline:
 
 ```yaml
-- uses: unshDee/proofrag@v0.7.0
+- uses: unshDee/proofrag@v0.8.0
   env:
     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
   with:
@@ -202,7 +204,8 @@ results as an artifact, and gates on both the floor and the baseline:
     fail-under: "0.7"                   # optional absolute gate
 ```
 
-Full runnable workflow: [`examples/ci/proofrag-eval.yml`](examples/ci/proofrag-eval.yml).
+Full runnable workflow:
+[`examples/ci/proofrag-eval.yml`](https://github.com/unshDee/proofrag/blob/v0.8.0/examples/ci/proofrag-eval.yml).
 
 The artifact and job summary are on by default. Disable them with
 `upload-artifact: "false"` or `summary: "false"` if your workflow handles those
@@ -222,22 +225,31 @@ proofrag compare --goldenset goldenset.jsonl \
 ```
 
 <p align="center">
-  <img src="docs/compare.png" alt="blind A/B comparison report" width="760">
+  <img src="https://raw.githubusercontent.com/unshDee/proofrag/v0.8.0/docs/compare.png" alt="blind A/B comparison report" width="760">
 </p>
 
 Deterministic retrieval metrics for each variant sit beside the verdict, so you can
 tell whether a win came from better retrieval or better generation.
 
-## Case study: overlap vs SQLite FTS5
+## Case studies
 
-The audited [Python concurrency case study](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/REPORT.md)
-uses 30 reviewed questions from immutable, hash-checked official Python 3.14 sources.
-SQLite FTS5 won 13 blind comparisons, token overlap won 6, and 11 tied. The largest
-retrieval difference appeared on multi-document questions—not the overall average.
+Three reproducible studies show how Proofrag separates retrieval changes from answer
+quality. Each uses a hash-checked official corpus, a reviewed golden set, retained raw
+artifacts, blind A/B judging, and an explicit limitations section.
 
-Read the [method and limitations](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/REPORT.md), run the
-[reproduction workflow](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/README.md), or inspect the
-[self-contained comparison](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/artifacts/comparison.html).
+| Question | Corpus | Report and reproduction |
+|----------|--------|-------------------------|
+| Does SQLite FTS5 beat unique-token overlap? | Official Python 3.14 concurrency docs, 30 cases | [Report](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/REPORT.md) · [Workflow](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/README.md) · [A/B result](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/artifacts/comparison.html) |
+| Does RFC section metadata improve BM25 retrieval? | Seven HTTP RFCs, 21 cases | [Report](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/http_rfc_metadata/REPORT.md) · [Workflow](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/http_rfc_metadata/README.md) · [A/B result](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/http_rfc_metadata/artifacts/comparison.html) |
+| Does doubling retrieved OWASP context improve answers? | Six OWASP Cheat Sheets, 24 cases | [Report](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/owasp_context_depth/REPORT.md) · [Workflow](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/owasp_context_depth/README.md) · [A/B result](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/owasp_context_depth/artifacts/comparison.html) |
+
+In the Python study, FTS5 won 13 blind comparisons, token overlap won 6, and 11 tied.
+The largest retrieval difference appeared on multi-document questions—not the overall
+average. In the RFC study, section metadata raised exact NDCG@5 by only 0.018—below
+the predeclared 0.05 threshold—despite winning 4 of 5 decided comparisons. In the
+OWASP study, top-6 raised exact Recall@6 by 0.024 but reduced judged answer quality;
+top-3 won the blind comparison 7–5, with 12 ties. The negative results are retained
+rather than presented as universal optimization claims.
 
 ## What makes it different
 
@@ -320,7 +332,10 @@ OpenAI-compatible path (Anthropic has no embeddings API), so it needs
 | `PROOFRAG_PROVIDER` | auto | force `anthropic` or `openai` |
 | `PROOFRAG_MODEL` | Haiku 4.5 / gpt-4o-mini-2024-07-18 | judge & generator model |
 | `PROOFRAG_EMBED_MODEL` | text-embedding-3-small | embedding model for `--semantic` |
+| `PROOFRAG_USAGE_LOG` | — | append token counts for built-in Anthropic/OpenAI calls as JSONL; no prompt or answer text |
 
 ## Contributing
 
-Issues and PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). MIT licensed.
+Issues and PRs welcome — see
+[CONTRIBUTING.md](https://github.com/unshDee/proofrag/blob/v0.8.0/CONTRIBUTING.md).
+MIT licensed.

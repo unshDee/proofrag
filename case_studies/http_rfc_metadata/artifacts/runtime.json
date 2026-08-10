@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "measurement": "wall-clock seconds reported by /usr/bin/time -p",
+  "phases": [
+    {
+      "command": "generate_goldenset",
+      "wall_seconds": 36.56
+    },
+    {
+      "command": "proofrag run body_fts5",
+      "wall_seconds": 32.55
+    },
+    {
+      "command": "proofrag run metadata_fts5",
+      "wall_seconds": 30.77
+    },
+    {
+      "command": "proofrag evaluate body_fts5 --k 5 --exact",
+      "wall_seconds": 37.25
+    },
+    {
+      "command": "proofrag evaluate metadata_fts5 --k 5 --exact",
+      "wall_seconds": 34.94
+    },
+    {
+      "command": "proofrag compare metadata_fts5 vs body_fts5 --k 5 --exact",
+      "wall_seconds": 29.4
+    }
+  ],
+  "total_wall_seconds": 201.47,
+  "run_integrity": {
+    "observed_transport_retries": 0,
+    "partial_or_replaced_records": 0,
+    "observation": "Provider INFO logs showed 21 successful HTTP 200 responses in each paid phase and no retry messages; per-phase usage logs each contain 21 completed responses."
+  }
+}

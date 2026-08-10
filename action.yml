@@ -39,8 +39,8 @@ inputs:
     description: "proofrag extra to install: anthropic or openai."
     default: "anthropic"
   version:
-    description: "Pin a proofrag version (e.g. 0.3.0). Empty = latest."
-    default: ""
+    description: "proofrag package version installed by this Action."
+    default: "0.8.0"
   summary:
     description: "Write a markdown score summary to the GitHub Actions job summary."
     default: "true"

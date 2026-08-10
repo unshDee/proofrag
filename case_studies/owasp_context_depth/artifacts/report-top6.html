@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RAG Eval Scorecard</title>
+<style>
+  :root {
+    --background:hsl(0 0% 100%); --foreground:hsl(240 10% 3.9%);
+    --card:hsl(0 0% 100%); --muted:hsl(240 4.8% 95.9%);
+    --muted-foreground:hsl(240 3.8% 46.1%); --border:hsl(240 5.9% 90%);
+    --accent:hsl(240 4.8% 95.9%); --primary:hsl(240 5.9% 10%);
+    --good:hsl(142 71% 35%); --ok:hsl(38 92% 40%); --bad:hsl(0 72% 48%);
+    --radius:0.625rem;
+    --shadow:0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 3px 0 rgb(0 0 0 / 0.04);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--background); color:var(--foreground);
+    -webkit-font-smoothing:antialiased;
+    font:14.5px/1.55 ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }
+  .wrap { max-width:1040px; margin:0 auto; padding:48px 28px 72px; }
+  .mono { font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace; }
+  header { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:16px;
+    margin-bottom:32px; }
+  h1 { margin:0; font-size:19px; font-weight:600; letter-spacing:-.01em; }
+  h1 .kit { color:var(--muted-foreground); font-weight:400; }
+  .tagline { color:var(--muted-foreground); font-size:13px; margin-top:4px; }
+  .meta { color:var(--muted-foreground); font-size:12.5px; text-align:right; line-height:1.7; }
+  .meta code { color:var(--foreground); background:var(--muted); padding:2px 7px; border-radius:6px;
+    font-size:12px; }
+  .hero { display:flex; align-items:center; gap:28px; background:var(--card);
+    border:1px solid var(--border); border-radius:var(--radius); padding:28px 32px;
+    margin-bottom:20px; box-shadow:var(--shadow); }
+  .ring { font-size:52px; font-weight:680; line-height:1; letter-spacing:-.03em;
+    font-variant-numeric:tabular-nums; }
+  .ring small { font-size:20px; color:var(--muted-foreground); font-weight:500; margin-left:2px; }
+  .ring.bad { color:var(--bad); }
+  .hero .htitle { font-size:16px; font-weight:600; }
+  .hero .sub { color:var(--muted-foreground); font-size:13.5px; margin-top:3px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px 16px; box-shadow:var(--shadow); }
+  .card-val { font-size:28px; font-weight:650; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+  .card-val small { font-size:14px; color:var(--muted-foreground); font-weight:500; }
+  .card-label { color:var(--muted-foreground); font-size:12.5px; margin-top:6px;
+    display:flex; align-items:center; gap:6px; }
+  .dot { width:7px; height:7px; border-radius:999px; background:var(--good); flex:none; }
+  .ok .dot { background:var(--ok); } .bad .dot { background:var(--bad); }
+  .bad .card-val { color:var(--bad); }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+  .panel { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:24px 26px; box-shadow:var(--shadow); }
+  .panel.full { margin-bottom:20px; padding:24px 26px 12px; }
+  h2 { font-size:13px; font-weight:600; letter-spacing:-.005em; color:var(--foreground);
+    margin:0 0 20px; }
+  h2 small { color:var(--muted-foreground); font-weight:400; }
+  .metric { margin-bottom:16px; }
+  .metric:last-child { margin-bottom:0; }
+  .metric-head { display:flex; justify-content:space-between; font-size:13px; margin-bottom:7px; }
+  .metric-head b { font-variant-numeric:tabular-nums; font-weight:600; }
+  .metric-head .bad { color:var(--bad); }
+  .track { height:6px; background:var(--muted); border-radius:999px; overflow:hidden; }
+  .fill { height:100%; border-radius:999px; background:var(--primary); }
+  .fill.bad { background:var(--bad); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { text-align:right; color:var(--muted-foreground); font-weight:500; padding:0 12px 10px;
+    border-bottom:1px solid var(--border); font-size:12px; }
+  th:first-child { text-align:left; }
+  td { padding:13px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  tbody tr:last-child td { border-bottom:none; }
+  td.q { max-width:420px; font-weight:500; }
+  .why { color:var(--muted-foreground); font-size:12.5px; font-weight:400; margin-top:4px; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; font-weight:500; }
+  td.num.bad { color:var(--bad); font-weight:600; }
+  td.num.mut { color:var(--muted-foreground); }
+  .tag { background:var(--muted); color:var(--muted-foreground); font-weight:500;
+    font-size:11px; padding:2px 9px; border-radius:6px; white-space:nowrap; }
+  footer { color:var(--muted-foreground); font-size:12.5px; text-align:center; margin-top:36px; }
+  footer a { color:var(--foreground); text-decoration:none; }
+  footer a:hover { text-decoration:underline; }
+  @media (max-width:720px) { .grid2 { grid-template-columns:1fr; } }
+</style></head>
+<body><div class="wrap">
+  <header>
+    <div>
+      <h1>RAG Eval Scorecard <span class="kit">· proofrag</span></h1>
+      <div class="tagline">Generation quality &amp; retrieval, judged across 24 cases.</div>
+    </div>
+    <div class="meta">judge <code class="mono">proofrag-v2/openai:gpt-4o-mini-2024-07-18:temperature=0</code><br>2026-08-10T09:34:01+00:00 · 24 cases</div>
+  </header>
+
+  <div class="hero">
+    <div class="ring ok">84<small>/100</small></div>
+    <div>
+      <div class="htitle">Overall generation quality</div>
+      <div class="sub">Mean of groundedness, correctness, completeness, citation quality across 24 cases.</div>
+    </div>
+  </div>
+
+  <div class="cards">
+      <div class="card good">
+        <div class="card-val">88</div>
+        <div class="card-label"><span class="dot"></span>Groundedness</div>
+      </div>
+      <div class="card good">
+        <div class="card-val">85</div>
+        <div class="card-label"><span class="dot"></span>Correctness</div>
+      </div>
+      <div class="card good">
+        <div class="card-val">85</div>
+        <div class="card-label"><span class="dot"></span>Completeness</div>
+      </div>
+      <div class="card ok">
+        <div class="card-val">79</div>
+        <div class="card-label"><span class="dot"></span>Citation Quality</div>
+      </div>
+      <div class="card good">
+        <div class="card-val">91</div>
+        <div class="card-label"><span class="dot"></span>NDCG@6</div>
+      </div></div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h2>Generation <small>— proofrag</small></h2>
+
+      <div class="metric">
+        <div class="metric-head"><span>Groundedness</span><b class="good">88</b></div>
+        <div class="track"><div class="fill good" style="width:88%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-head"><span>Correctness</span><b class="good">85</b></div>
+        <div class="track"><div class="fill good" style="width:85%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-head"><span>Completeness</span><b class="good">85</b></div>
+        <div class="track"><div class="fill good" style="width:85%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-head"><span>Citation Quality</span><b class="ok">79</b></div>
+        <div class="track"><div class="fill ok" style="width:79%"></div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Retrieval <small>— rank-aware</small></h2>
+
+      <div class="metric">
+        <div class="metric-head"><span>Recall@6</span><b class="good">90</b></div>
+        <div class="track"><div class="fill good" style="width:90%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-head"><span>Precision@6</span><b class="bad">18</b></div>
+        <div class="track"><div class="fill bad" style="width:18%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-head"><span>NDCG@6</span><b class="good">91</b></div>
+        <div class="track"><div class="fill good" style="width:91%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="metric-head"><span>MRR</span><b class="good">96</b></div>
+        <div class="track"><div class="fill good" style="width:96%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel full">
+    <h2>Weakest cases</h2>
+    <table>
+      <thead><tr>
+        <th>Question</th><th>Tier</th><th>Grnd</th><th>Corr</th><th>Comp</th><th>Cite</th><th>NDCG@6</th>
+      </tr></thead>
+      <tbody><tr><td class='q'>Which Rust crate and crate version does OWASP recommend for implementing Argon2id password hashing?<div class='why'>The answer fails to address the specific question about the Rust crate and version recommended by OWASP.</div></td><td><span class='tag'>unanswerable</span></td><td class="num bad">0</td><td class="num bad">0</td><td class="num bad">0</td><td class="num bad">0</td><td class="num mut">—</td></tr><tr><td class='q'>Which lifecycle controls should password-reset tokens have, and how must a repository that temporarily stores session IDs be protected?<div class='why'>The answer fails to accurately reflect the necessary lifecycle controls for password-reset tokens and lacks sufficient detail.</div></td><td><span class='tag'>multi_doc</span></td><td class="num bad">0</td><td class="num bad">0</td><td class="num bad">0</td><td class="num bad">0</td><td class="num bad">61</td></tr><tr><td class='q'>How do client certificates and password peppering protect different attack surfaces?<div class='why'>The answer does not accurately reflect the details or structure of the reference answer.</div></td><td><span class='tag'>multi_doc</span></td><td class="num bad">0</td><td class="num bad">0</td><td class="num bad">0</td><td class="num bad">0</td><td class="num bad">61</td></tr><tr><td class='q'>What are the two types of email messages that should be sent when changing a user&#x27;s email address, and what is the purpose of each?<div class='why'>The answer correctly identifies the notification-only and confirmation-required emails but introduces an incorrect approach regarding the current address.</div></td><td><span class='tag'>single_doc</span></td><td class="num good">100</td><td class="num bad">50</td><td class="num bad">50</td><td class="num good">100</td><td class="num good">100</td></tr><tr><td class='q'>What security benefit does salting provide regarding the ability to determine if two users have the same password?<div class='why'>The answer accurately reflects the context and reference but incorrectly cites a source that is not present in the retrieved context.</div></td><td><span class='tag'>single_doc</span></td><td class="num good">100</td><td class="num good">100</td><td class="num good">100</td><td class="num bad">0</td><td class="num good">100</td></tr><tr><td class='q'>What are some examples of environmental and contextual attributes that advanced applications can use to require different authentication stages?<div class='why'>The answer accurately reflects the context and reference but incorrectly cites a source that is not present in the retrieved context.</div></td><td><span class='tag'>single_doc</span></td><td class="num good">100</td><td class="num good">100</td><td class="num good">100</td><td class="num bad">0</td><td class="num good">100</td></tr><tr><td class='q'>What should a web application do if a user submits a session ID through a URL parameter instead of cookies?<div class='why'>The answer accurately reflects the context and aligns with the reference answer.</div></td><td><span class='tag'>single_doc</span></td><td class="num good">100</td><td class="num good">100</td><td class="num good">100</td><td class="num good">100</td><td class="num good">100</td></tr><tr><td class='q'>What are the multiple mechanisms available in HTTP to maintain session state within web applications?<div class='why'>The system&#x27;s answer accurately reflects the context and matches the reference answer.</div></td><td><span class='tag'>single_doc</span></td><td class="num good">100</td><td class="num good">100</td><td class="num good">100</td><td class="num good">100</td><td class="num good">100</td></tr></tbody>
+    </table>
+  </div>
+
+  <footer>Generated by <a href="https://github.com/unshDee/proofrag">proofrag</a> — point your agent at your docs, get a golden set + scorecard in one command.</footer>
+</div></body></html>

@@ -1,0 +1,79 @@
+{
+  "source": "RFC Editor publication text",
+  "verified_at": "2026-08-10",
+  "trusted_host": "www.rfc-editor.org",
+  "license_notice": "NOTICE.md",
+  "license_url": "https://trustee.ietf.org/license-info",
+  "files": [
+    {
+      "name": "rfc9110.txt",
+      "rfc": 9110,
+      "title": "HTTP Semantics",
+      "published": "June 2022",
+      "url": "https://www.rfc-editor.org/rfc/rfc9110.txt",
+      "info_url": "https://www.rfc-editor.org/info/rfc9110",
+      "bytes": 502941,
+      "sha256": "21c1cdce6ab0e5509b04d84a28000836c7a087cf786efe6f04877ebfff47232a"
+    },
+    {
+      "name": "rfc9111.txt",
+      "rfc": 9111,
+      "title": "HTTP Caching",
+      "published": "June 2022",
+      "url": "https://www.rfc-editor.org/rfc/rfc9111.txt",
+      "info_url": "https://www.rfc-editor.org/info/rfc9111",
+      "bytes": 84477,
+      "sha256": "aeb52adb3279d5f23dae34f68af11bd5cef0a0aff7ffcd014c9ca93c5302cf3e"
+    },
+    {
+      "name": "rfc9112.txt",
+      "rfc": 9112,
+      "title": "HTTP/1.1",
+      "published": "June 2022",
+      "url": "https://www.rfc-editor.org/rfc/rfc9112.txt",
+      "info_url": "https://www.rfc-editor.org/info/rfc9112",
+      "bytes": 109913,
+      "sha256": "e4f426bac6206b67fdf9e0da826154f70588db2133a0a86b15cde4ff725d8937"
+    },
+    {
+      "name": "rfc9113.txt",
+      "rfc": 9113,
+      "title": "HTTP/2",
+      "published": "June 2022",
+      "url": "https://www.rfc-editor.org/rfc/rfc9113.txt",
+      "info_url": "https://www.rfc-editor.org/info/rfc9113",
+      "bytes": 191811,
+      "sha256": "a00ef91b64e111a282e77ec66980f5242e77c0bb5e33e0927e3b6757080506de"
+    },
+    {
+      "name": "rfc9114.txt",
+      "rfc": 9114,
+      "title": "HTTP/3",
+      "published": "June 2022",
+      "url": "https://www.rfc-editor.org/rfc/rfc9114.txt",
+      "info_url": "https://www.rfc-editor.org/info/rfc9114",
+      "bytes": 155206,
+      "sha256": "6b84555c88eeebcf5d2b2e1d9d7b58630abc97ab877b2cf62dee4cd635db34e4"
+    },
+    {
+      "name": "rfc9204.txt",
+      "rfc": 9204,
+      "title": "QPACK: Field Compression for HTTP/3",
+      "published": "June 2022",
+      "url": "https://www.rfc-editor.org/rfc/rfc9204.txt",
+      "info_url": "https://www.rfc-editor.org/info/rfc9204",
+      "bytes": 99258,
+      "sha256": "926b4d7e9772b5c316fe87a1e160f5ced118101459ede5b13d11bf9a9273c931"
+    },
+    {
+      "name": "rfc9931.txt",
+      "rfc": 9931,
+      "title": "Security Considerations for Optimistic Protocol Transitions in HTTP/1.1",
+      "published": "March 2026",
+      "url": "https://www.rfc-editor.org/rfc/rfc9931.txt",
+      "info_url": "https://www.rfc-editor.org/info/rfc9931",
+      "bytes": 21580,
+      "sha256": "692ae7b87ee5eba34c96f664595357ae1dd498b75fb2cd49e3ae29567da01fc8"
+    }
+  ]
+}

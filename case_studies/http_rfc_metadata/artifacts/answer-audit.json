@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "reviewer": "project audit",
+  "reviewed_at": "2026-08-10",
+  "validation_scope": "Project-authored review against the pinned RFC excerpts; not independent human or domain-expert validation.",
+  "reviewed_ids": [
+    "q000",
+    "q001",
+    "q002",
+    "q005",
+    "q007",
+    "q013",
+    "q016",
+    "q017",
+    "q018",
+    "q019",
+    "q020"
+  ],
+  "coverage": {
+    "body_retrieval_miss_ids": [
+      "q002",
+      "q007",
+      "q016",
+      "q018"
+    ],
+    "metadata_retrieval_miss_ids": [
+      "q002",
+      "q007",
+      "q016",
+      "q018"
+    ],
+    "blind_non_tie_ids": [
+      "q000",
+      "q001",
+      "q005",
+      "q013",
+      "q017"
+    ],
+    "unanswerable_ids": [
+      "q019",
+      "q020"
+    ]
+  },
+  "refusals": {
+    "body_fts5": {
+      "count": 4,
+      "ids": [
+        "q002",
+        "q018",
+        "q019",
+        "q020"
+      ],
+      "expected_unanswerable": 2,
+      "answerable_after_retrieval_miss": 2,
+      "unanswerable_refusal_rate": "2/2"
+    },
+    "metadata_fts5": {
+      "count": 4,
+      "ids": [
+        "q002",
+        "q018",
+        "q019",
+        "q020"
+      ],
+      "expected_unanswerable": 2,
+      "answerable_after_retrieval_miss": 2,
+      "unanswerable_refusal_rate": "2/2"
+    }
+  },
+  "retrieval_miss_findings": [
+    {
+      "id": "q002",
+      "body_exact_recall_at_5": 0.0,
+      "metadata_exact_recall_at_5": 0.0,
+      "finding": "Neither variant retrieved the RFC 9110 definition chunk. Both refusals were faithful to their unrelated excerpts, but the end-to-end answer was incomplete."
+    },
+    {
+      "id": "q007",
+      "body_exact_recall_at_5": 0.0,
+      "metadata_exact_recall_at_5": 0.0,
+      "finding": "Neither variant retrieved the exact complex-request prose. Both saw adjacent HTTP/2 framing chunks, then incorrectly put END_STREAM on HEADERS and omitted the required DATA-frame sequence."
+    },
+    {
+      "id": "q016",
+      "body_exact_recall_at_5": 0.5,
+      "metadata_exact_recall_at_5": 0.5,
+      "finding": "Both variants retrieved the RFC 9931 mitigation but missed the RFC 9112 authority-form chunk. They instead retrieved an absolute-form chunk that explicitly excludes CONNECT and gave the wrong request-target while answering the mitigation half correctly."
+    },
+    {
+      "id": "q018",
+      "body_exact_recall_at_5": 0.0,
+      "metadata_exact_recall_at_5": 0.5,
+      "finding": "Body retrieval found related QPACK capacity text but neither exact gold chunk. Metadata retrieval found the exact capacity-instruction chunk at rank four but not the HTTP/3 rationale chunk. Both conservatively refused rather than answer only half."
+    }
+  ],
+  "blind_non_tie_review": {
+    "judge_counts": {
+      "metadata_fts5": 4,
+      "body_fts5": 1,
+      "tie": 0
+    },
+    "project_audit_counts": {
+      "metadata_fts5": 2,
+      "body_fts5": 1,
+      "tie": 2
+    },
+    "judge_verdict_agreements": 2,
+    "judge_verdict_disagreements": 3,
+    "cases": [
+      {
+        "id": "q000",
+        "judge_winner": "body_fts5",
+        "project_audit_verdict": "tie",
+        "finding": "Both answers state the exact zero-length byte-range rule. Body adds a true but non-discriminating general note that servers may ignore Range."
+      },
+      {
+        "id": "q001",
+        "judge_winner": "metadata_fts5",
+        "project_audit_verdict": "body_fts5",
+        "finding": "Both cover gateways, accelerator caching, and load balancing, while both omit the legacy/untrusted-service use. Metadata adds response-time and backend-load claims not stated in its retrieved excerpts; body stays within the evidence."
+      },
+      {
+        "id": "q005",
+        "judge_winner": "metadata_fts5",
+        "project_audit_verdict": "metadata_fts5",
+        "finding": "Both correctly explain trailer sections. Metadata adds an accurate Trailer-field detail visible in a retrieved example. The judge rationale overstates this as a mandatory declaration, which neither the answer nor gold evidence claims."
+      },
+      {
+        "id": "q013",
+        "judge_winner": "metadata_fts5",
+        "project_audit_verdict": "tie",
+        "finding": "Answers are semantically identical and fully supported. Adding the word HTTP before upgrade tokens does not create a material quality difference in this question."
+      },
+      {
+        "id": "q017",
+        "judge_winner": "metadata_fts5",
+        "project_audit_verdict": "metadata_fts5",
+        "finding": "Both contain the required h2, h3, preface, and SETTINGS facts. Metadata is clearer; body first says both sides send a connection preface before correctly distinguishing HTTP/3 SETTINGS."
+      }
+    ]
+  },
+  "unanswerable_review": [
+    {
+      "id": "q019",
+      "body_fts5": "correct refusal",
+      "metadata_fts5": "correct refusal",
+      "finding": "Neither retrieved bundle states a worker-thread-per-CPU-core default."
+    },
+    {
+      "id": "q020",
+      "body_fts5": "correct refusal",
+      "metadata_fts5": "correct refusal",
+      "finding": "Retrieved caching excerpts define shared/private caches and storage rules but no disk-space-per-user reservation."
+    }
+  ],
+  "correctness_summary": {
+    "clear_shared_answer_failures": [
+      "q007",
+      "q016"
+    ],
+    "grounded_refusals_caused_by_retrieval_misses": [
+      "q002",
+      "q018"
+    ],
+    "correct_unanswerable_refusals": [
+      "q019",
+      "q020"
+    ],
+    "note": "Manual findings agree with the absolute judge on the substantive q007 and q016 errors. Pairwise disagreements above show why raw 4-1-16 blind counts should not be presented without review."
+  }
+}
