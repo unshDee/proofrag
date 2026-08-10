@@ -1,0 +1,214 @@
+{
+  "schema_version": 2,
+  "generated_goldenset_sha256": "cad443de0cd98135b688e2b8b5febc8ae113c0d60c26d338ebd973809aa4640b",
+  "goldenset_sha256": "72199ecc772d92cd1ac540d503f181812b5817976a04d018c50bca8d26bebe2d",
+  "reviewer": "project audit",
+  "reviewed_at": "2026-08-10",
+  "validation_scope": "Project-authored semantic audit against the pinned RFC corpus; not independent human validation.",
+  "cases": {
+    "q000": {
+      "approved": true,
+      "decision": "accepted",
+      "generated_record_sha256": "cd87f6ea858ae079dd3e4169baf4e72fe717037ae33a5cc0be982dd40b7b59d2",
+      "final_record_sha256": "cd87f6ea858ae079dd3e4169baf4e72fe717037ae33a5cc0be982dd40b7b59d2",
+      "question_natural": true,
+      "notes": "Accepted after checking the zero-length byte-range rule against RFC 9110.",
+      "answer_supported": true
+    },
+    "q001": {
+      "approved": true,
+      "decision": "accepted",
+      "generated_record_sha256": "ebcf20dda3195b2e263ba377e2040a0f72ddcf897bf7cdbe0d876096f5160ae7",
+      "final_record_sha256": "ebcf20dda3195b2e263ba377e2040a0f72ddcf897bf7cdbe0d876096f5160ae7",
+      "question_natural": true,
+      "notes": "Accepted after checking gateway roles and accelerator caching against RFC 9110.",
+      "answer_supported": true
+    },
+    "q002": {
+      "approved": true,
+      "decision": "accepted",
+      "generated_record_sha256": "ddc9504ca437c4d1fe959fa9056887e628b0b84b2b6656cde7cc35e538835026",
+      "final_record_sha256": "ddc9504ca437c4d1fe959fa9056887e628b0b84b2b6656cde7cc35e538835026",
+      "question_natural": true,
+      "notes": "Accepted as a simple lexical-control definition from RFC 9110.",
+      "answer_supported": true
+    },
+    "q003": {
+      "approved": true,
+      "decision": "accepted",
+      "generated_record_sha256": "b9c7f433b34757bf434f7c2296c2c1879e5d73fbf3166d2524ddeb67d5d0f072",
+      "final_record_sha256": "b9c7f433b34757bf434f7c2296c2c1879e5d73fbf3166d2524ddeb67d5d0f072",
+      "question_natural": true,
+      "notes": "Accepted after checking independent cache-validation request synthesis in RFC 9111.",
+      "answer_supported": true
+    },
+    "q004": {
+      "approved": true,
+      "decision": "edited",
+      "generated_record_sha256": "2addeb41b823066dd1a16360498747bfbb6e77b6dd4ff08cd7ca894438af04f7",
+      "final_record_sha256": "edcf05c5215fd8e47e3737e511a997308b32e38e34929f56b122ce8e41ce6073",
+      "question_natural": true,
+      "notes": "Edited to preserve RFC 9111's distinction between common behavior and prohibition.",
+      "answer_supported": true
+    },
+    "q005": {
+      "approved": true,
+      "decision": "accepted",
+      "generated_record_sha256": "7033bf48e8c258a57888904a6b2472d0e07abe4231711c80ee19b58424003f19",
+      "final_record_sha256": "7033bf48e8c258a57888904a6b2472d0e07abe4231711c80ee19b58424003f19",
+      "question_natural": true,
+      "notes": "Accepted after checking chunked trailer purpose against RFC 9112.",
+      "answer_supported": true
+    },
+    "q006": {
+      "approved": true,
+      "decision": "edited",
+      "generated_record_sha256": "ea6240da8cc4172402ce4dd9d7fe6a98c00ce80471f7271307a564b462c078ba",
+      "final_record_sha256": "8cb812a2315193b674f2f2b71e924a756b5ad1e8c885a293a9437c47ccc7ed95",
+      "question_natural": true,
+      "notes": "Edited to include the BCP 14 uppercase condition omitted by the candidate answer.",
+      "answer_supported": true
+    },
+    "q007": {
+      "approved": true,
+      "decision": "replaced",
+      "generated_record_sha256": "21522941cb7ffd914d00e6b796b41ea54600dc3ec362963f2486553e4bd901b8",
+      "final_record_sha256": "e9dde671174d382beef0a354cac5bf6f72c73c0769b0bc6f53e5c4c71e0f858c",
+      "question_natural": true,
+      "notes": "Replaced the unsupported binary-request advice with the bound HTTP/2 frame sequence.",
+      "answer_supported": true
+    },
+    "q008": {
+      "approved": true,
+      "decision": "accepted",
+      "generated_record_sha256": "03c945ad562ccd7dba7f5b8d817506dfaaa31c729f4421575b7ababb0a2215bd",
+      "final_record_sha256": "03c945ad562ccd7dba7f5b8d817506dfaaa31c729f4421575b7ababb0a2215bd",
+      "question_natural": true,
+      "notes": "Accepted after checking retry restrictions around GOAWAY against RFC 9113.",
+      "answer_supported": true
+    },
+    "q009": {
+      "approved": true,
+      "decision": "edited",
+      "generated_record_sha256": "4cca255600abbbb262d876bd95a95de08834ad812fc944b1df3071c019228a41",
+      "final_record_sha256": "b1e6632b13a0423573923b6530c6df8707490f1c18eb6d6759e84f80c7ddbdab",
+      "question_natural": true,
+      "notes": "Edited to remove an invented mitigation and retain only supported abuse examples.",
+      "answer_supported": true
+    },
+    "q010": {
+      "approved": true,
+      "decision": "accepted",
+      "generated_record_sha256": "6add1868fdae156443075d555da0a273068ae130d0c61fbceb5c021e29fb8435",
+      "final_record_sha256": "6add1868fdae156443075d555da0a273068ae130d0c61fbceb5c021e29fb8435",
+      "question_natural": true,
+      "notes": "Accepted after checking the stated HTTP/3 and HTTP/2-with-TLS comparison.",
+      "answer_supported": true
+    },
+    "q011": {
+      "approved": true,
+      "decision": "accepted",
+      "generated_record_sha256": "93309b5cbd07aa1bdfdd2ea42b47c607842fd73c5d7ebb84d07ee04b2273769f",
+      "final_record_sha256": "93309b5cbd07aa1bdfdd2ea42b47c607842fd73c5d7ebb84d07ee04b2273769f",
+      "question_natural": true,
+      "notes": "Accepted after checking QPACK and HPACK static-table index origins.",
+      "answer_supported": true
+    },
+    "q012": {
+      "approved": true,
+      "decision": "accepted",
+      "generated_record_sha256": "9a6486164b8332c7598b7b9fa66ba7ed7c3f7c0cc659dad72f7039c09318dceb",
+      "final_record_sha256": "9a6486164b8332c7598b7b9fa66ba7ed7c3f7c0cc659dad72f7039c09318dceb",
+      "question_natural": true,
+      "notes": "Accepted after checking the non-negative QPACK Base requirement.",
+      "answer_supported": true
+    },
+    "q013": {
+      "approved": true,
+      "decision": "replaced",
+      "generated_record_sha256": "b7d64d4b25a63d64060a166247bb1fc54e203730177f5bc81a04a3f5c833c9b7",
+      "final_record_sha256": "fdb6c08b432f79660b5f462504b3137d8403e41ec7094fdc003ab85b1e6d6d3d",
+      "question_natural": true,
+      "notes": "Replaced the vague overview with specific future upgrade-token method guidance.",
+      "answer_supported": true
+    },
+    "q014": {
+      "approved": true,
+      "decision": "edited",
+      "generated_record_sha256": "00161bcec29761fbb4d88b7649d7d7c06cdaed42b962eb9b668aea8f21a97130",
+      "final_record_sha256": "4810eb3671d56207b10a254866951a7e8212ec7c6fc2fccd6283038468de0586",
+      "question_natural": true,
+      "notes": "Edited to include the no-further-processing and close-option qualifiers.",
+      "answer_supported": true
+    },
+    "q015": {
+      "approved": true,
+      "decision": "replaced",
+      "generated_record_sha256": "a0cc3f7ac7aa2c3ebd5511d1385714a0267a1e157921d7404cea3213d5550a48",
+      "final_record_sha256": "2eb474fa3a37e59fe5295b89b8e081c7916280066eb8c6eabb394fcf3a97f312",
+      "question_natural": true,
+      "notes": "Replaced unrelated range/cache passages with a two-RFC ETag validation question.",
+      "answer_supported": true,
+      "requires_all_contexts": true
+    },
+    "q016": {
+      "approved": true,
+      "decision": "replaced",
+      "generated_record_sha256": "d59d5233e9145ab9a9985bc0558b03f7b7555f53f71dbf0b31f8a15bcea96291",
+      "final_record_sha256": "03e8357f5c105e8fa24fd10b6f22f90ec0c5764120b3604b56cc76adce85f30a",
+      "question_natural": true,
+      "notes": "Replaced a speculative link with CONNECT authority-form and payload-safety requirements.",
+      "answer_supported": true,
+      "requires_all_contexts": true
+    },
+    "q017": {
+      "approved": true,
+      "decision": "replaced",
+      "generated_record_sha256": "b53f3bb550b6789b34079114b7777ca615ede6dc8ca902d57f2306a63be72806",
+      "final_record_sha256": "5e049a7c15a9888b5113d19e7809ac7871d2d076def60f278000c81e35615d26",
+      "question_natural": true,
+      "notes": "Replaced unrelated version facts with an ALPN and post-establishment comparison.",
+      "answer_supported": true,
+      "requires_all_contexts": true
+    },
+    "q018": {
+      "approved": true,
+      "decision": "edited",
+      "generated_record_sha256": "e5cc3d49ae1d4ea0d96b6eecb324f351be9b02c311194ad3aadc84cd5d64de5d",
+      "final_record_sha256": "8cfc37b6bcfcb538504914a45b3c7b20bc8b0e6ed6b6a024bea91a806d5359a3",
+      "question_natural": true,
+      "notes": "Edited so both the HTTP/3 rationale and QPACK capacity instruction are necessary.",
+      "answer_supported": true,
+      "requires_all_contexts": true
+    },
+    "q019": {
+      "approved": true,
+      "decision": "replaced",
+      "generated_record_sha256": "d173ad30dfed79d78ba492f041f5d14fa7a8b10486a20a5a80b9de80dd2dbd91",
+      "final_record_sha256": "0fefcdc5c98143d57eeb02682750bfadeff50c70d4c736c9b4e5595bbcc63b8c",
+      "question_natural": true,
+      "notes": "Replaced an answerable cache-header question; corpus-wide worker-sizing searches were empty.",
+      "full_corpus_absence_confirmed": true,
+      "absence_searches": [
+        "worker threads",
+        "CPU core",
+        "threads per CPU"
+      ]
+    },
+    "q020": {
+      "approved": true,
+      "decision": "replaced",
+      "generated_record_sha256": "58e56607d0a50cb4f8efd1f32eaf65591327c62ef9e5d706aa6a784821a72d8f",
+      "final_record_sha256": "3d0ef16a98184300c8fc9b30cec9d2fddab1d606082d90fb762a7604ab7b00cb",
+      "question_natural": true,
+      "notes": "Replaced an answerable GOAWAY question; corpus-wide cache-storage sizing searches were empty.",
+      "full_corpus_absence_confirmed": true,
+      "absence_searches": [
+        "disk space per user",
+        "megabytes per user",
+        "storage quota",
+        "cache size"
+      ]
+    }
+  }
+}

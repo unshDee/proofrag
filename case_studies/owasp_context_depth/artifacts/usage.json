@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "pricing_snapshot": {
+    "date": "2026-08-10",
+    "currency": "USD",
+    "sources": {
+      "anthropic": "https://claude.com/pricing",
+      "openai": "https://developers.openai.com/api/docs/models/gpt-4o-mini"
+    },
+    "rates_per_million_tokens": {
+      "anthropic:claude-haiku-4-5-20251001": {
+        "input": 1.0,
+        "output": 5.0,
+        "cache_creation": 1.25,
+        "cache_read": 0.1
+      },
+      "openai:gpt-4o-mini-2024-07-18": {
+        "input": 0.15,
+        "output": 0.6,
+        "cache_creation": 0.0,
+        "cache_read": 0.075
+      }
+    }
+  },
+  "phases": {
+    "answer-top3": {
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5-20251001",
+      "response_models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "system_fingerprints": [],
+      "calls": 24,
+      "input_tokens": 10460,
+      "output_tokens": 2052,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "estimated_usd": 0.02072
+    },
+    "answer-top6": {
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5-20251001",
+      "response_models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "system_fingerprints": [],
+      "calls": 24,
+      "input_tokens": 18634,
+      "output_tokens": 2450,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "estimated_usd": 0.030884
+    },
+    "compare": {
+      "provider": "openai",
+      "model": "gpt-4o-mini-2024-07-18",
+      "response_models": [
+        "gpt-4o-mini-2024-07-18"
+      ],
+      "system_fingerprints": [
+        "fp_25b7d0bd77",
+        "fp_2b114d87de",
+        "fp_33a9b387c2",
+        "fp_3cb74a061c",
+        "fp_66ee548660",
+        "fp_6ec6bfb92d",
+        "fp_830d456649",
+        "fp_836208cd2a",
+        "fp_9709ac0e8b",
+        "fp_98fa25fd02",
+        "fp_9afcdcbeed",
+        "fp_ab0a2ab924",
+        "fp_c400bf5046",
+        "fp_c73dd82b09",
+        "fp_c881474fd1",
+        "fp_d26e8aed44",
+        "fp_d6d3876e6e"
+      ],
+      "calls": 24,
+      "input_tokens": 8322,
+      "output_tokens": 568,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "estimated_usd": 0.001589
+    },
+    "evaluate-top3": {
+      "provider": "openai",
+      "model": "gpt-4o-mini-2024-07-18",
+      "response_models": [
+        "gpt-4o-mini-2024-07-18"
+      ],
+      "system_fingerprints": [
+        "fp_18fc98c6d2",
+        "fp_3cb74a061c",
+        "fp_5d8d1116aa",
+        "fp_6339e52f56",
+        "fp_66ee548660",
+        "fp_6ec6bfb92d",
+        "fp_788bf556eb",
+        "fp_7e3eefb104",
+        "fp_830d456649",
+        "fp_836208cd2a",
+        "fp_9709ac0e8b",
+        "fp_9afcdcbeed",
+        "fp_ab0a2ab924",
+        "fp_b1b99e3b92",
+        "fp_c400bf5046",
+        "fp_c881474fd1",
+        "fp_d26e8aed44",
+        "fp_d6d3876e6e",
+        "fp_e7eb9f2bc2"
+      ],
+      "calls": 24,
+      "input_tokens": 14289,
+      "output_tokens": 1418,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "estimated_usd": 0.002994
+    },
+    "evaluate-top6": {
+      "provider": "openai",
+      "model": "gpt-4o-mini-2024-07-18",
+      "response_models": [
+        "gpt-4o-mini-2024-07-18"
+      ],
+      "system_fingerprints": [
+        "fp_18fc98c6d2",
+        "fp_3cb74a061c",
+        "fp_5d8d1116aa",
+        "fp_6339e52f56",
+        "fp_66ee548660",
+        "fp_6ec6bfb92d",
+        "fp_788bf556eb",
+        "fp_7e3eefb104",
+        "fp_830d456649",
+        "fp_836208cd2a",
+        "fp_9709ac0e8b",
+        "fp_9afcdcbeed",
+        "fp_ab0a2ab924",
+        "fp_b1b99e3b92",
+        "fp_c400bf5046",
+        "fp_c881474fd1",
+        "fp_d26e8aed44",
+        "fp_d6d3876e6e",
+        "fp_e7eb9f2bc2"
+      ],
+      "calls": 24,
+      "input_tokens": 20937,
+      "output_tokens": 1454,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "estimated_usd": 0.004013
+    },
+    "generation": {
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5-20251001",
+      "response_models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "system_fingerprints": [],
+      "calls": 24,
+      "input_tokens": 5408,
+      "output_tokens": 2405,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "estimated_usd": 0.017433
+    }
+  },
+  "providers": {
+    "anthropic": {
+      "calls": 72,
+      "input_tokens": 34502,
+      "output_tokens": 6907,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "estimated_usd": 0.069037
+    },
+    "openai": {
+      "calls": 72,
+      "input_tokens": 43548,
+      "output_tokens": 3440,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "estimated_usd": 0.008596
+    }
+  },
+  "totals": {
+    "calls": 144,
+    "input_tokens": 78050,
+    "output_tokens": 10347,
+    "estimated_usd": 0.077633
+  },
+  "cost_note": "Estimate from provider-reported tokens and public list prices on the snapshot date; provider billing consoles remain authoritative."
+}

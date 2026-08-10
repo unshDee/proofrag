@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from pathlib import Path
 from typing import Any
 
 # Cheap-by-default. Override with PROOFRAG_MODEL.
@@ -85,6 +86,15 @@ class LLM:
             system=system,
             messages=[{"role": "user", "content": prompt}],
         )
+        _record_usage(
+            self.provider,
+            self.model,
+            response_model=str(getattr(msg, "model", "") or self.model),
+            input_tokens=_usage_value(msg.usage, "input_tokens"),
+            output_tokens=_usage_value(msg.usage, "output_tokens"),
+            cache_creation_input_tokens=_usage_value(msg.usage, "cache_creation_input_tokens"),
+            cache_read_input_tokens=_usage_value(msg.usage, "cache_read_input_tokens"),
+        )
         return "".join(
             getattr(b, "text", "") for b in msg.content if getattr(b, "type", "") == "text"
         )
@@ -99,6 +109,16 @@ class LLM:
                 {"role": "system", "content": system},
                 {"role": "user", "content": prompt},
             ],
+        )
+        cached = _usage_value(getattr(resp.usage, "prompt_tokens_details", None), "cached_tokens")
+        _record_usage(
+            self.provider,
+            self.model,
+            response_model=str(getattr(resp, "model", "") or self.model),
+            system_fingerprint=str(getattr(resp, "system_fingerprint", "") or ""),
+            input_tokens=_usage_value(resp.usage, "prompt_tokens"),
+            output_tokens=_usage_value(resp.usage, "completion_tokens"),
+            cache_read_input_tokens=cached,
         )
         return resp.choices[0].message.content or ""
 
@@ -141,3 +161,37 @@ def _extract_json(text: str) -> dict:
 
 def _invalid_constant(value: str):
     raise ValueError(f"invalid JSON constant {value}")
+
+
+def _usage_value(usage: Any, name: str) -> int:
+    value = getattr(usage, name, 0) if usage is not None else 0
+    return value if isinstance(value, int) and value >= 0 else 0
+
+
+def _record_usage(
+    provider: str,
+    model: str,
+    *,
+    response_model: str = "",
+    system_fingerprint: str = "",
+    input_tokens: int,
+    output_tokens: int,
+    cache_creation_input_tokens: int = 0,
+    cache_read_input_tokens: int = 0,
+) -> None:
+    """Append provider-reported token counts when PROOFRAG_USAGE_LOG is set."""
+    destination = os.environ.get("PROOFRAG_USAGE_LOG")
+    if not destination:
+        return
+    record = {
+        "provider": provider,
+        "model": model,
+        "response_model": response_model or model,
+        "system_fingerprint": system_fingerprint,
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "cache_creation_input_tokens": cache_creation_input_tokens,
+        "cache_read_input_tokens": cache_read_input_tokens,
+    }
+    with Path(destination).open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, sort_keys=True) + "\n")

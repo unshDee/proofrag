@@ -113,7 +113,7 @@ reportExplicitAny = false
 reportPrivateUsage = false
 
 [tool.codespell]
-skip = "*.lock,docs/scorecard.png,case_studies/*/artifacts/*,case_studies/*/corpus/*"
+skip = "*.lock,docs/scorecard.png,case_studies/*/*.jsonl,case_studies/*/artifacts/*,case_studies/*/corpus/*"
 # code identifiers that codespell mistakes for typos
 ignore-words-list = "ans,nin,fo"
 

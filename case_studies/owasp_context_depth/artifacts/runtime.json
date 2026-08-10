@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "measurement": "wall-clock seconds reported by the command runner",
+  "phases": [
+    {
+      "label": "goldenset_generation",
+      "command": "proofrag generate",
+      "wall_seconds": 42.25
+    },
+    {
+      "label": "answer_top3",
+      "command": "proofrag run --callable case_studies.owasp_context_depth.rag:answer_top3",
+      "wall_seconds": 30.002138
+    },
+    {
+      "label": "answer_top6",
+      "command": "proofrag run --callable case_studies.owasp_context_depth.rag:answer_top6",
+      "wall_seconds": 41.27564
+    },
+    {
+      "label": "evaluate_top3",
+      "command": "proofrag evaluate --k 6 --exact (top3)",
+      "wall_seconds": 35.67507
+    },
+    {
+      "label": "evaluate_top6",
+      "command": "proofrag evaluate --k 6 --exact (top6)",
+      "wall_seconds": 30.649745
+    },
+    {
+      "label": "compare_top6_vs_top3",
+      "command": "proofrag compare --a top6 --b top3 --k 6 --exact --seed 0",
+      "wall_seconds": 26.647965
+    }
+  ],
+  "total_wall_seconds": 206.500559,
+  "run_integrity": {
+    "usage_rows_per_phase": 24,
+    "prediction_records": {
+      "top3": 24,
+      "top6": 24
+    },
+    "evaluation_records": {
+      "top3": 24,
+      "top6": 24
+    },
+    "comparison_records": 24,
+    "evaluation_errors": 0,
+    "comparison_errors": 0,
+    "unexpected_retries_observed": 0,
+    "partial_records": 0,
+    "retry_observation_limit": "Provider SDK transport retries, if any, are not separately exposed by the retained usage logs."
+  },
+  "note": "The generation measurement was captured by the earlier pinned generation run. Long-running phase measurements include the initial 30-second command interval plus any continuation poll."
+}

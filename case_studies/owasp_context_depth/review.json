@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "source_commit": "da4c967e9de854727f72bb2748dd98f76c888b06",
+  "generated_sha256": "c5607d88e82289f1d5c9758b0e40335ebdb4fcdc356b4eb990ec305089e0c5be",
+  "reviewed_sha256": "43b27c86dc24de0d2e53dd80aae0c90166c2e7f3453e2d1bdaba938affbc308b",
+  "reviewed_by": "project audit",
+  "reviewed_at": "2026-08-10",
+  "review_scope": "Project-level semantic and exact-evidence audit; not independent human or domain-expert validation.",
+  "cases": {
+    "q000": {
+      "decision": "accepted",
+      "note": "Confirmed the cookie-only exchange guidance and session-fixation rationale.",
+      "evidence_sources": [
+        "Session_Management_Cheat_Sheet.md"
+      ]
+    },
+    "q001": {
+      "decision": "accepted",
+      "note": "Confirmed all five HTTP session-state mechanisms listed in the cited chunk.",
+      "evidence_sources": [
+        "Session_Management_Cheat_Sheet.md"
+      ]
+    },
+    "q002": {
+      "decision": "accepted",
+      "note": "Confirmed the recipients, notification/confirmation distinction, and purposes.",
+      "evidence_sources": [
+        "Authentication_Cheat_Sheet.md"
+      ]
+    },
+    "q003": {
+      "decision": "accepted",
+      "note": "Confirmed the three JavaScript-accessible fingerprint attributes.",
+      "evidence_sources": [
+        "Credential_Stuffing_Prevention_Cheat_Sheet.md"
+      ]
+    },
+    "q004": {
+      "decision": "accepted",
+      "note": "Confirmed the binding between credentials, HTTP traffic, and access controls.",
+      "evidence_sources": [
+        "Session_Management_Cheat_Sheet.md"
+      ]
+    },
+    "q005": {
+      "decision": "edited",
+      "note": "Changed 'recommended algorithms' to examples, matching the passage's wording.",
+      "evidence_sources": [
+        "Password_Storage_Cheat_Sheet.md"
+      ]
+    },
+    "q006": {
+      "decision": "edited",
+      "note": "Narrowed a plural claim to the credit-card example and stated its protection.",
+      "evidence_sources": [
+        "Session_Management_Cheat_Sheet.md"
+      ]
+    },
+    "q007": {
+      "decision": "accepted",
+      "note": "Confirmed the PHP password_verify example and comparison purpose.",
+      "evidence_sources": [
+        "Authentication_Cheat_Sheet.md"
+      ]
+    },
+    "q008": {
+      "decision": "accepted",
+      "note": "Confirmed why distinct salts conceal equal passwords without cracking.",
+      "evidence_sources": [
+        "Password_Storage_Cheat_Sheet.md"
+      ]
+    },
+    "q009": {
+      "decision": "accepted",
+      "note": "Confirmed the hexadecimal length needed to encode 64 bits of entropy.",
+      "evidence_sources": [
+        "Session_Management_Cheat_Sheet.md"
+      ]
+    },
+    "q010": {
+      "decision": "accepted",
+      "note": "Confirmed password strength as the stated authentication concern.",
+      "evidence_sources": [
+        "Authentication_Cheat_Sheet.md"
+      ]
+    },
+    "q011": {
+      "decision": "accepted",
+      "note": "Confirmed both risk-signal and fallback-mechanism implementation concerns.",
+      "evidence_sources": [
+        "Multifactor_Authentication_Cheat_Sheet.md"
+      ]
+    },
+    "q012": {
+      "decision": "accepted",
+      "note": "Confirmed the server-side timeout requirement and client-tampering rationale.",
+      "evidence_sources": [
+        "Session_Management_Cheat_Sheet.md"
+      ]
+    },
+    "q013": {
+      "decision": "replaced",
+      "note": "Replaced an overrepresented session case with a corpus-absent Rust question.",
+      "absence_queries": [
+        "rust crate",
+        "cargo add argon2"
+      ]
+    },
+    "q014": {
+      "decision": "edited",
+      "note": "Changed 'recommended' to 'common' timeout ranges to match the passage.",
+      "evidence_sources": [
+        "Session_Management_Cheat_Sheet.md"
+      ]
+    },
+    "q015": {
+      "decision": "accepted",
+      "note": "Confirmed all five contextual attributes in the cited passage.",
+      "evidence_sources": [
+        "Authentication_Cheat_Sheet.md"
+      ]
+    },
+    "q016": {
+      "decision": "accepted",
+      "note": "Confirmed the one-way-hashing rationale and direct-login consequence.",
+      "evidence_sources": [
+        "Password_Storage_Cheat_Sheet.md"
+      ]
+    },
+    "q017": {
+      "decision": "replaced",
+      "note": "Rebuilt with complete chunks; each clause requires a different source.",
+      "evidence_sources": [
+        "Authentication_Cheat_Sheet.md",
+        "Multifactor_Authentication_Cheat_Sheet.md"
+      ]
+    },
+    "q018": {
+      "decision": "replaced",
+      "note": "Rebuilt around reset-token lifecycle controls and session-ID repository safety.",
+      "evidence_sources": [
+        "Forgot_Password_Cheat_Sheet.md",
+        "Session_Management_Cheat_Sheet.md"
+      ]
+    },
+    "q019": {
+      "decision": "edited",
+      "note": "Removed unsupported detail and retained a two-source attack-surface comparison.",
+      "evidence_sources": [
+        "Multifactor_Authentication_Cheat_Sheet.md",
+        "Password_Storage_Cheat_Sheet.md"
+      ]
+    },
+    "q020": {
+      "decision": "replaced",
+      "note": "Replaced a speculative analogy with the documented cost-versus-entropy contrast.",
+      "evidence_sources": [
+        "Password_Storage_Cheat_Sheet.md",
+        "Session_Management_Cheat_Sheet.md"
+      ]
+    },
+    "q021": {
+      "decision": "edited",
+      "note": "Removed unsupported generalization; retained SQL-injection and phishing controls.",
+      "evidence_sources": [
+        "Session_Management_Cheat_Sheet.md",
+        "Authentication_Cheat_Sheet.md"
+      ]
+    },
+    "q022": {
+      "decision": "replaced",
+      "note": "Replaced an answerable protocol comparison with absent vendor ranking and pricing.",
+      "absence_queries": [
+        "10,000 users",
+        "monthly price"
+      ]
+    },
+    "q023": {
+      "decision": "edited",
+      "note": "Narrowed the absent information to concrete iOS APIs and version requirements.",
+      "absence_queries": [
+        "minimum ios version",
+        "authenticationservices framework"
+      ]
+    }
+  }
+}

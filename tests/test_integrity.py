@@ -12,7 +12,7 @@ from proofrag.compare import compare
 from proofrag.diffing import diff
 from proofrag.goldenset import generate, goldenset_fingerprint
 from proofrag.judge import evaluate
-from proofrag.llm import LLM, LLMError, _extract_json
+from proofrag.llm import LLM, LLMError, _extract_json, _record_usage
 from proofrag.metrics import exact_matcher, lexical_matcher, ndcg_at_k
 from proofrag.run import RunError, endpoint_runner, join_predictions
 from proofrag.scorecard import render
@@ -74,6 +74,30 @@ def test_openai_fingerprint_hashes_compatible_endpoint(monkeypatch):
     fingerprint = LLM(provider="openai", model="local-model").fingerprint
     assert "endpoint=" in fingerprint
     assert endpoint not in fingerprint
+
+
+def test_optional_usage_log_records_tokens_without_prompt_content(tmp_path, monkeypatch):
+    usage_log = tmp_path / "usage.jsonl"
+    monkeypatch.setenv("PROOFRAG_USAGE_LOG", str(usage_log))
+
+    _record_usage(
+        "openai",
+        "gpt-test",
+        input_tokens=120,
+        output_tokens=30,
+        cache_read_input_tokens=40,
+    )
+
+    assert json.loads(usage_log.read_text()) == {
+        "provider": "openai",
+        "model": "gpt-test",
+        "response_model": "gpt-test",
+        "system_fingerprint": "",
+        "input_tokens": 120,
+        "output_tokens": 30,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 40,
+    }
 
 
 def test_exact_matcher_avoids_lexical_near_match():

@@ -1,0 +1,417 @@
+{
+  "judge_fingerprint": "proofrag-v2/anthropic:claude-haiku-4-5-20251001:temperature=0",
+  "backend": "proofrag",
+  "generation_metrics": [
+    "groundedness",
+    "correctness",
+    "completeness",
+    "citation_quality"
+  ],
+  "created": "2026-08-10T09:33:39+00:00",
+  "k": 5,
+  "matcher": "exact",
+  "goldenset_fingerprint": "sha256:84237e8f0a4a0d44",
+  "n": 21,
+  "evaluation_errors": [],
+  "aggregate": {
+    "groundedness": 0.895,
+    "correctness": 0.829,
+    "completeness": 0.817,
+    "citation_quality": 0.86,
+    "recall_at_k": 0.816,
+    "precision_at_k": 0.189,
+    "ndcg_at_k": 0.711,
+    "mrr": 0.689
+  },
+  "records": [
+    {
+      "id": "q000",
+      "question": "What are the requirements for using byte ranges in a GET request when the selected representation has zero length?",
+      "difficulty": "single_doc",
+      "answer": "When the selected representation has zero length, the only satisfiable form of range-spec in a GET request is a suffix-range with a non-zero suffix-length. Additionally, a server that supports range requests may ignore a Range header field in this case [rfc9110.txt].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer directly matches the reference answer and is fully supported by the retrieved context, which explicitly states the requirement and provides appropriate additional context about server behavior."
+    },
+    {
+      "id": "q001",
+      "question": "What role do gateways play in HTTP communication, and how do they enhance server performance?",
+      "difficulty": "single_doc",
+      "answer": "Gateways, also known as reverse proxies, act as intermediaries that serve as origin servers for outbound connections while translating and forwarding requests to other servers. They enhance server performance through \"accelerator\" caching and enable partitioning or load balancing of HTTP services across multiple machines [rfc9110.txt].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 0.9,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 0.631,
+        "mrr": 0.5
+      },
+      "rationale": "Answer is well-supported by context, factually accurate, and properly cited; only minor incompleteness in not explicitly mentioning encapsulation of legacy/untrusted services."
+    },
+    {
+      "id": "q002",
+      "question": "What type of protocols does HTTP represent?",
+      "difficulty": "single_doc",
+      "answer": "I don't have enough information in the provided context to answer that.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly refused to answer because the retrieved context contains no information about what type of protocols HTTP represents; it only discusses HTTP technical details like status codes and multipart types."
+    },
+    {
+      "id": "q003",
+      "question": "How does a cache generate a conditional request for validation when it is either satisfying an existing request or initiating one independently?",
+      "difficulty": "single_doc",
+      "answer": "A cache generates a conditional request for validation by either starting with the request it is attempting to satisfy or, if initiating the request independently, synthesizing a request using a stored response. This involves copying the method, target URI, and request header fields identified by the Vary header field from the stored response [rfc9111.txt].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The system answer directly matches the reference answer and is fully supported by the retrieved context, which explicitly describes the two-path process of generating conditional requests with proper citation."
+    },
+    {
+      "id": "q004",
+      "question": "Does the caching specification prohibit a cache from storing a response that has neither a cache validator nor an explicit expiration time?",
+      "difficulty": "single_doc",
+      "answer": "No, the caching specification does not prohibit a cache from storing such responses; it states that caches are not prohibited from storing responses without a cache validator or explicit expiration time [rfc9111.txt].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 0.7,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "Answer is factually correct and well-supported by context, but omits the nuance that caches typically won't store such responses in normal operation despite being permitted to do so."
+    },
+    {
+      "id": "q005",
+      "question": "How can I include additional metadata at the end of a chunked HTTP message?",
+      "difficulty": "single_doc",
+      "answer": "You can include additional metadata at the end of a chunked HTTP message by using a trailer section, which allows you to add fields that supply metadata dynamically generated while the content is sent. The trailer section consists of one or more field lines formatted as name/value pairs. [rfc9112.txt]",
+      "scores": {
+        "groundedness": 0.95,
+        "correctness": 1.0,
+        "completeness": 0.9,
+        "citation_quality": 0.85
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "Answer accurately describes trailer sections for chunked HTTP metadata with strong support from context, though could have mentioned the Trailer header field declaration requirement and chunk extensions as an alternative approach."
+    },
+    {
+      "id": "q006",
+      "question": "When do the listed requirement keywords carry their BCP 14 meanings, and which keywords does the passage list?",
+      "difficulty": "single_doc",
+      "answer": "The listed requirement keywords carry their BCP 14 meanings when they appear in all capitals. The keywords are \"MUST\", \"MUST NOT\", \"REQUIRED\", \"SHALL\", \"SHALL NOT\", \"SHOULD\", \"SHOULD NOT\", \"RECOMMENDED\", \"NOT RECOMMENDED\", \"MAY\", and \"OPTIONAL\" [rfc9110.txt], [rfc9931.txt], [rfc9111.txt], [rfc9112.txt], [rfc9113.txt].",
+      "scores": {
+        "groundedness": 0.6,
+        "correctness": 0.95,
+        "completeness": 0.95,
+        "citation_quality": 0.2
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 0.431,
+        "mrr": 0.25
+      },
+      "rationale": "Answer correctly identifies when keywords carry BCP 14 meanings and lists all 11 keywords accurately, but adds unsupported RFC citations not present in the retrieved context."
+    },
+    {
+      "id": "q007",
+      "question": "For an HTTP/2 POST that carries request headers and content, what frame sequence and END flags does RFC 9113 specify?",
+      "difficulty": "single_doc",
+      "answer": "For an HTTP/2 POST that carries request headers and content, the frame sequence consists of a HEADERS frame followed by zero or more CONTINUATION frames. The HEADERS frame has the END_STREAM flag set to indicate that the stream is ending, and the END_HEADERS flag is also set to indicate the end of the header section. The CONTINUATION frames may follow to carry any remaining fragments of the field block. [rfc9113.txt]",
+      "scores": {
+        "groundedness": 0.2,
+        "correctness": 0.1,
+        "completeness": 0.3,
+        "citation_quality": 0.4
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The answer incorrectly states END_STREAM is set on the HEADERS frame for POST with content, when RFC 9113 specifies END_STREAM should be on the final DATA frame; it also omits DATA frames entirely and misrepresents the flag placement."
+    },
+    {
+      "id": "q008",
+      "question": "What types of actions can be reattempted on streams with lower- or equal-numbered identifiers after a connection is closed?",
+      "difficulty": "single_doc",
+      "answer": "Idempotent actions like HTTP GET, PUT, or DELETE can be reattempted on streams with lower- or equal-numbered identifiers after a connection is closed. [rfc9113.txt]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer directly matches the reference answer and is fully supported by the retrieved context which explicitly states 'reattempting requests, transactions, or any protocol activity is not possible, except for idempotent actions like HTTP GET, PUT, or DELETE.'"
+    },
+    {
+      "id": "q009",
+      "question": "How can undefined HTTP/3 protocol elements waste peer resources, and which uses of ignorable elements does RFC 9114 identify as legitimate?",
+      "difficulty": "single_doc",
+      "answer": "Undefined HTTP/3 protocol elements can waste peer resources by causing the peer to expend additional processing time when it encounters multiple undefined SETTINGS parameters, unknown frame types, or unknown stream types. However, legitimate uses of ignorable elements include optional-to-understand extensions and padding to increase resistance to traffic analysis [rfc9114.txt].",
+      "scores": {
+        "groundedness": 0.95,
+        "correctness": 0.95,
+        "completeness": 0.9,
+        "citation_quality": 0.85
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "Answer accurately captures the core mechanisms and legitimate uses from RFC 9114 with strong support from retrieved context, though citation format is informal and some nuance about frame processing is omitted."
+    },
+    {
+      "id": "q010",
+      "question": "How do the security considerations of HTTP/3 compare to those of HTTP/2 with TLS?",
+      "difficulty": "single_doc",
+      "answer": "The security considerations of HTTP/3 should be comparable to those of HTTP/2 with TLS, but many specific considerations from HTTP/2 apply to QUIC-TRANSPORT, which are discussed in that document [rfc9114.txt].",
+      "scores": {
+        "groundedness": 0.95,
+        "correctness": 0.95,
+        "completeness": 0.9,
+        "citation_quality": 0.85
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the reference and retrieved context, correctly stating HTTP/3 security is comparable to HTTP/2 with TLS and that HTTP/2 considerations apply to QUIC, though the citation format could be more precise."
+    },
+    {
+      "id": "q011",
+      "question": "How does the indexing of the static table in QPACK differ from that in HPACK?",
+      "difficulty": "single_doc",
+      "answer": "In QPACK, the static table is indexed from 0, whereas in HPACK, it is indexed from 1 [rfc9204.txt].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 0.631,
+        "mrr": 0.5
+      },
+      "rationale": "The answer directly matches the reference answer and is fully supported by the retrieved context which explicitly states 'the QPACK static table is indexed from 0, whereas the HPACK static table is indexed from 1.'"
+    },
+    {
+      "id": "q012",
+      "question": "What must the value of Base not be in the context of the protocol described?",
+      "difficulty": "single_doc",
+      "answer": "The value of Base must not be negative [rfc9204.txt].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer directly matches the reference answer and is fully supported by the first sentence of the retrieved context with appropriate citation."
+    },
+    {
+      "id": "q013",
+      "question": "When an HTTP upgrade token does not preserve HTTP semantics and the method is otherwise irrelevant, what request form should future specifications require, and why?",
+      "difficulty": "single_doc",
+      "answer": "Future specifications should require GET requests with no content for upgrade tokens that do not preserve HTTP semantics because this improves consistency with other upgrade tokens and simplifies server implementation [rfc9931.txt].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer directly matches the reference answer and is fully supported by the retrieved context, which explicitly states that future specifications should restrict upgrade tokens to GET requests with no content for consistency and simplified server implementation."
+    },
+    {
+      "id": "q014",
+      "question": "What must a proxy server do when it rejects an HTTP/1.1 CONNECT request from a potentially vulnerable client?",
+      "difficulty": "single_doc",
+      "answer": "A proxy server must close the underlying connection when rejecting an HTTP/1.1 CONNECT request without processing any further requests on that connection. This requirement applies regardless of whether the request includes a \"close\" connection option. [rfc9931.txt]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 0.631,
+        "mrr": 0.5
+      },
+      "rationale": "The system answer directly matches the reference answer and is fully supported by the retrieved context, which explicitly states the proxy server requirement and that it applies regardless of the 'close' connection option."
+    },
+    {
+      "id": "q015",
+      "question": "If an origin server's ETag does not satisfy strong-validator characteristics, how must it mark the tag, and how must a cache use stored ETags for validation?",
+      "difficulty": "multi_doc",
+      "answer": "If an origin server's ETag does not satisfy strong-validator characteristics, it must mark the tag as weak by prefixing its opaque value with \"W/\" [rfc9110.txt]. A cache must send the relevant entity tags using If-Match, If-None-Match, or If-Range if the entity tags were provided in the stored response(s) being validated [rfc9111.txt].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.4,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately states both requirements (weak ETag marking with 'W/' prefix and cache validation using If-Match/If-None-Match/If-Range) with direct support from the retrieved context and appropriate citations."
+    },
+    {
+      "id": "q016",
+      "question": "For an HTTP/1.1 CONNECT tunnel requested on behalf of an untrusted TCP client, what request-target must be sent and what must the proxy client do before or while forwarding payload data?",
+      "difficulty": "multi_doc",
+      "answer": "For an HTTP/1.1 CONNECT tunnel requested on behalf of an untrusted TCP client, the request-target must be sent in \"absolute-form\" as the request-target. The proxy client must either wait for a 2xx (Successful) response before forwarding any TCP payload data or send a \"Connection: close\" request header before or while forwarding the payload data. [rfc9112.txt], [rfc9931.txt]",
+      "scores": {
+        "groundedness": 0.3,
+        "correctness": 0.2,
+        "completeness": 0.5,
+        "citation_quality": 0.4
+      },
+      "retrieval": {
+        "recall_at_k": 0.5,
+        "precision_at_k": 0.2,
+        "ndcg_at_k": 0.613,
+        "mrr": 1.0
+      },
+      "rationale": "The answer incorrectly states the request-target must be in 'absolute-form' when the reference specifies 'authority-form'; the proxy client requirements are partially correct but the phrasing about 'before or while' is imprecise; citations are generic without specific section references."
+    },
+    {
+      "id": "q017",
+      "question": "For HTTPS connections, how do HTTP/2 and HTTP/3 identify themselves through ALPN, and what must each side send immediately after negotiation or establishment?",
+      "difficulty": "multi_doc",
+      "answer": "For HTTPS connections, HTTP/2 identifies itself using the ALPN protocol identifier \"h2\", while HTTP/3 uses \"h3\". After negotiation or establishment, both sides must send a connection preface immediately: HTTP/2 requires both the client and server to send a connection preface, and for HTTP/3, each endpoint must send a SETTINGS frame as the initial frame of their respective HTTP control stream. [rfc9113.txt], [rfc9114.txt]",
+      "scores": {
+        "groundedness": 0.95,
+        "correctness": 0.95,
+        "completeness": 1.0,
+        "citation_quality": 0.7
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.4,
+        "ndcg_at_k": 0.571,
+        "mrr": 0.333
+      },
+      "rationale": "Answer is accurate and complete, matching the reference; all claims are supported by retrieved context, but citations lack specific section references and appear generic rather than tied to exact passages."
+    },
+    {
+      "id": "q018",
+      "question": "Why does HTTP/3 replace HPACK with QPACK, and how does a QPACK encoder tell the decoder that the dynamic table capacity changed?",
+      "difficulty": "multi_doc",
+      "answer": "I don't have enough information in the provided context to answer that.",
+      "scores": {
+        "groundedness": 0.9,
+        "correctness": 0.3,
+        "completeness": 0.1,
+        "citation_quality": 0.8
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The system correctly declines to answer, but the retrieved context actually contains relevant information about capacity signaling (Section 4.3.1 reference) and capacity changes, though it lacks the specific '001' bit pattern detail and doesn't explain why HPACK was replaced due to ordering guarante"
+    },
+    {
+      "id": "q019",
+      "question": "How many worker threads per CPU core should an HTTP server allocate by default?",
+      "difficulty": "unanswerable",
+      "answer": "I don't have enough information in the provided context to answer that.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": null,
+      "rationale": "The system correctly identifies that the retrieved context (HTTP/3 and QUIC protocol specifications) contains no information about worker thread allocation per CPU core, matching the reference answer exactly."
+    },
+    {
+      "id": "q020",
+      "question": "How much disk space per user does HTTP Caching require a shared cache to reserve?",
+      "difficulty": "unanswerable",
+      "answer": "I don't have enough information in the provided context to answer that.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": null,
+      "rationale": "The system's answer correctly matches the reference answer by acknowledging that the retrieved context contains no information about disk space requirements per user for shared caches."
+    }
+  ]
+}

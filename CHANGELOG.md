@@ -9,13 +9,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [0.8.0] - 2026-08-10
 
 ### Added
-- Audited, reproducible Python-concurrency case study comparing unique-token overlap
-  with SQLite FTS5/BM25 on 30 reviewed questions from hash-checked official sources,
-  including raw artifacts, blind A/B results, failure analysis, and a CI fault injection.
+- Three audited, reproducible case studies over hash-checked official Python, RFC Editor,
+  and OWASP sources: token overlap vs SQLite FTS5/BM25, body-only vs section-enriched
+  indexing, and top-three vs top-six retrieved context. Each retains its golden-set audit,
+  raw scorecards, blind A/B results, usage data, failure analysis, and limitations.
 - Exact-chunk retrieval matching via `evaluate --exact`, `compare --exact`, and the
   composite Action, alongside the existing Jaccard and semantic matchers.
 - Evaluation metadata now records the golden-set fingerprint, matcher, cutoff, and
   versioned judge prompt so regression comparisons can verify their preconditions.
+- Optional `PROOFRAG_USAGE_LOG` JSONL output records provider-reported token counts and
+  model fingerprints for built-in Anthropic/OpenAI calls without retaining prompt or
+  answer text.
 
 ### Fixed
 - Evaluation, A/B comparison, and optional scoring backends now reject missing,
@@ -39,6 +43,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 - CI and local linting are non-mutating, include case-study scripts, and cover Python
   3.14. Repository-only case-study artifacts are excluded from source distributions.
+- The composite Action now installs the matching `0.8.0` package by default instead of
+  resolving an unrelated future `latest` release.
 - Removed tracked DeepEval telemetry state and added the PEP 561 `py.typed` marker.
 
 ## [0.7.0] - 2026-06-14

@@ -1,0 +1,51 @@
+{
+  "source": "OWASP Cheat Sheet Series",
+  "repository": "https://github.com/OWASP/CheatSheetSeries",
+  "commit": "da4c967e9de854727f72bb2748dd98f76c888b06",
+  "license": {
+    "name": "Creative Commons Attribution-ShareAlike 4.0 International",
+    "spdx": "CC-BY-SA-4.0",
+    "url": "https://raw.githubusercontent.com/OWASP/CheatSheetSeries/da4c967e9de854727f72bb2748dd98f76c888b06/LICENSE.md",
+    "bytes": 18637,
+    "sha256": "2b47ecdd5078e948395bc5980226933854228ff688f10d1dd059208be4956084",
+    "notice": "LICENSE.owasp.md"
+  },
+  "files": [
+    {
+      "name": "Authentication_Cheat_Sheet.md",
+      "url": "https://raw.githubusercontent.com/OWASP/CheatSheetSeries/da4c967e9de854727f72bb2748dd98f76c888b06/cheatsheets/Authentication_Cheat_Sheet.md",
+      "bytes": 38556,
+      "sha256": "5efff7cd4250a47449e77d99a8612e98935b31bdd1b9067e8ae3fff4bcfad329"
+    },
+    {
+      "name": "Session_Management_Cheat_Sheet.md",
+      "url": "https://raw.githubusercontent.com/OWASP/CheatSheetSeries/da4c967e9de854727f72bb2748dd98f76c888b06/cheatsheets/Session_Management_Cheat_Sheet.md",
+      "bytes": 54052,
+      "sha256": "bf6d4c21941abcb844ce884be7f20cf0a884d86c84eb6bd0df3827bcce55e7e2"
+    },
+    {
+      "name": "Password_Storage_Cheat_Sheet.md",
+      "url": "https://raw.githubusercontent.com/OWASP/CheatSheetSeries/da4c967e9de854727f72bb2748dd98f76c888b06/cheatsheets/Password_Storage_Cheat_Sheet.md",
+      "bytes": 20169,
+      "sha256": "59e6ce03452bb2607e690010487389db388af969d43ce6acb535a3e2f128e14e"
+    },
+    {
+      "name": "Forgot_Password_Cheat_Sheet.md",
+      "url": "https://raw.githubusercontent.com/OWASP/CheatSheetSeries/da4c967e9de854727f72bb2748dd98f76c888b06/cheatsheets/Forgot_Password_Cheat_Sheet.md",
+      "bytes": 9566,
+      "sha256": "b10808d3a6653fc72f149d8b60a6f5bc1259575df8264cc34eb7d2ab3083ee47"
+    },
+    {
+      "name": "Multifactor_Authentication_Cheat_Sheet.md",
+      "url": "https://raw.githubusercontent.com/OWASP/CheatSheetSeries/da4c967e9de854727f72bb2748dd98f76c888b06/cheatsheets/Multifactor_Authentication_Cheat_Sheet.md",
+      "bytes": 32339,
+      "sha256": "0c1de91561bd8b449f5a27033e799c6928df3f24cb48a965994f615671612490"
+    },
+    {
+      "name": "Credential_Stuffing_Prevention_Cheat_Sheet.md",
+      "url": "https://raw.githubusercontent.com/OWASP/CheatSheetSeries/da4c967e9de854727f72bb2748dd98f76c888b06/cheatsheets/Credential_Stuffing_Prevention_Cheat_Sheet.md",
+      "bytes": 17596,
+      "sha256": "4d3524a775473d1f7a8d470a604226d2c4c063656863b7a9fba39aa9d7139e88"
+    }
+  ]
+}

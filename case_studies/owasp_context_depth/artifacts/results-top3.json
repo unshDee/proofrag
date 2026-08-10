@@ -1,0 +1,469 @@
+{
+  "judge_fingerprint": "proofrag-v2/openai:gpt-4o-mini-2024-07-18:temperature=0",
+  "backend": "proofrag",
+  "generation_metrics": [
+    "groundedness",
+    "correctness",
+    "completeness",
+    "citation_quality"
+  ],
+  "created": "2026-08-10T09:33:01+00:00",
+  "k": 6,
+  "matcher": "exact",
+  "goldenset_fingerprint": "sha256:1a94a5f86e982d96",
+  "n": 24,
+  "evaluation_errors": [],
+  "aggregate": {
+    "groundedness": 0.917,
+    "correctness": 0.896,
+    "completeness": 0.875,
+    "citation_quality": 0.917,
+    "recall_at_k": 0.881,
+    "precision_at_k": 0.333,
+    "ndcg_at_k": 0.897,
+    "mrr": 0.952
+  },
+  "records": [
+    {
+      "id": "q000",
+      "question": "What should a web application do if a user submits a session ID through a URL parameter instead of cookies?",
+      "difficulty": "single_doc",
+      "answer": "According to the Session Management Cheat Sheet, a web application should **avoid accepting session IDs submitted through URL parameters**. Instead, the application should limit accepted session ID tracking mechanisms to **cookies only** as a defensive strategy to prevent session fixation attacks [Session_Management_Cheat_Sheet.md].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the context and aligns with the reference answer."
+    },
+    {
+      "id": "q001",
+      "question": "What are the multiple mechanisms available in HTTP to maintain session state within web applications?",
+      "difficulty": "single_doc",
+      "answer": "According to the Session Management Cheat Sheet, the multiple mechanisms available in HTTP to maintain session state within web applications are:\n\n1. **Cookies** (standard HTTP header)\n2. **URL parameters** (URL rewriting)\n3. **URL arguments on GET requests**\n4. **Body arguments on POST requests** (such as hidden form fields in HTML forms)\n5. **Proprietary HTTP headers**\n\n[Session_Management_Cheat_Sheet.md]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The system's answer accurately reflects the information provided in the context and matches the reference answer."
+    },
+    {
+      "id": "q002",
+      "question": "What are the two types of email messages that should be sent when changing a user's email address, and what is the purpose of each?",
+      "difficulty": "single_doc",
+      "answer": "Based on the OWASP Authentication Cheat Sheet, when changing a user's email address, two types of email messages should be sent:\n\n1. **Notification-only email message** to the current address - alerts the user to the impending change and provides a link to report unexpected activity.\n\n2. **Confirmation-required email message** to the proposed new address - instructs the user to confirm the change and provides a link for unexpected situations.\n\n[Authentication_Cheat_Sheet.md]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the information provided in the context and matches the reference answer."
+    },
+    {
+      "id": "q003",
+      "question": "What additional information beyond operating system, browser, and language can be accessed using JavaScript according to the passage?",
+      "difficulty": "single_doc",
+      "answer": "According to the Credential_Stuffing_Prevention_Cheat_Sheet.md excerpt, JavaScript can access:\n\n- Screen resolution\n- Installed fonts\n- Installed browser plugins\n\n[Credential_Stuffing_Prevention_Cheat_Sheet.md]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the information provided in the context and matches the reference answer."
+    },
+    {
+      "id": "q004",
+      "question": "What three components does a session ID or token bind together in web applications?",
+      "difficulty": "single_doc",
+      "answer": "According to the Session Management Cheat Sheet, a session ID or token binds together three components:\n\n1. **User authentication credentials** (in the form of a user session)\n2. **User HTTP traffic**\n3. **Appropriate access controls** enforced by the web application\n\n[Session_Management_Cheat_Sheet.md]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the information provided in the context and matches the reference answer."
+    },
+    {
+      "id": "q005",
+      "question": "Which three strong, slow password-hashing algorithms does the passage give as examples?",
+      "difficulty": "single_doc",
+      "answer": "According to the Password_Storage_Cheat_Sheet.md, the three strong, slow password-hashing algorithms recommended are:\n\n1. **Argon2id**\n2. **bcrypt**\n3. **PBKDF2**\n\n[Password_Storage_Cheat_Sheet.md]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the context and matches the reference answer."
+    },
+    {
+      "id": "q006",
+      "question": "What example of sensitive data can a session object contain, and how must the session-management repository be protected in that case?",
+      "difficulty": "single_doc",
+      "answer": "According to the Session Management Cheat Sheet, session objects can contain sensitive data such as **credit card numbers**. \n\nWhen session objects and properties contain such sensitive information, **the session management repository must be encrypted and protected** [Session_Management_Cheat_Sheet.md].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the context and matches the reference answer."
+    },
+    {
+      "id": "q007",
+      "question": "What secure password comparison function does the Authentication Cheat Sheet recommend using in PHP?",
+      "difficulty": "single_doc",
+      "answer": "According to the Authentication Cheat Sheet, the recommended secure password comparison function in PHP is `password_verify()` [Authentication_Cheat_Sheet.md].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the context and reference answer regarding the use of password_verify() in PHP."
+    },
+    {
+      "id": "q008",
+      "question": "What security benefit does salting provide regarding the ability to determine if two users have the same password?",
+      "difficulty": "single_doc",
+      "answer": "According to the Password Storage Cheat Sheet, salting makes it impossible to determine whether two users have the same password without cracking the hashes. This is because different salts will result in different hashes even if the passwords are the same. [Password_Storage_Cheat_Sheet.md]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the context and matches the reference answer."
+    },
+    {
+      "id": "q009",
+      "question": "How many hexadecimal characters must a session ID be at least to achieve 64 bits of entropy?",
+      "difficulty": "single_doc",
+      "answer": "According to the provided excerpt, a session ID must be at least **16 hexadecimal characters long** to achieve 64 bits of entropy. [Session_Management_Cheat_Sheet.md]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the information provided in the context."
+    },
+    {
+      "id": "q010",
+      "question": "What is a key concern when using passwords for authentication according to the passage?",
+      "difficulty": "single_doc",
+      "answer": "According to the passage, a key concern when using passwords for authentication is **password strength**. The excerpt states that \"A key concern when using passwords for authentication is password strength\" and explains that a strong password policy makes it difficult or improbable to guess the password through manual or automated means. [Authentication_Cheat_Sheet.md]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the key concern of password strength as stated in the context."
+    },
+    {
+      "id": "q011",
+      "question": "According to the passage, what two key concerns must developers address when implementing risk-based authentication in modern systems?",
+      "difficulty": "single_doc",
+      "answer": "According to the passage, the two key concerns developers must address when implementing risk-based authentication are:\n\n1. **Risk signals cannot be spoofed** - Ensuring that the signals used to determine risk cannot be manipulated or faked by attackers.\n\n2. **Fallback mechanisms are not weaker than primary MFA methods** - Making sure that alternative authentication paths do not compromise security by being less robust than the main multi-factor authentication methods.\n\n[Multifactor_Authentication_Cheat_Sheet.md]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the key concerns mentioned in the context."
+    },
+    {
+      "id": "q012",
+      "question": "Why must session timeout management and expiration be enforced server-side rather than on the client?",
+      "difficulty": "single_doc",
+      "answer": "Session timeout management must be enforced server-side because if the client is used to enforce session timeout (such as tracking the session token or time references like minutes since login), an attacker could manipulate these client-side parameters to extend the session duration and bypass the timeout controls [Session_Management_Cheat_Sheet.md].",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the context and reference answer without any discrepancies."
+    },
+    {
+      "id": "q013",
+      "question": "Which Rust crate and crate version does OWASP recommend for implementing Argon2id password hashing?",
+      "difficulty": "unanswerable",
+      "answer": "I don't have enough information in the provided context to answer that. The excerpts discuss Argon2id as the recommended password hashing algorithm and its configuration parameters, but they do not specify which Rust crate or crate version OWASP recommends for implementation.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": null,
+      "rationale": "The answer accurately reflects the lack of information regarding the specific Rust crate and version recommended by OWASP."
+    },
+    {
+      "id": "q014",
+      "question": "What common idle-timeout ranges does the passage give for high-value and low-risk applications?",
+      "difficulty": "single_doc",
+      "answer": "According to the Session Management Cheat Sheet, the common idle timeout ranges are:\n\n- **High-value applications**: 2-5 minutes\n- **Low-risk applications**: 15-30 minutes\n\n[Session_Management_Cheat_Sheet.md]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the information provided in the context."
+    },
+    {
+      "id": "q015",
+      "question": "What are some examples of environmental and contextual attributes that advanced applications can use to require different authentication stages?",
+      "difficulty": "single_doc",
+      "answer": "According to the Authentication Cheat Sheet, advanced applications can use the following environmental and contextual attributes to require different authentication stages [Authentication_Cheat_Sheet.md]:\n\n- Sensitivity of the data being accessed\n- Time of day\n- User location\n- IP address\n- Device fingerprint",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the context and matches the reference answer."
+    },
+    {
+      "id": "q016",
+      "question": "Why is hashing considered the most appropriate approach for password validation according to the passage?",
+      "difficulty": "single_doc",
+      "answer": "According to the passage, hashing is considered the most appropriate approach for password validation because **it is a one-way function** — it is impossible to \"decrypt\" a hash and obtain the original plaintext value. This means that even if an attacker obtains the hashed password, they cannot use it to log in as the victim. [Password_Storage_Cheat_Sheet.md]",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the context and matches the reference answer."
+    },
+    {
+      "id": "q017",
+      "question": "For a sensitive account change, what credential check should an application require, and why would asking for both a password and a PIN still not count as MFA?",
+      "difficulty": "multi_doc",
+      "answer": "Based on the provided excerpts:\n\n**What credential check should be required:**\nThe excerpts don't explicitly specify what credential check is required for sensitive account changes. They mention that users should be notified and may need to undergo \"further user verification processes,\" but don't detail what those should be.\n\n**Why password + PIN doesn't count as MFA:**\nAccording to the excerpts, asking for both a password and a PIN \"does not constitute multi-factor authentication (as both factors are the same - something you know).\" Since both are knowledge-based factors, they represent only one authentication category rather than multiple different types of factors. [Credential_Stuffing_Prevention_Cheat_Sheet.md]",
+      "scores": {
+        "groundedness": 0.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 0.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.0,
+        "precision_at_k": 0.0,
+        "ndcg_at_k": 0.0,
+        "mrr": 0.0
+      },
+      "rationale": "The answer fails to accurately reflect the required credential checks and lacks support from the context."
+    },
+    {
+      "id": "q018",
+      "question": "Which lifecycle controls should password-reset tokens have, and how must a repository that temporarily stores session IDs be protected?",
+      "difficulty": "multi_doc",
+      "answer": "Based on the provided excerpts, I can answer part of your question:\n\n**Repository Protection for Session IDs:**\nThe storage repository used by the session management mechanism must be secure, protecting session IDs against local or remote accidental disclosure or unauthorized access. [Session_Management_Cheat_Sheet.md]\n\n**Password-Reset Token Lifecycle Controls:**\nI don't have enough information in the provided context to answer that. The excerpts provided focus on session ID management but do not contain information about password-reset token lifecycle controls.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 0.5,
+        "completeness": 0.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.5,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 0.613,
+        "mrr": 1.0
+      },
+      "rationale": "The answer correctly cites the context regarding session ID protection but fails to address password-reset token controls."
+    },
+    {
+      "id": "q019",
+      "question": "How do client certificates and password peppering protect different attack surfaces?",
+      "difficulty": "multi_doc",
+      "answer": "Based on the provided excerpts:\n\n**Client Certificates** protect the authentication mechanism itself. They are stored on the user's device and automatically provided during authentication, requiring no further user interaction. They prevent unauthorized access by requiring possession of the certificate file [Multifactor_Authentication_Cheat_Sheet.md].\n\n**Password Peppering** protects against post-breach attacks. A pepper is a secret key (stored separately from the database) used in conjunction with hashing functions like bcrypt. It mitigates \"password shucking\" attacks where attackers attempt to crack passwords using breached databases or rainbow tables [Password_Storage_Cheat_Sheet.md].\n\nIn summary: Client certificates defend the authentication entry point, while peppering defends stored password data against offline cracking attacks after a breach.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.5,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 0.613,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the context and aligns with the reference answer."
+    },
+    {
+      "id": "q020",
+      "question": "How do work factors for stored passwords and entropy for session IDs make brute-force attacks harder in different ways?",
+      "difficulty": "multi_doc",
+      "answer": "I don't have enough information in the provided context to answer that. The excerpts provided only discuss entropy requirements for session IDs and how entropy prevents brute-force attacks on sessions. They do not contain information about work factors for stored passwords or how the two mechanisms differ in their approaches to preventing brute-force attacks.\n\nTo answer your question properly, I would need excerpts that discuss password storage, work factors, and how they compare to session ID entropy mechanisms.",
+      "scores": {
+        "groundedness": 0.0,
+        "correctness": 0.0,
+        "completeness": 0.0,
+        "citation_quality": 0.0
+      },
+      "retrieval": {
+        "recall_at_k": 0.5,
+        "precision_at_k": 0.333,
+        "ndcg_at_k": 0.613,
+        "mrr": 1.0
+      },
+      "rationale": "The answer fails to address the question and lacks relevant information from the context."
+    },
+    {
+      "id": "q021",
+      "question": "What separate threats are addressed by validating session IDs as untrusted input and by U2F's use of the website URL?",
+      "difficulty": "multi_doc",
+      "answer": "Based on the provided excerpts:\n\n**Session ID validation as untrusted input** addresses the threat of **injection attacks** (such as SQL injection) that could occur if invalid session IDs are processed without validation. [Session_Management_Cheat_Sheet.md]\n\n**U2F's use of the website URL** addresses the threat of **phishing attacks** by using the URL to look up the stored authentication key, ensuring the token only works with the legitimate website. [Authentication_Cheat_Sheet.md]\n\nThese are distinct security threats: one targets the session management layer through malicious input, while the other targets the authentication layer through user deception.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": {
+        "recall_at_k": 1.0,
+        "precision_at_k": 0.667,
+        "ndcg_at_k": 1.0,
+        "mrr": 1.0
+      },
+      "rationale": "The answer accurately reflects the threats addressed in the context and matches the reference answer."
+    },
+    {
+      "id": "q022",
+      "question": "Which commercial MFA provider does OWASP rank first for an application with 10,000 users, and what monthly price does it quote?",
+      "difficulty": "unanswerable",
+      "answer": "I don't have enough information in the provided context to answer that. The excerpts provided discuss password storage iteration counts, session ID entropy, and credential stuffing prevention, but they do not contain any information about commercial MFA providers, rankings, or pricing.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": null,
+      "rationale": "The answer accurately reflects the lack of relevant information in the context."
+    },
+    {
+      "id": "q023",
+      "question": "Which iOS SDK classes and minimum iOS version does OWASP require for implementing FIDO2 or passkey authentication?",
+      "difficulty": "unanswerable",
+      "answer": "I don't have enough information in the provided context to answer that. The excerpts mention that FIDO2 Passkeys are supported by modern browsers and mobile devices, but they do not specify which iOS SDK classes or minimum iOS versions are required for implementation.",
+      "scores": {
+        "groundedness": 1.0,
+        "correctness": 1.0,
+        "completeness": 1.0,
+        "citation_quality": 1.0
+      },
+      "retrieval": null,
+      "rationale": "The answer accurately reflects the lack of information in the context regarding iOS SDK classes and minimum versions for FIDO2 or passkey authentication."
+    }
+  ]
+}
