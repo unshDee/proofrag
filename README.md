@@ -1,4 +1,8 @@
-# proofrag
+<p align="center">
+  <img src="docs/proofrag-logo.png" alt="ProofRAG magnifying glass logo" width="64">
+</p>
+
+<h1 align="center">🔍 proofrag</h1>
 
 <p align="center">
   <a href="https://pypi.org/project/proofrag/"><img src="https://img.shields.io/pypi/v/proofrag?color=2563eb&label=pypi" alt="PyPI"></a>
@@ -7,25 +11,29 @@
   <a href="https://github.com/unshDee/proofrag/blob/v0.8.0/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT"></a>
 </p>
 
-**Point your agent at your docs and your RAG app. Get a golden test set, an
-LLM-as-judge + retrieval scorecard, and a CI gate — in one command.**
+**A reproducible evaluation loop for RAG systems: build a golden set from your own docs,
+run your app, score retrieval and answers, and catch regressions in CI.**
 
-Evaluation is the #1 unmet pain in production RAG/LLM work, and the hardest part
-is building a good test set in the first place. `proofrag` generates one from
-*your own corpus*, judges your system on it, and emits a shareable HTML scorecard.
-It's an [Agent Skill](https://agentskills.io) (works in Claude Code, Codex, Cursor)
-**and** a plain Python CLI — wrapping the eval loop, not reinventing the metrics.
+RAG systems are easy to tweak and surprisingly hard to compare. Change the chunker,
+retriever, reranker, prompt, model, or context window and it is tempting to judge the
+result from a few hand-picked examples. `proofrag` gives those changes a repeatable
+test loop. It generates corpus-grounded cases, runs your system, separates retrieval
+from answer quality, and writes a static HTML scorecard you can inspect or keep as a
+CI artifact.
+
+Use it as a Python CLI, a GitHub Action, or an [Agent Skill](https://agentskills.io)
+for Claude Code, Codex, Cursor, and other compatible agents.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/unshDee/proofrag/v0.8.0/docs/demo.gif" alt="proofrag — generate a golden set, judge, and score in one loop" width="820">
+  <img src="https://raw.githubusercontent.com/unshDee/proofrag/v0.8.0/docs/demo.gif" alt="proofrag: generate a golden set, judge, and score in one loop" width="820">
 </p>
 
-<p align="center"><em>…and the scorecard it produces:</em></p>
+<p align="center"><em>And the scorecard it produces:</em></p>
 <p align="center">
   <img src="https://raw.githubusercontent.com/unshDee/proofrag/v0.8.0/docs/scorecard.png" alt="RAG eval scorecard" width="760">
 </p>
 
-<p align="center"><em>See a scorecard in 5 seconds — no API key needed:</em></p>
+<p align="center"><em>See a scorecard in 5 seconds without an API key:</em></p>
 
 ```bash
 pipx install "proofrag[anthropic]"        # or: pip install / uv tool install / uvx
@@ -37,8 +45,9 @@ proofrag demo --out scorecard.html && open scorecard.html
 
 ## Install as an Agent Skill
 
-`proofrag` is a skill (the [agentskills.io](https://agentskills.io) open standard) backed
-by a real CLI — so any agent can run *"evaluate my RAG"* and get a reproducible scorecard.
+`proofrag` also ships as a skill for the [agentskills.io](https://agentskills.io) open
+standard. The skill drives the same CLI, so asking an agent to *"evaluate my RAG"*
+produces the same reproducible artifacts as running the commands yourself.
 
 **Claude Code (plugin):**
 ```
@@ -50,18 +59,20 @@ Then ask *"evaluate my RAG"* (auto-triggered) or type `/proofrag`.
 **Claude Code (manual)** — `cp -r skills/proofrag ~/.claude/skills/`
 **Codex / other agents** — `cp -r skills/proofrag .agents/skills/`
 
-The skill drives the `proofrag` CLI; install it with `uv tool install "proofrag[anthropic]"`
-(or `pipx install`, or run ad-hoc via `uvx`). See
+Install the CLI with `uv tool install "proofrag[anthropic]"` (or `pipx install`, or
+run it ad-hoc via `uvx`). See
 [AGENTS.md](https://github.com/unshDee/proofrag/blob/v0.8.0/AGENTS.md) for details.
 
 ## Why this exists
 
-> "Running evals aren't the problem — the problem is acquiring or building a
-> high-quality, non-contaminated dataset."
+RAG evaluation often gets stuck before the first metric is calculated: someone still
+has to build a useful test set. Writing a balanced golden set by hand is slow, and
+without a stable dataset it is easy to judge changes to chunking, retrieval, prompts,
+or models from a handful of examples.
 
-Most RAG systems reach production with no evals because writing a balanced golden
-set by hand is tedious. So teams ship prompt and model changes blind. This closes
-that loop: **change something → re-run → see if quality moved → gate the merge.**
+`proofrag` makes that loop repeatable. Generate and review the cases once, change the
+system, rerun the same cases, inspect what moved, and optionally fail CI when a metric
+regresses.
 
 ## The loop
 
@@ -138,7 +149,8 @@ want CI to enforce review hygiene.
 
 Generated `unanswerable` questions are candidates, not proof of absence: search the
 full corpus before accepting them. For `multi_doc`, confirm both distinct sources are
-actually required. The validator catches structural problems; human review owns meaning.
+actually required. The validator catches structural problems; meaning still needs
+human review.
 
 ## Prediction adapters
 
@@ -178,7 +190,7 @@ proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
   --out results.json --fail-under 0.7      # non-zero exit if overall score drops below 0.7
 ```
 
-…and a **regression** gate against a committed baseline (a known-good results.json):
+And a **regression** gate against a committed baseline (a known-good results.json):
 
 ```bash
 proofrag diff --baseline baseline.json --candidate results.json --tolerance 0.02
@@ -189,9 +201,9 @@ proofrag diff --baseline baseline.json --candidate results.json --tolerance 0.02
 
 ### GitHub Action
 
-Drop proofrag into any repo's CI in a few lines — it installs the CLI, evaluates,
-writes the scorecard, adds a GitHub Actions job summary, uploads the scorecard and
-results as an artifact, and gates on both the floor and the baseline:
+Drop proofrag into any repo's CI. It installs the CLI, evaluates, writes the
+scorecard, adds a GitHub Actions job summary, uploads the scorecard and results as an
+artifact, and applies both the floor and baseline checks:
 
 ```yaml
 - uses: unshDee/proofrag@v0.8.0
@@ -213,9 +225,9 @@ separately.
 
 ## A/B: compare two RAG variants
 
-Vector vs GraphRAG? Two prompts? Two models? Run both over the **same** golden set,
-then let the **same** judge pick the better answer per question — **blind** (answers
-shown in randomized order, so position bias is shuffled out):
+Vector vs GraphRAG? Two prompts? Two models? Run both over the **same** golden set and
+let the **same** judge compare answers question by question. Answer order is randomized
+so one variant does not always appear first:
 
 ```bash
 proofrag compare --goldenset goldenset.jsonl \
@@ -233,7 +245,7 @@ tell whether a win came from better retrieval or better generation.
 
 ## Case studies
 
-Three reproducible studies show how Proofrag separates retrieval changes from answer
+Three reproducible studies show how ProofRAG separates retrieval changes from answer
 quality. Each uses a hash-checked official corpus, a reviewed golden set, retained raw
 artifacts, blind A/B judging, and an explicit limitations section.
 
@@ -244,42 +256,44 @@ artifacts, blind A/B judging, and an explicit limitations section.
 | Does doubling retrieved OWASP context improve answers? | Six OWASP Cheat Sheets, 24 cases | [Report](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/owasp_context_depth/REPORT.md) · [Workflow](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/owasp_context_depth/README.md) · [A/B result](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/owasp_context_depth/artifacts/comparison.html) |
 
 In the Python study, FTS5 won 13 blind comparisons, token overlap won 6, and 11 tied.
-The largest retrieval difference appeared on multi-document questions—not the overall
-average. In the RFC study, section metadata raised exact NDCG@5 by only 0.018—below
-the predeclared 0.05 threshold—despite winning 4 of 5 decided comparisons. In the
+The largest retrieval difference appeared on multi-document questions, not the overall
+average. In the RFC study, section metadata raised exact NDCG@5 by only 0.018, below
+the predeclared 0.05 threshold, despite winning 4 of 5 decided comparisons. In the
 OWASP study, top-6 raised exact Recall@6 by 0.024 but reduced judged answer quality;
-top-3 won the blind comparison 7–5, with 12 ties. The negative results are retained
-rather than presented as universal optimization claims.
+top-3 won the blind comparison 7–5, with 12 ties. The negative results are kept so
+the case studies stay bounded to what the experiments actually show.
 
 ## What makes it different
 
-- **Golden set from your corpus** — the wedge. Difficulty tiers: single-doc,
-  multi-doc, and *unanswerable* (so you catch hallucination-instead-of-refusal).
-- **Golden set validation** — schema checks, duplicate detection, source coverage,
-  and a stable fingerprint help teams review generated evals before committing them.
-- **Retriever vs generator split** — rank-aware retrieval metrics (Recall@k,
-  Precision@k, NDCG@k, MRR) separate "the context never arrived / ranked too low"
-  from "the model fluffed it." Jaccard overlap is the default; use `--exact` when
+- **Corpus-grounded golden sets.** Generate single-document, multi-document, and
+  *unanswerable* cases from the material your RAG system is supposed to answer from.
+- **Validation before baseline.** Schema checks, duplicate detection, source coverage,
+  and a stable fingerprint help you review generated evals before committing them.
+- **Retrieval and generation stay separate.** Recall@k, Precision@k, NDCG@k, and MRR
+  tell you whether the evidence arrived and ranked well. Answer metrics tell you what
+  the model did with that evidence. Jaccard overlap is the default; use `--exact` when
   predictions return original chunks, or `--semantic` for embedding match.
-- **Pinned, fingerprinted evaluation** — scorecards record judge, prompt version,
-  matcher, cutoff, and golden-set fingerprint; `diff` rejects incompatible runs.
-- **Cheap & portable** — defaults to a small model; Anthropic, OpenAI, or local/Ollama
-  (`OPENAI_BASE_URL`). Self-contained HTML, zero JS, zero external assets.
-- **Prediction adapters** — `proofrag run` can call an HTTP endpoint or Python
-  callable so teams do not need to hand-write `predictions.jsonl` glue on day one.
-- **CI-native output** — the GitHub Action writes a markdown job summary and uploads
-  the HTML scorecard/results artifact automatically, including when a gate fails.
-- **Agent-native** — drop it in as a skill and say *"evaluate my RAG"*; the agent
-  wires your pipeline to the kit.
-- **Pluggable scoring backends** — swap proofrag's own judge for [DeepEval](https://github.com/confident-ai/deepeval)
-  or [Ragas](https://github.com/explodinggradients/ragas) without changing the
-  workflow, scorecard, CI gate, or A/B flow.
+- **Reproducible runs.** Scorecards record judge, prompt version, matcher, cutoff, and
+  golden-set fingerprint; `diff` rejects incompatible runs.
+- **Portable output.** The report is self-contained HTML with zero JS or external
+  assets. The default judge uses a small model and supports Anthropic, OpenAI, and
+  local/OpenAI-compatible endpoints through `OPENAI_BASE_URL`.
+- **Prediction adapters.** `proofrag run` can call an HTTP endpoint or Python callable,
+  so you do not need to hand-write `predictions.jsonl` glue for every project.
+- **CI output.** The GitHub Action writes a markdown job summary and uploads the HTML
+  scorecard and results artifact, including when a gate fails.
+- **Agent Skill.** Drop the skill into a compatible agent and ask it to evaluate your
+  RAG system; it drives the same CLI and artifacts.
+- **Pluggable scoring.** Swap proofrag's built-in judge for
+  [DeepEval](https://github.com/confident-ai/deepeval) or
+  [Ragas](https://github.com/explodinggradients/ragas) without changing the retrieval
+  metrics, scorecard, CI gate, or A/B flow.
 
 ## Scoring backends
 
-By default proofrag judges generation with its own pinned LLM-as-judge. You can
-swap in an external library instead — the retrieval metrics, scorecard, `diff`,
-and `compare` all stay the same; only the generation metrics change.
+By default proofrag judges generation with its own pinned LLM-as-judge. You can swap
+in an external library instead. The retrieval metrics, scorecard, `diff`, and
+`compare` stay the same; only the generation metrics change.
 
 ```bash
 pip install "proofrag[deepeval]"
@@ -305,8 +319,8 @@ embeddings, so it is enabled when `OPENAI_API_KEY` or `OPENAI_BASE_URL` is set.
 
 ## Providers
 
-proofrag is provider-agnostic. Set one of these and everything — generate, judge,
-compare, and the DeepEval/Ragas backends — uses it:
+proofrag is provider-agnostic. Set one of these and generate, judge, compare, and the
+DeepEval/Ragas backends all use it:
 
 | Provider | How to enable | Notes |
 |----------|---------------|-------|
@@ -336,6 +350,6 @@ OpenAI-compatible path (Anthropic has no embeddings API), so it needs
 
 ## Contributing
 
-Issues and PRs welcome — see
+Issues and PRs are welcome. See
 [CONTRIBUTING.md](https://github.com/unshDee/proofrag/blob/v0.8.0/CONTRIBUTING.md).
 MIT licensed.
