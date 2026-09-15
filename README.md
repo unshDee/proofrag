@@ -2,7 +2,7 @@
   <img src="docs/proofrag-logo.png" alt="ProofRAG magnifying glass logo" width="64">
 </p>
 
-<h1 align="center">🔍 proofrag</h1>
+<h1 align="center">proofrag</h1>
 
 <p align="center">
   <a href="https://pypi.org/project/proofrag/"><img src="https://img.shields.io/pypi/v/proofrag?color=2563eb&label=pypi" alt="PyPI"></a>
