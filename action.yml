@@ -36,11 +36,17 @@ inputs:
     description: "Require exact chunk equality for retrieval relevance."
     default: "false"
   extra:
-    description: "proofrag extra to install: anthropic or openai."
+    description: "proofrag extra to install or empty for dependency-free Jev scoring."
     default: "anthropic"
+  backend:
+    description: "Generation scoring backend: proofrag, deepeval, ragas, or jev."
+    default: "proofrag"
+  model:
+    description: "Optional pinned judge model."
+    default: ""
   version:
     description: "proofrag package version installed by this Action."
-    default: "0.8.0"
+    default: "0.9.0"
   summary:
     description: "Write a markdown score summary to the GitHub Actions job summary."
     default: "true"
@@ -54,17 +60,18 @@ inputs:
 outputs:
   results:
     description: "Path to the written results.json."
-    value: ${{ inputs.results }}
+    value: ${{ steps.evaluation.outputs.results }}
   scorecard:
     description: "Path to the written HTML scorecard."
-    value: ${{ inputs.scorecard }}
+    value: ${{ steps.evaluation.outputs.scorecard }}
 
 runs:
   using: "composite"
   steps:
     - name: Install uv
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
     - name: Evaluate, report, and gate
+      id: evaluation
       shell: bash
       env:
         GOLDENSET: ${{ inputs.goldenset }}
@@ -79,30 +86,48 @@ runs:
         EXACT: ${{ inputs.exact }}
         EXTRA: ${{ inputs.extra }}
         VERSION: ${{ inputs.version }}
+        BACKEND: ${{ inputs.backend }}
+        MODEL: ${{ inputs.model }}
       run: |
         set -euo pipefail
-        SPEC="proofrag[$EXTRA]"
-        [ -n "$VERSION" ] && SPEC="proofrag[$EXTRA]==$VERSION"
+        SPEC="proofrag"
+        [ -n "$EXTRA" ] && SPEC="proofrag[$EXTRA]"
+        [ -n "$VERSION" ] && SPEC="$SPEC==$VERSION"
         RUN=(uvx --from "$SPEC" proofrag)
 
-        ARGS=(--goldenset "$GOLDENSET" --predictions "$PREDICTIONS" --out "$RESULTS" --k "$K")
+        # Report only files produced by this run so stale scores cannot escape
+        TEMP_RESULTS="$(mktemp)"
+        TEMP_SCORECARD="$(mktemp)"
+        trap 'rm -f "$TEMP_RESULTS" "$TEMP_SCORECARD"' EXIT
+        ARGS=(--goldenset "$GOLDENSET" --predictions "$PREDICTIONS" --out "$TEMP_RESULTS" --k "$K" --backend "$BACKEND")
+        [ -n "$MODEL" ] && ARGS+=(--model "$MODEL")
         [ "$SEMANTIC" = "true" ] && ARGS+=(--semantic)
         [ "$EXACT" = "true" ] && ARGS+=(--exact)
         [ -n "$FAIL_UNDER" ] && ARGS+=(--fail-under "$FAIL_UNDER")
         status=0
         "${RUN[@]}" evaluate "${ARGS[@]}" || status=$?
 
-        if [ -f "$RESULTS" ]; then
-          "${RUN[@]}" report --results "$RESULTS" --out "$SCORECARD" || status=$?
+        if [ -s "$TEMP_RESULTS" ]; then
+          mv "$TEMP_RESULTS" "$RESULTS"
+          echo "generated=true" >> "$GITHUB_OUTPUT"
+          echo "results=$RESULTS" >> "$GITHUB_OUTPUT"
+          if "${RUN[@]}" report --results "$RESULTS" --out "$TEMP_SCORECARD"; then
+            if [ -s "$TEMP_SCORECARD" ]; then
+              mv "$TEMP_SCORECARD" "$SCORECARD"
+              echo "scorecard=$SCORECARD" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            status=$?
+          fi
         fi
 
-        if [ -n "$BASELINE" ]; then
+        if [ -n "$BASELINE" ] && [ -s "$RESULTS" ] && [ ! -e "$TEMP_RESULTS" ]; then
           "${RUN[@]}" diff --baseline "$BASELINE" --candidate "$RESULTS" --tolerance "$TOLERANCE" || status=$?
         fi
 
         exit "$status"
     - name: Write score summary
-      if: ${{ always() && inputs.summary == 'true' }}
+      if: ${{ always() && inputs.summary == 'true' && steps.evaluation.outputs.generated == 'true' }}
       shell: bash
       env:
         RESULTS: ${{ inputs.results }}
@@ -112,15 +137,16 @@ runs:
         set -euo pipefail
         [ -n "${GITHUB_STEP_SUMMARY:-}" ] || exit 0
         [ -f "$RESULTS" ] || exit 0
-        SPEC="proofrag[$EXTRA]"
-        [ -n "$VERSION" ] && SPEC="proofrag[$EXTRA]==$VERSION"
+        SPEC="proofrag"
+        [ -n "$EXTRA" ] && SPEC="proofrag[$EXTRA]"
+        [ -n "$VERSION" ] && SPEC="$SPEC==$VERSION"
         uvx --from "$SPEC" proofrag summary --results "$RESULTS" --out "$GITHUB_STEP_SUMMARY" --append
     - name: Upload scorecard artifact
-      if: ${{ always() && inputs.upload-artifact == 'true' }}
-      uses: actions/upload-artifact@v4
+      if: ${{ always() && inputs.upload-artifact == 'true' && steps.evaluation.outputs.generated == 'true' }}
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: ${{ inputs.artifact-name }}
         path: |
-          ${{ inputs.results }}
-          ${{ inputs.scorecard }}
+          ${{ steps.evaluation.outputs.results }}
+          ${{ steps.evaluation.outputs.scorecard }}
         if-no-files-found: ignore

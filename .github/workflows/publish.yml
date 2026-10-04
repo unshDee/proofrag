@@ -16,11 +16,11 @@ jobs:
       contents: read
       id-token: write  # required for trusted publishing
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0  # uv-dynamic-versioning derives the version from tags
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
       - name: Verify release metadata
         env:
           RELEASE_TAG: ${{ github.event.release.tag_name }}
@@ -29,6 +29,8 @@ jobs:
           test "$VERSION" = "$(python -c 'import json; print(json.load(open(".claude-plugin/plugin.json"))["version"])')"
           test "$VERSION" = "$(python -c 'import json; print(json.load(open(".claude-plugin/marketplace.json"))["metadata"]["version"])')"
           test "$VERSION" = "$(python -c 'import json; print(json.load(open(".claude-plugin/marketplace.json"))["plugins"][0]["version"])')"
+          grep -A2 '^  version:' action.yml | grep -F "default: \"$VERSION\""
+          grep -F "## [$VERSION] - " CHANGELOG.md
       - name: Build
         run: uv build
       - name: Publish to PyPI
