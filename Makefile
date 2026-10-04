@@ -9,7 +9,7 @@ lint:
 	uv run python devtools/lint.py
 
 test:
-	uv run pytest
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 uv run pytest
 
 build:
 	uv build

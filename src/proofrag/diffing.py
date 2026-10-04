@@ -22,8 +22,14 @@ _CONFIG_FIELDS = ["backend", "k", "n", "goldenset_fingerprint", "matcher", "gene
 
 def diff(baseline: dict, candidate: dict, tolerance: float = 0.02) -> dict:
     """Compare candidate vs baseline aggregates. All metrics are higher-is-better."""
+    if _number(tolerance) is None or tolerance < 0:
+        raise ValueError("tolerance must be a finite nonnegative number")
     b = baseline.get("aggregate", {})
     c = candidate.get("aggregate", {})
+    if not isinstance(b, dict) or not isinstance(c, dict):
+        raise ValueError("baseline and candidate aggregates must be JSON objects")
+    if not any(_number(value) is not None for value in b.values()):
+        raise ValueError("baseline aggregate needs at least one finite numeric metric")
     rows = []
     regressed = []
     declared = [
@@ -37,9 +43,15 @@ def diff(baseline: dict, candidate: dict, tolerance: float = 0.02) -> dict:
         if m not in b and m not in c:
             continue
         bv, cv = _number(b.get(m)), _number(c.get(m))
-        delta = None if bv is None or cv is None else round(cv - bv, 3)
+        raw_delta = None if bv is None or cv is None else cv - bv
+        delta = None if raw_delta is None else round(raw_delta, 3)
         missing = m in b and (m not in c or cv is None)
-        is_reg = missing or (delta is not None and delta < -tolerance)
+        # Round for display only so a small real regression still fails the gate.
+        is_reg = missing or (
+            raw_delta is not None
+            and raw_delta < -tolerance
+            and not math.isclose(raw_delta, -tolerance, rel_tol=1e-12, abs_tol=1e-12)
+        )
         rows.append(
             {
                 "metric": m,
@@ -75,7 +87,10 @@ def diff(baseline: dict, candidate: dict, tolerance: float = 0.02) -> dict:
 def _number(value) -> float | None:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         return None
-    number = float(value)
+    try:
+        number = float(value)
+    except OverflowError:
+        return None
     return number if math.isfinite(number) else None
 
 

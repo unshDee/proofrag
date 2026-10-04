@@ -14,7 +14,7 @@ import json
 import urllib.error
 import urllib.parse
 import urllib.request
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from typing import Any, Literal
 
 from .goldenset import write_jsonl
@@ -133,6 +133,17 @@ def parse_headers(values: list[str] | None) -> dict[str, str]:
 
 def run_predictions(goldenset: list[dict[str, Any]], runner: Runner) -> list[dict[str, Any]]:
     """Run a prediction adapter over every golden record."""
+    # Check every input before a paid or stateful adapter sees any of them
+    if not goldenset:
+        raise RunError("golden set must not be empty")
+    try:
+        _index_records(goldenset, "golden set")
+    except ValueError as e:
+        raise RunError(str(e)) from e
+    for record in goldenset:
+        question = record.get("question")
+        if not isinstance(question, str) or not question.strip():
+            raise RunError(f"golden record {record['id']!r} needs a non-empty string question")
     predictions: list[dict[str, Any]] = []
     for record in goldenset:
         raw = runner(record)
@@ -192,6 +203,8 @@ def normalize_prediction(record: dict[str, Any], raw: Any) -> dict[str, Any]:
     contexts: Any
 
     if isinstance(raw, dict):
+        if not any(key in raw for key in ("answer", "output", "response")):
+            raise RunError("adapter response needs an answer, output, or response field")
         answer = raw.get("answer", raw.get("output", raw.get("response", "")))
         contexts = raw.get("retrieved_contexts", raw.get("contexts", raw.get("context", [])))
     elif isinstance(raw, str):
@@ -205,19 +218,28 @@ def normalize_prediction(record: dict[str, Any], raw: Any) -> dict[str, Any]:
             "or a two-item (answer, contexts) tuple"
         )
 
+    if answer is None:
+        answer = ""
+    if not isinstance(answer, str):
+        raise RunError("adapter answer must be a string")
+
     if contexts is None:
         context_list: list[str] = []
     elif isinstance(contexts, str):
         context_list = [contexts]
     else:
+        if isinstance(contexts, (Mapping, bytes, bytearray)):
+            raise RunError("retrieved_contexts must be a string or iterable of strings")
         try:
-            context_list = [str(c) for c in contexts]
+            context_list = list(contexts)
         except TypeError as e:
             raise RunError("retrieved_contexts must be a string or iterable of strings") from e
+        if any(not isinstance(c, str) for c in context_list):
+            raise RunError("retrieved_contexts must contain only strings")
 
     return {
         "id": str(record["id"]),
-        "answer": str(answer or ""),
+        "answer": answer,
         "retrieved_contexts": context_list,
     }
 

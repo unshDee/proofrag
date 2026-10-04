@@ -95,6 +95,8 @@ class LLM:
             cache_creation_input_tokens=_usage_value(msg.usage, "cache_creation_input_tokens"),
             cache_read_input_tokens=_usage_value(msg.usage, "cache_read_input_tokens"),
         )
+        if getattr(msg, "stop_reason", None) == "max_tokens":
+            raise LLMError("Anthropic response was truncated before completion")
         return "".join(
             getattr(b, "text", "") for b in msg.content if getattr(b, "type", "") == "text"
         )
@@ -120,6 +122,8 @@ class LLM:
             output_tokens=_usage_value(resp.usage, "completion_tokens"),
             cache_read_input_tokens=cached,
         )
+        if resp.choices[0].finish_reason in {"length", "content_filter"}:
+            raise LLMError(f"OpenAI response did not complete: {resp.choices[0].finish_reason}")
         return resp.choices[0].message.content or ""
 
 
@@ -146,21 +150,32 @@ def openai_client(require_key: bool = True):
 def _extract_json(text: str) -> dict:
     """Pull the first JSON object out of a model response (handles code fences)."""
     text = text.strip()
-    decoder = json.JSONDecoder(parse_constant=_invalid_constant)
-    for start, char in enumerate(text):
-        if char != "{":
-            continue
-        try:
-            value, _end = decoder.raw_decode(text[start:])
-        except (json.JSONDecodeError, ValueError):
-            continue
-        if isinstance(value, dict):
-            return value
-    raise LLMError(f"No valid JSON object in response: {text[:200]!r}")
+    decoder = json.JSONDecoder(
+        parse_constant=_invalid_constant,
+        object_pairs_hook=_unique_object,
+    )
+    start = text.find("{")
+    if start < 0:
+        raise LLMError(f"No valid JSON object in response: {text[:200]!r}")
+    try:
+        value, _end = decoder.raw_decode(text[start:])
+    except ValueError as e:
+        # Reject invalid objects instead of accepting a nested fragment as the result.
+        raise LLMError(f"Invalid JSON response: {e}") from e
+    return value
 
 
 def _invalid_constant(value: str):
     raise ValueError(f"invalid JSON constant {value}")
+
+
+def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate JSON key {key!r}")
+        result[key] = value
+    return result
 
 
 def _usage_value(usage: Any, name: str) -> int:

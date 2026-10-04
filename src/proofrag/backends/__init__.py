@@ -1,4 +1,4 @@
-"""Optional external scoring backends (DeepEval, Ragas).
+"""Optional external scoring backends (DeepEval, Ragas, Jev).
 
 Each backend swaps only the *generation* judging. proofrag's deterministic
 retrieval metrics (Recall@k / Precision@k / NDCG@k / MRR) are kept across all

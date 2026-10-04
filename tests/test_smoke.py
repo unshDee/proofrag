@@ -226,7 +226,7 @@ class _OutOfRangeDeepEvalMetric:
 def test_deepeval_measure_keeps_score_and_reason():
     score, reason = de_measure(_FakeDeepEvalMetric(), object())
 
-    assert score == 0.812
+    assert score == 0.8123
     assert reason == "The answer is grounded in the retrieved context."
 
 

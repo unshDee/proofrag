@@ -1,4 +1,4 @@
-"""DeepEval scoring backend (verified against deepeval 4.0.6).
+"""DeepEval scoring backend (offline adapter checks with deepeval 4.2.8).
 
 Maps proofrag's records onto DeepEval test cases and metrics:
   - faithfulness      -> FaithfulnessMetric   (answer grounded in retrieved context)
@@ -14,6 +14,7 @@ from __future__ import annotations
 import datetime as _dt
 import math
 import os
+from numbers import Real
 
 from ..goldenset import goldenset_fingerprint
 from ..llm import LLM
@@ -64,11 +65,12 @@ def _build_metrics(model):
 def _measure(metric, tc):
     try:
         metric.measure(tc)
+        if isinstance(metric.score, bool) or not isinstance(metric.score, Real):
+            return None, ""
         raw_score = float(metric.score)
         if not math.isfinite(raw_score) or not 0.0 <= raw_score <= 1.0:
             return None, ""
-        score = round(raw_score, 3)
-        return score, _reason(metric)
+        return raw_score, _reason(metric)
     except Exception:  # noqa: BLE001 - one metric failing shouldn't abort the run
         return None, ""
 
@@ -147,7 +149,7 @@ def evaluate_deepeval(
         )
 
     return {
-        "judge_fingerprint": f"deepeval/{cfg.fingerprint}",
+        "judge_fingerprint": f"deepeval-v2/{cfg.fingerprint}",
         "backend": "deepeval",
         "generation_metrics": list(GENERATION_METRICS),
         "created": _dt.datetime.now(_dt.UTC).isoformat(timespec="seconds"),
@@ -165,9 +167,9 @@ def _aggregate(records: list[dict]) -> dict:
     agg: dict[str, float] = {}
     for m in GENERATION_METRICS:
         vals = [r["scores"][m] for r in records if r["scores"].get(m) is not None]
-        agg[m] = round(sum(vals) / len(vals), 3) if vals else 0.0
+        agg[m] = sum(vals) / len(vals) if vals else 0.0
     rets = [r["retrieval"] for r in records if r.get("retrieval")]
     for m in RETRIEVAL_METRICS:
         vals = [rt[m] for rt in rets if rt.get(m) is not None]
-        agg[m] = round(sum(vals) / len(vals), 3) if vals else 0.0
+        agg[m] = sum(vals) / len(vals) if vals else 0.0
     return agg

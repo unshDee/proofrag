@@ -143,6 +143,12 @@ def cmd_evaluate(args) -> int:
             results = evaluate_ragas(
                 goldenset, predictions, model=args.model, k=args.k, matcher=matcher
             )
+        elif args.backend == "jev":
+            from .backends.jev_backend import evaluate_jev
+
+            results = evaluate_jev(
+                goldenset, predictions, model=args.model, k=args.k, matcher=matcher
+            )
         else:
             results = evaluate(
                 goldenset, predictions, llm=LLM(model=args.model), k=args.k, matcher=matcher
@@ -196,7 +202,7 @@ def cmd_run(args) -> int:
 
         predictions = run_predictions(goldenset, runner)
         write_predictions(predictions, args.out)
-    except (OSError, RunError) as e:
+    except (OSError, RunError, ValueError) as e:
         _eprint(f"error: {e}")
         return 2
 
@@ -275,14 +281,14 @@ def cmd_compare(args) -> int:
     _eprint(f"  {args.a_name}: {w['a']} wins | {args.b_name}: {w['b']} wins | tie: {w['tie']}")
     if res["win_rate_a"] is not None:
         _eprint(f"  {args.a_name} win rate: {res['win_rate_a']:.0%} of decided")
-    if res.get("evaluation_errors"):
-        _eprint(f"error: {len(res['evaluation_errors'])} comparison call(s) failed")
-        return 2
     if args.html:
         from .scorecard import write_comparison_html
 
         write_comparison_html(res, args.html)
         _eprint(f"  report -> {args.html}")
+    if res.get("evaluation_errors"):
+        _eprint(f"error: {len(res['evaluation_errors'])} comparison call(s) failed")
+        return 2
     return 0
 
 
@@ -404,7 +410,7 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--model", default=None)
     e.add_argument(
         "--backend",
-        choices=["proofrag", "deepeval", "ragas"],
+        choices=["proofrag", "deepeval", "ragas", "jev"],
         default="proofrag",
         help="generation scoring backend (deepeval/ragas need matching extras)",
     )

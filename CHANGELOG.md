@@ -6,6 +6,41 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-04
+
+### Added
+- Optional typed Jev judge via `evaluate --backend jev`, using the official
+  TypeSafe API with no extra dependency. Four ordered rubrics retain probabilities,
+  confidence, model identity, usage, and a rubric fingerprint. Model drift and
+  invalid distributions fail the run. Dataset calibration remains unknown.
+- Research notes and a practical release outreach packet with verified targets,
+  ready-to-edit drafts, and a two-week adoption plan.
+
+### Fixed
+- Score gates preserve numeric precision and reject invalid tolerances. Boolean
+  and string judge scores can no longer count as valid numeric judgments.
+- Native judging includes all retrieved context and JSON-encodes untrusted text.
+  Evaluation and comparison use v3 fingerprints and external backends use v2,
+  so older baselines require a rerun.
+- Failed A/B judgments are reported separately from ties. Requested comparison
+  HTML is still written on judge failures, and reports mark failed runs as invalid.
+- JSON responses reject duplicate keys and malformed outer objects. Provider
+  truncation and filtering are errors instead of accepted partial judgments.
+- Adapters validate all golden inputs before calling apps, reject malformed
+  answer/context objects, and preserve existing JSONL files on write failures.
+- Corpus walking honors nested and anchored ignore rules and prunes ignored trees
+  before reading them. Validation handles unreadable and invalid UTF-8 inputs.
+- The composite Action reports and uploads only artifacts produced by the current
+  run, including when score gates fail. Stale JSON or HTML cannot be uploaded.
+
+### Changed
+- Documented two unpatched upstream advisories in optional Ragas dependencies
+  and reviewed their reachability in the text-only, uncached proofrag adapter.
+- Refreshed locked dependencies and pinned current official GitHub Actions to
+  immutable commits. CI installs the lockfile and disables unrelated pytest plugins.
+- Composite Action supports explicit backend and model selection, including Jev
+  without installing a provider extra.
+
 ## [0.8.0] - 2026-08-10
 
 ### Added
@@ -161,7 +196,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Self-contained, shareable HTML scorecard, plus a keyless `demo` command.
 - `--fail-under` CI gate; provider-agnostic backend (Anthropic / OpenAI / local).
 
-[Unreleased]: https://github.com/unshDee/proofrag/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/unshDee/proofrag/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/unshDee/proofrag/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/unshDee/proofrag/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/unshDee/proofrag/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/unshDee/proofrag/compare/v0.5.2...v0.6.0
