@@ -8,7 +8,7 @@
   <a href="https://pypi.org/project/proofrag/"><img src="https://img.shields.io/pypi/v/proofrag?color=2563eb&label=pypi" alt="PyPI"></a>
   <a href="https://pypi.org/project/proofrag/"><img src="https://img.shields.io/pypi/pyversions/proofrag" alt="Python"></a>
   <a href="https://github.com/unshDee/proofrag/actions/workflows/ci.yml"><img src="https://github.com/unshDee/proofrag/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/unshDee/proofrag/blob/v0.8.0/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT"></a>
+  <a href="https://github.com/unshDee/proofrag/blob/v0.9.0/LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License: MIT"></a>
 </p>
 
 **A reproducible evaluation loop for RAG systems: build a golden set from your own docs,
@@ -25,12 +25,12 @@ Use it as a Python CLI, a GitHub Action, or an [Agent Skill](https://agentskills
 for Claude Code, Codex, Cursor, and other compatible agents.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/unshDee/proofrag/v0.8.0/docs/demo.gif" alt="proofrag: generate a golden set, judge, and score in one loop" width="820">
+  <img src="https://raw.githubusercontent.com/unshDee/proofrag/v0.9.0/docs/demo.gif" alt="proofrag: generate a golden set, judge, and score in one loop" width="820">
 </p>
 
 <p align="center"><em>And the scorecard it produces:</em></p>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/unshDee/proofrag/v0.8.0/docs/scorecard.png" alt="RAG eval scorecard" width="760">
+  <img src="https://raw.githubusercontent.com/unshDee/proofrag/v0.9.0/docs/scorecard.png" alt="RAG eval scorecard" width="760">
 </p>
 
 <p align="center"><em>See a scorecard in 5 seconds without an API key:</em></p>
@@ -61,7 +61,7 @@ Then ask *"evaluate my RAG"* (auto-triggered) or type `/proofrag`.
 
 Install the CLI with `uv tool install "proofrag[anthropic]"` (or `pipx install`, or
 run it ad-hoc via `uvx`). See
-[AGENTS.md](https://github.com/unshDee/proofrag/blob/v0.8.0/AGENTS.md) for details.
+[AGENTS.md](https://github.com/unshDee/proofrag/blob/v0.9.0/AGENTS.md) for details.
 
 ## Why this exists
 
@@ -178,7 +178,7 @@ proofrag run --goldenset goldenset.jsonl \
 Adapters may return an answer string, a tuple like `(answer, contexts)`, or a dict
 like `{"answer": "...", "retrieved_contexts": ["...", "..."]}`. The endpoint form
 accepts the same JSON response shape. See
-[`examples/docs-rag/naive_rag.py`](https://github.com/unshDee/proofrag/blob/v0.8.0/examples/docs-rag/naive_rag.py)
+[`examples/docs-rag/naive_rag.py`](https://github.com/unshDee/proofrag/blob/v0.9.0/examples/docs-rag/naive_rag.py)
 for a fully custom driver.
 
 ## CI gate
@@ -206,7 +206,7 @@ scorecard, adds a GitHub Actions job summary, uploads the scorecard and results 
 artifact, and applies both the floor and baseline checks:
 
 ```yaml
-- uses: unshDee/proofrag@v0.8.0
+- uses: unshDee/proofrag@v0.9.0
   env:
     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
   with:
@@ -217,7 +217,7 @@ artifact, and applies both the floor and baseline checks:
 ```
 
 Full runnable workflow:
-[`examples/ci/proofrag-eval.yml`](https://github.com/unshDee/proofrag/blob/v0.8.0/examples/ci/proofrag-eval.yml).
+[`examples/ci/proofrag-eval.yml`](https://github.com/unshDee/proofrag/blob/v0.9.0/examples/ci/proofrag-eval.yml).
 
 The artifact and job summary are on by default. Disable them with
 `upload-artifact: "false"` or `summary: "false"` if your workflow handles those
@@ -237,7 +237,7 @@ proofrag compare --goldenset goldenset.jsonl \
 ```
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/unshDee/proofrag/v0.8.0/docs/compare.png" alt="blind A/B comparison report" width="760">
+  <img src="https://raw.githubusercontent.com/unshDee/proofrag/v0.9.0/docs/compare.png" alt="blind A/B comparison report" width="760">
 </p>
 
 Deterministic retrieval metrics for each variant sit beside the verdict, so you can
@@ -251,9 +251,9 @@ artifacts, blind A/B judging, and an explicit limitations section.
 
 | Question | Corpus | Report and reproduction |
 |----------|--------|-------------------------|
-| Does SQLite FTS5 beat unique-token overlap? | Official Python 3.14 concurrency docs, 30 cases | [Report](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/REPORT.md) · [Workflow](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/README.md) · [A/B result](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/python_concurrency/artifacts/comparison.html) |
-| Does RFC section metadata improve BM25 retrieval? | Seven HTTP RFCs, 21 cases | [Report](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/http_rfc_metadata/REPORT.md) · [Workflow](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/http_rfc_metadata/README.md) · [A/B result](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/http_rfc_metadata/artifacts/comparison.html) |
-| Does doubling retrieved OWASP context improve answers? | Six OWASP Cheat Sheets, 24 cases | [Report](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/owasp_context_depth/REPORT.md) · [Workflow](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/owasp_context_depth/README.md) · [A/B result](https://github.com/unshDee/proofrag/blob/v0.8.0/case_studies/owasp_context_depth/artifacts/comparison.html) |
+| Does SQLite FTS5 beat unique-token overlap? | Official Python 3.14 concurrency docs, 30 cases | [Report](https://github.com/unshDee/proofrag/blob/v0.9.0/case_studies/python_concurrency/REPORT.md) · [Workflow](https://github.com/unshDee/proofrag/blob/v0.9.0/case_studies/python_concurrency/README.md) · [A/B result](https://github.com/unshDee/proofrag/blob/v0.9.0/case_studies/python_concurrency/artifacts/comparison.html) |
+| Does RFC section metadata improve BM25 retrieval? | Seven HTTP RFCs, 21 cases | [Report](https://github.com/unshDee/proofrag/blob/v0.9.0/case_studies/http_rfc_metadata/REPORT.md) · [Workflow](https://github.com/unshDee/proofrag/blob/v0.9.0/case_studies/http_rfc_metadata/README.md) · [A/B result](https://github.com/unshDee/proofrag/blob/v0.9.0/case_studies/http_rfc_metadata/artifacts/comparison.html) |
+| Does doubling retrieved OWASP context improve answers? | Six OWASP Cheat Sheets, 24 cases | [Report](https://github.com/unshDee/proofrag/blob/v0.9.0/case_studies/owasp_context_depth/REPORT.md) · [Workflow](https://github.com/unshDee/proofrag/blob/v0.9.0/case_studies/owasp_context_depth/README.md) · [A/B result](https://github.com/unshDee/proofrag/blob/v0.9.0/case_studies/owasp_context_depth/artifacts/comparison.html) |
 
 In the Python study, FTS5 won 13 blind comparisons, token overlap won 6, and 11 tied.
 The largest retrieval difference appeared on multi-document questions, not the overall
@@ -292,8 +292,8 @@ the case studies stay bounded to what the experiments actually show.
 ## Scoring backends
 
 By default proofrag judges generation with its own pinned LLM-as-judge. You can swap
-in an external library instead. The retrieval metrics, scorecard, `diff`, and
-`compare` stay the same; only the generation metrics change.
+in an external library instead. Retrieval metrics, scorecards, and `diff` keep the same output contract.
+Blind `compare` uses its own configured LLM judge.
 
 ```bash
 pip install "proofrag[deepeval]"
@@ -309,13 +309,44 @@ proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
 ```
 
 The DeepEval judge uses the same model config as proofrag (`ANTHROPIC_API_KEY` →
-`AnthropicModel`, `OPENAI_API_KEY` → `GPTModel`). Verified against deepeval 4.0.6.
+`AnthropicModel`, `OPENAI_API_KEY` → `GPTModel`). Offline adapter and metric construction checks pass with deepeval 4.2.8.
 Metric reasons are preserved in the scorecard's weakest-case notes when DeepEval
 provides them.
 
 The Ragas backend is verified against ragas 0.4.3. It uses proofrag's configured
 LLM provider for faithfulness and factual correctness. Ragas answer relevancy needs
 embeddings, so it is enabled when `OPENAI_API_KEY` or `OPENAI_BASE_URL` is set.
+
+### Typed Jev judge
+
+Jev can score existing predictions through the official TypeSafe API without an
+extra dependency or an Anthropic or OpenAI key:
+
+```bash
+export TYPESAFE_API_KEY=your_key
+proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl \
+  --backend jev --model jev-1.13.0 --out results.json
+proofrag report --results results.json --out scorecard.html
+```
+
+Each case sends four ordered five-level rubrics in one request. The backend maps
+Jev's probability-weighted scores from 0 through 4 to proofrag's 0 through 1 scale.
+Raw probabilities, confidence, resolved model, and token usage remain in JSON
+metadata. The rubric hash and resolved model identify the judge for baseline diffs.
+Keep baselines separate across backends even when their metric names match.
+
+Confidence describes rubric uncertainty. It is not a measured probability of
+correctness on your data. Review representative cases against human labels before
+choosing CI thresholds. Invalid responses and provider failures invalidate the run
+and return exit code 2. HTML and Markdown reports flag these failures.
+
+This integration follows the [official API](https://docs.typesafe.ai/api) and is
+covered by offline contract tests. Hosted accuracy and calibration have not been
+benchmarked by proofrag. See TypeSafe's [documented limitations](https://docs.typesafe.ai/model-jaggedness/jev-1.13)
+and our [research notes](https://github.com/unshDee/proofrag/blob/v0.9.0/docs/research-v0.9.0.md).
+
+Jev is used only by `evaluate --backend jev`. Golden-set generation and blind
+`compare` still use the configured Anthropic or OpenAI-compatible provider.
 
 ## Providers
 
@@ -324,7 +355,8 @@ DeepEval/Ragas backends all use it:
 
 | Provider | How to enable | Notes |
 |----------|---------------|-------|
-| **Anthropic** (default) | `ANTHROPIC_API_KEY` | cheap Haiku judge by default |
+| **Anthropic** (default) | `TYPESAFE_API_KEY` | - | TypeSafe API key for `evaluate --backend jev` |
+| `ANTHROPIC_API_KEY` | cheap Haiku judge by default |
 | **OpenAI** | `OPENAI_API_KEY` | |
 | **OpenAI-compatible / local** | `OPENAI_BASE_URL` (e.g. Ollama, vLLM, LM Studio) | API key optional — local servers accept any token |
 
@@ -350,6 +382,25 @@ OpenAI-compatible path (Anthropic has no embeddings API), so it needs
 
 ## Contributing
 
+Known optional dependency advisories and current reachability are documented in
+[SECURITY.md](https://github.com/unshDee/proofrag/blob/v0.9.0/SECURITY.md).
+
 Issues and PRs are welcome. See
-[CONTRIBUTING.md](https://github.com/unshDee/proofrag/blob/v0.8.0/CONTRIBUTING.md).
+[CONTRIBUTING.md](https://github.com/unshDee/proofrag/blob/v0.9.0/CONTRIBUTING.md).
 MIT licensed.
+
+### Upgrading from 0.8
+
+Native generation and comparison prompts now use version 3. They encode evaluated
+text as data, and generation judging includes every retrieved context instead of
+silently taking the first 4000 characters. Rerun your baseline with the same judge
+and package version before gating new results. JSON framing is a defense against
+prompt confusion and does not guarantee protection from prompt injection.
+
+Generation scores keep full precision for gates. Displayed values are rounded.
+Adapters must return text answers and text contexts. Ambiguous objects and numeric
+answers are rejected instead of silently converted to text. Empty text answers and
+`None` answers remain valid refusals.
+
+DeepEval and Ragas fingerprints also move to v2 because their score validation
+and gate precision changed. Regenerate those baselines as well.

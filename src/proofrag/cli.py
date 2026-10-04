@@ -143,6 +143,12 @@ def cmd_evaluate(args) -> int:
             results = evaluate_ragas(
                 goldenset, predictions, model=args.model, k=args.k, matcher=matcher
             )
+        elif args.backend == "jev":
+            from .backends.jev_backend import evaluate_jev
+
+            results = evaluate_jev(
+                goldenset, predictions, model=args.model, k=args.k, matcher=matcher
+            )
         else:
             results = evaluate(
                 goldenset, predictions, llm=LLM(model=args.model), k=args.k, matcher=matcher
@@ -404,7 +410,7 @@ def build_parser() -> argparse.ArgumentParser:
     e.add_argument("--model", default=None)
     e.add_argument(
         "--backend",
-        choices=["proofrag", "deepeval", "ragas"],
+        choices=["proofrag", "deepeval", "ragas", "jev"],
         default="proofrag",
         help="generation scoring backend (deepeval/ragas need matching extras)",
     )

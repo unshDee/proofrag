@@ -95,6 +95,13 @@ to override. Proofrag does not auto-load `.env`, so source it first.
    downstream stay the same. DeepEval metric reasons, when available, are preserved
    in the scorecard's weakest-case notes.
 
+   To use a typed Jev judge, set `TYPESAFE_API_KEY` and add `--backend jev`.
+   No backend extra is needed. The default model is pinned to `jev-1.13.0` and
+   `--model` can override it. Scores retain the native four metric names. JSON
+   metadata retains confidence, probability distributions, token usage, and the
+   resolved model. Confidence is not verified accuracy on the user's golden set.
+   Jev does not generate golden sets or judge blind comparisons.
+
 5. **Report.**
    ```bash
    proofrag report --results results.json --out scorecard.html
@@ -115,7 +122,7 @@ Regression vs a committed baseline (a known-good results.json):
 proofrag diff --baseline baseline.json --candidate results.json --tolerance 0.02
 ```
 To wire this into GitHub Actions, use the bundled composite action
-`uses: unshDee/proofrag@v0.8.0` (see the repo README / `examples/ci/`). Tell the user to
+`uses: unshDee/proofrag@v0.9.0` (see the repo README / `examples/ci/`). Tell the user to
 commit a baseline results.json from a good run, then diff every PR against it. The
 action writes a GitHub Actions job summary and uploads the scorecard/results artifact
 by default, including when a gate fails.
@@ -147,3 +154,17 @@ counts + per-variant retrieval metrics + an HTML report. Render later with
 - Engine + source: https://github.com/unshDee/proofrag (`src/proofrag/`).
 - Runnable end-to-end example: `examples/docs-rag/` in that repo (corpus + naive RAG driver).
 - `proofrag --help` lists all commands and flags.
+
+## Upgrade notes
+
+Native evaluation and comparison use v3 judge prompts. Regenerate v2 baselines
+before enforcing a regression gate. Evaluation uses every retrieved chunk and does
+not silently truncate context. Text is JSON encoded as data, but prompt injection
+can still affect a model. Review human-labeled cases before choosing thresholds.
+
+Provider errors invalidate a run and exit 2. Failed comparisons appear separately
+from genuine ties. Always inspect `evaluation_errors` before claiming improvement.
+
+DeepEval and Ragas fingerprints use v2 for strict full-precision scores. Rerun
+older external-backend baselines before gating. See SECURITY.md for known optional
+dependency advisories and adapter reachability.
