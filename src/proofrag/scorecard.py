@@ -137,6 +137,7 @@ def render(results: dict) -> str:
         ret_bars=ret_bars,
         gen_heads=gen_heads,
         failing=failing,
+        errors=_error_notice(results),
     )
 
 
@@ -149,16 +150,26 @@ def _pct(v) -> str:
     return "—" if v is None else f"{round(v * 100)}"
 
 
+def _error_notice(results: dict) -> str:
+    count = len(results.get("evaluation_errors", []))
+    if not count:
+        return ""
+    return f"<p role='alert'><strong>Invalid run</strong> - {count} judge calls failed</p>"
+
+
 def render_comparison(result: dict) -> str:
     """Render a blind A/B comparison (from compare.py) to self-contained HTML."""
     a = html.escape(str(result.get("a_name", "A")))
     b = html.escape(str(result.get("b_name", "B")))
     wins = result.get("wins", {"a": 0, "b": 0, "tie": 0})
-    n = max(result.get("n", 0), 1)
     aw, bw, tw = wins.get("a", 0), wins.get("b", 0), wins.get("tie", 0)
+    # Failed calls cannot contribute evidence for either answer or a tie
+    n = max(aw + bw + tw, 1)
     a_pct, b_pct = round(aw / n * 100), round(bw / n * 100)
-    t_pct = max(0, 100 - a_pct - b_pct)
+    t_pct = max(0, 100 - a_pct - b_pct) if tw else 0
     verdict = f"{a} wins" if aw > bw else f"{b} wins" if bw > aw else "Too close to call"
+    if result.get("evaluation_errors"):
+        verdict = "Incomplete comparison"
 
     rlabels = _ret_labels(result.get("k", 5))
     ra, rb = result.get("retrieval_a", {}), result.get("retrieval_b", {})
@@ -172,6 +183,7 @@ def render_comparison(result: dict) -> str:
         "a": f"<span class='win wa'>{a}</span>",
         "b": f"<span class='win wb'>{b}</span>",
         "tie": "<span class='win wt'>tie</span>",
+        "error": "<span class='win wt'>failed</span>",
     }
     rows = (
         "".join(
@@ -200,6 +212,7 @@ def render_comparison(result: dict) -> str:
         created=html.escape(str(result.get("created", ""))),
         ret_rows=ret_rows,
         rows=rows,
+        errors=_error_notice(result),
     )
 
 
@@ -296,6 +309,7 @@ _TEMPLATE = """<!doctype html>
     </div>
     <div class="meta">judge <code class="mono">{judge}</code><br>{created} · {n} cases</div>
   </header>
+  {errors}
 
   <div class="hero">
     <div class="ring {overall_grade}">{overall}<small>/100</small></div>
@@ -398,6 +412,7 @@ _CMP_TEMPLATE = """<!doctype html>
     </div>
     <div class="meta">judge <code class="mono">{judge}</code><br>{created} · {n} cases</div>
   </header>
+  {errors}
 
   <div class="hero">
     <div class="verdict">{verdict}</div>

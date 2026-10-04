@@ -16,6 +16,7 @@ import datetime as _dt
 import math
 import os
 import warnings
+from numbers import Real
 from typing import Any
 
 from ..embeddings import DEFAULT_EMBED_MODEL
@@ -166,7 +167,7 @@ def evaluate_ragas(
         )
 
     return {
-        "judge_fingerprint": f"ragas/{cfg.fingerprint}",
+        "judge_fingerprint": f"ragas-v2/{cfg.fingerprint}",
         "backend": "ragas",
         "generation_metrics": generation_metrics,
         "created": _dt.datetime.now(_dt.UTC).isoformat(timespec="seconds"),
@@ -241,13 +242,15 @@ def _evaluate_ragas_dataset(samples: list[Any], metrics: list[Any]):
 
 
 def _score(value) -> float | None:
+    if isinstance(value, bool) or not isinstance(value, Real):
+        return None
     try:
         score = float(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return None
-    if not math.isfinite(score):
+    if not math.isfinite(score) or not 0.0 <= score <= 1.0:
         return None
-    return round(max(0.0, min(1.0, score)), 3)
+    return score
 
 
 def _rationale(scores: dict[str, float | None]) -> str:
@@ -261,9 +264,9 @@ def _aggregate(records: list[dict], generation_metrics: list[str]) -> dict:
     agg: dict[str, float] = {}
     for m in generation_metrics:
         vals = [r["scores"][m] for r in records if r["scores"].get(m) is not None]
-        agg[m] = round(sum(vals) / len(vals), 3) if vals else 0.0
+        agg[m] = sum(vals) / len(vals) if vals else 0.0
     rets = [r["retrieval"] for r in records if r.get("retrieval")]
     for m in RETRIEVAL_METRICS:
         vals = [rt[m] for rt in rets if rt.get(m) is not None]
-        agg[m] = round(sum(vals) / len(vals), 3) if vals else 0.0
+        agg[m] = sum(vals) / len(vals) if vals else 0.0
     return agg

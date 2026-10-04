@@ -11,7 +11,6 @@ import hashlib
 import json
 import re
 from collections import Counter
-from pathlib import Path
 from typing import Any
 
 from .corpus import load_corpus
@@ -174,7 +173,7 @@ def validate_goldenset(path: str, corpus: str | None = None) -> dict[str, Any]:
         "kind": "goldenset_validation",
         "schema_version": 1,
         "path": path,
-        "fingerprint": _fingerprint(path) if Path(path).exists() else None,
+        "fingerprint": _fingerprint(path),
         "n": len(records),
         "difficulty_counts": dict(sorted(difficulty_counts.items())),
         "source_counts": dict(sorted(source_counts.items())),
@@ -228,7 +227,7 @@ def _read_records(path: str, errors: list[dict[str, Any]]) -> list[dict[str, Any
                     records.append({"_line": line_no, "data": json.loads(line)})
                 except json.JSONDecodeError as e:
                     _issue(errors, "invalid_json", f"invalid JSON: {e.msg}", line=line_no)
-    except OSError as e:
+    except (OSError, UnicodeError) as e:
         _issue(errors, "read_error", str(e))
     return records
 
@@ -272,11 +271,14 @@ def _coverage(
     }
 
 
-def _fingerprint(path: str) -> str:
+def _fingerprint(path: str) -> str | None:
     h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for block in iter(lambda: f.read(1024 * 1024), b""):
-            h.update(block)
+    try:
+        with open(path, "rb") as f:
+            for block in iter(lambda: f.read(1024 * 1024), b""):
+                h.update(block)
+    except OSError:
+        return None
     return "sha256:" + h.hexdigest()[:16]
 
 

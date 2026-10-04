@@ -77,6 +77,10 @@ def render_scorecard_markdown(results: dict) -> str:
         )
     if not records:
         lines.append("| No records. |  |  |  |  |")
+    if results.get("evaluation_errors"):
+        lines.extend(
+            ["", f"**Invalid run:** {len(results['evaluation_errors'])} judge calls failed."]
+        )
     return "\n".join(lines) + "\n"
 
 
@@ -92,6 +96,7 @@ def render_comparison_markdown(results: dict) -> str:
         f"- {a}: `{wins.get('a', 0)}` wins",
         f"- {b}: `{wins.get('b', 0)}` wins",
         f"- Tie: `{wins.get('tie', 0)}`",
+        f"- Failed judgments: `{len(results.get('evaluation_errors', []))}`",
     ]
     if results.get("win_rate_a") is not None:
         lines.append(f"- {a} win rate: `{_pct(results['win_rate_a'])}`")

@@ -13,7 +13,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import random
+import tempfile
+from pathlib import Path
 
 from .llm import LLM, LLMError
 
@@ -135,14 +138,38 @@ def _record(question, gold_answer, chunks, difficulty) -> dict:
 
 
 def write_jsonl(records: list[dict], path: str) -> None:
-    with open(path, "w", encoding="utf-8") as f:
-        for r in records:
-            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    """Replace a JSONL artifact only after every record has been written."""
+    destination = Path(path)
+    temp_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", dir=destination.parent, delete=False
+        ) as f:
+            temp_path = Path(f.name)
+            for r in records:
+                f.write(json.dumps(r, ensure_ascii=False, allow_nan=False) + "\n")
+        # Leave an existing artifact intact if serialization or writing fails
+        os.replace(temp_path, destination)
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)
 
 
 def read_jsonl(path: str) -> list[dict]:
+    """Read JSON objects with line numbers for malformed input errors."""
+    records: list[dict] = []
     with open(path, encoding="utf-8") as f:
-        return [json.loads(line) for line in f if line.strip()]
+        for line_no, line in enumerate(f, 1):
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"{path}:{line_no}: invalid JSON: {e.msg}") from e
+            if not isinstance(record, dict):
+                raise ValueError(f"{path}:{line_no}: record must be a JSON object")
+            records.append(record)
+    return records
 
 
 def goldenset_fingerprint(records: list[dict]) -> str:

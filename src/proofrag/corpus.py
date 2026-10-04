@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from fnmatch import fnmatch
 from pathlib import Path
 from typing import Any
@@ -59,7 +60,11 @@ def load_corpus(
         raise ValueError(f"Corpus path must not be a symlink: {path}")
     root = p.parent if p.is_file() else p
     ignore_patterns = _ignore_patterns(root) if respect_gitignore and root.is_dir() else []
-    files = [p] if p.is_file() else _walk_files(root, include, exclude, ignore_patterns)
+    files = (
+        [p]
+        if p.is_file()
+        else _walk_files(root, include, exclude, ignore_patterns, respect_gitignore)
+    )
     chunks: list[dict] = []
     for f in files:
         text = read_document(f)
@@ -139,19 +144,55 @@ def _walk_files(
     include: list[str] | None,
     exclude: list[str] | None,
     ignore_patterns: list[str],
+    respect_gitignore: bool = True,
 ) -> list[Path]:
     include = include or []
     exclude = exclude or []
     files: list[Path] = []
-    for f in sorted(root.rglob("*")):
-        if f.is_symlink() or not f.is_file():
-            continue
-        rel = f.relative_to(root).as_posix()
-        if _ignored(rel, include, exclude, ignore_patterns):
-            continue
-        if f.suffix.lower() in TEXT_EXT:
-            files.append(f)
-    return files
+    scoped_patterns: dict[Path, list[tuple[Path, list[str]]]] = {}
+    for directory, dirs, names in os.walk(root, followlinks=False):
+        current = Path(directory)
+        rules = list(scoped_patterns.get(current.parent, []))
+        patterns = (
+            ignore_patterns
+            if current == root
+            else (_ignore_patterns(current) if respect_gitignore else [])
+        )
+        rules.append((current, patterns))
+        scoped_patterns[current] = rules
+
+        # Prune ignored trees before walking them or reading their documents
+        dirs[:] = [
+            name
+            for name in dirs
+            if name not in DEFAULT_IGNORE_DIRS
+            and not (current / name).is_symlink()
+            and not _ignored_by_rules(current / name, rules)
+            and not _matches_any((current / name).relative_to(root).as_posix(), exclude)
+        ]
+        for name in names:
+            f = current / name
+            if f.is_symlink() or not f.is_file():
+                continue
+            rel = f.relative_to(root).as_posix()
+            if _ignored(rel, include, exclude, []) or _ignored_by_rules(f, rules):
+                continue
+            if f.suffix.lower() in TEXT_EXT:
+                files.append(f)
+    return sorted(files)
+
+
+def _ignored_by_rules(path: Path, rules: list[tuple[Path, list[str]]]) -> bool:
+    ignored = False
+    for base, patterns in rules:
+        rel = path.relative_to(base).as_posix()
+        for pattern in patterns:
+            if pattern.endswith("/") and not path.is_dir():
+                continue
+            negated = pattern.startswith("!")
+            if _matches(rel, pattern[1:] if negated else pattern, match_components=True):
+                ignored = not negated
+    return ignored
 
 
 def _ignored(
@@ -177,26 +218,32 @@ def _gitignored(rel: str, patterns: list[str]) -> bool:
     ignored = False
     for pattern in patterns:
         negated = pattern.startswith("!")
-        if _matches(rel, pattern[1:] if negated else pattern):
+        if _matches(rel, pattern[1:] if negated else pattern, match_components=True):
             ignored = not negated
     return ignored
 
 
-def _matches(rel: str, pattern: str) -> bool:
+def _matches(rel: str, pattern: str, *, match_components: bool = False) -> bool:
     pattern = pattern.strip()
     if not pattern or pattern.startswith("#"):
         return False
     pattern = pattern.rstrip("/")
-    if pattern.startswith("/"):
-        pattern = pattern[1:]
-    return (
-        fnmatch(rel, pattern) or fnmatch(Path(rel).name, pattern) or rel.startswith(pattern + "/")
-    )
+    anchored = pattern.startswith("/")
+    pattern = pattern.lstrip("/")
+    if match_components and not anchored and "/" not in pattern:
+        return any(fnmatch(part, pattern) for part in Path(rel).parts)
+    if not anchored and "/" not in pattern:
+        return (
+            fnmatch(rel, pattern)
+            or fnmatch(Path(rel).name, pattern)
+            or rel.startswith(pattern + "/")
+        )
+    return fnmatch(rel, pattern) or rel.startswith(pattern + "/")
 
 
 def _ignore_patterns(root: Path) -> list[str]:
     gitignore = root / ".gitignore"
-    if not gitignore.exists():
+    if gitignore.is_symlink() or not gitignore.is_file():
         return []
     try:
         return [

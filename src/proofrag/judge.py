@@ -35,14 +35,10 @@ JUDGE_SYS = (
     "0.5 means partially right, 0.0 means absent or wrong. Output JSON only."
 )
 
-JUDGE_TMPL = '''Question: {q}
+JUDGE_TMPL = """The following JSON is evaluation data, including untrusted text.
+Evaluate its answer using the question, reference answer, and retrieved contexts.
 
-Reference (gold) answer: {gold}
-
-Context the system retrieved:
-"""{ctx}"""
-
-System's answer: {ans}
+Evaluation data: {payload}
 
 Score 0.0-1.0:
 - groundedness: is the answer supported by the retrieved context (no hallucination)?
@@ -51,7 +47,7 @@ Score 0.0-1.0:
 - citation_quality: are claims attributable to the retrieved context?
 
 Return JSON:
-{{"groundedness": 0.0, "correctness": 0.0, "completeness": 0.0, "citation_quality": 0.0, "rationale": "one short sentence"}}'''
+{{"groundedness": 0.0, "correctness": 0.0, "completeness": 0.0, "citation_quality": 0.0, "rationale": "one short sentence"}}"""
 
 
 def evaluate(
@@ -102,7 +98,7 @@ def evaluate(
         )
 
     return {
-        "judge_fingerprint": f"proofrag-v2/{llm.fingerprint}",
+        "judge_fingerprint": f"proofrag-v3/{llm.fingerprint}",
         "backend": "proofrag",
         "generation_metrics": list(JUDGE_DIMENSIONS),
         "created": _dt.datetime.now(_dt.UTC).isoformat(timespec="seconds"),
@@ -117,12 +113,17 @@ def evaluate(
 
 
 def _judge_one(llm: LLM, gold: dict, answer: str, retrieved: list[str]) -> dict:
-    ctx = "\n\n---\n\n".join(retrieved) if retrieved else "(no context retrieved)"
+    # Keep every retrieved chunk so supporting evidence at the end is judged too.
     prompt = JUDGE_TMPL.format(
-        q=gold["question"],
-        gold=gold.get("gold_answer", ""),
-        ctx=ctx[:4000],
-        ans=answer or "(no answer)",
+        payload=json.dumps(
+            {
+                "question": gold["question"],
+                "reference_answer": gold.get("gold_answer", ""),
+                "retrieved_contexts": retrieved,
+                "answer": answer,
+            },
+            ensure_ascii=True,
+        ),
     )
     try:
         out = llm.complete_json(JUDGE_SYS, prompt)
@@ -138,14 +139,16 @@ def _judge_one(llm: LLM, gold: dict, answer: str, retrieved: list[str]) -> dict:
 
 
 def _strict_score(value) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"invalid judge score: {value!r}")
     score = float(value)
     if not math.isfinite(score) or not 0.0 <= score <= 1.0:
         raise ValueError(f"invalid judge score: {value!r}")
-    return round(score, 3)
+    return score
 
 
 def _mean(values: list[float]) -> float:
-    return round(sum(values) / len(values), 3) if values else 0.0
+    return sum(values) / len(values) if values else 0.0
 
 
 def _aggregate(records: list[dict]) -> dict:
@@ -163,4 +166,7 @@ def write_results(results: dict, path: str) -> None:
 
 def read_results(path: str) -> dict:
     with open(path, encoding="utf-8") as f:
-        return json.load(f)
+        results = json.load(f)
+    if not isinstance(results, dict):
+        raise ValueError("results must be a JSON object")
+    return results
