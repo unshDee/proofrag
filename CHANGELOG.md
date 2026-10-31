@@ -6,6 +6,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-10-31
+
+### Fixed
+- The README logo now shows on PyPI (it used a repo-relative path).
+
 ## [0.10.0] - 2026-10-31
 
 ### Added
@@ -220,7 +225,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Self-contained, shareable HTML scorecard, plus a keyless `demo` command.
 - `--fail-under` CI gate; provider-agnostic backend (Anthropic / OpenAI / local).
 
-[Unreleased]: https://github.com/unshDee/proofrag/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/unshDee/proofrag/compare/v0.10.1...HEAD
+[0.10.1]: https://github.com/unshDee/proofrag/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/unshDee/proofrag/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/unshDee/proofrag/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/unshDee/proofrag/compare/v0.7.0...v0.8.0
