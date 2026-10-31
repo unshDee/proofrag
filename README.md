@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/proofrag-logo.png" alt="ProofRAG magnifying glass logo" width="64">
+  <img src="https://raw.githubusercontent.com/unshDee/proofrag/v0.10.0/docs/proofrag-logo.png" alt="ProofRAG magnifying glass logo" width="64">
 </p>
 
 <h1 align="center">proofrag</h1>

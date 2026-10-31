@@ -46,7 +46,7 @@ inputs:
     default: ""
   version:
     description: "proofrag package version installed by this Action."
-    default: "0.10.0"
+    default: "0.10.1"
   summary:
     description: "Write a markdown score summary to the GitHub Actions job summary."
     default: "true"
