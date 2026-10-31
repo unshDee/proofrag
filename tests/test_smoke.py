@@ -17,11 +17,13 @@ from proofrag.judge import JUDGE_DIMENSIONS, _aggregate
 from proofrag.llm import LLM, _extract_json
 from proofrag.metrics import (
     RETRIEVAL_METRICS,
+    hit_rate_at_k,
     lexical_matcher,
     mrr,
     ndcg_at_k,
     precision_at_k,
     recall_at_k,
+    retrieval_metrics,
     retrieval_recall,
 )
 from proofrag.scorecard import render, render_comparison
@@ -59,6 +61,19 @@ def test_recall_and_precision_at_k():
     assert precision_at_k(gold, retrieved, 5, M) == 0.5
 
 
+def test_hit_rate_at_k_hit_miss_and_empty_gold():
+    gold = ["alpha beta gamma delta epsilon"]
+    relevant = "alpha beta gamma delta epsilon"
+    assert hit_rate_at_k(gold, ["noise", relevant], 2, M) == 1.0
+    assert hit_rate_at_k(gold, [relevant], 0, M) == 0.0
+    assert hit_rate_at_k(gold, ["noise"], 5, M) == 0.0
+    assert hit_rate_at_k([], ["anything"], 5, M) == 1.0
+
+
+def test_retrieval_metrics_includes_hit_rate():
+    assert retrieval_metrics(["gold context"], ["gold context"], matcher=M)["hit_rate_at_k"] == 1.0
+
+
 def test_ndcg_rewards_rank():
     gold = ["alpha beta gamma delta epsilon"]
     relevant = "alpha beta gamma delta epsilon"
@@ -94,6 +109,7 @@ def test_scorecard_renders_self_contained():
     assert "<!doctype html>" in out
     assert "RAG Eval Scorecard" in out
     assert "NDCG@5" in out  # new retrieval metric surfaced
+    assert "Hit rate@5" in out
     assert "http://" not in out.replace("http://www.w3", "")  # no external assets
     assert "claude-haiku" in out  # judge fingerprint shown
 
@@ -169,6 +185,7 @@ def test_summary_renders_markdown_scorecard():
     assert "Overall generation score" in out
     assert "| Groundedness |" in out
     assert "| NDCG@5 |" in out
+    assert "| Hit rate@5 |" in out
     assert "Weakest cases" in out
 
 
