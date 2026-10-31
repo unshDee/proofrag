@@ -11,6 +11,8 @@ import asyncio
 import importlib
 import inspect
 import json
+import os
+import sys
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -42,6 +44,10 @@ def load_callable(spec: str) -> Callable[..., Any]:
     module_name, sep, attr_path = spec.partition(":")
     if not sep or not module_name or not attr_path:
         raise RunError("callable must look like 'module:function' or 'module:object.method'")
+    # Installed console scripts (uv tool, pipx) don't put the working directory on
+    # sys.path. Append it, so a project module resolves without shadowing installed ones.
+    if os.getcwd() not in sys.path and "" not in sys.path:
+        sys.path.append(os.getcwd())
 
     try:
         obj: Any = importlib.import_module(module_name)

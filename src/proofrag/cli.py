@@ -9,6 +9,7 @@ proofrag summary  --results ...    # results -> markdown summary
 proofrag diff      --baseline ...  # compare vs a baseline; fail on regression
 proofrag compare   --a ... --b ... # blind A/B of two RAG variants
 proofrag demo                      # canned scorecard, no API key
+proofrag wizard                    # guided interactive run (needs the [tui] extra)
 """
 
 from __future__ import annotations
@@ -344,6 +345,21 @@ def cmd_demo(args) -> int:
     return 0
 
 
+def cmd_wizard(argv: list[str]) -> int:
+    try:
+        from .tui import app
+    except ModuleNotFoundError as e:
+        if e.name not in ("rich", "typer"):
+            raise
+        _eprint("error: the wizard needs the tui extra: pip install 'proofrag[tui]'")
+        return 2
+    try:
+        app(args=argv, prog_name="proofrag wizard")
+    except SystemExit as e:
+        return e.code if isinstance(e.code, int) else 0
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="proofrag", description="Zero-config RAG/LLM evaluation.")
     p.add_argument("--version", action="version", version=f"proofrag {__version__}")
@@ -492,10 +508,17 @@ def build_parser() -> argparse.ArgumentParser:
     d.add_argument("--out", default="scorecard.html")
     d.add_argument("--compare", action="store_true", help="render a sample A/B comparison instead")
     d.set_defaults(func=cmd_demo)
+
+    # Listed for --help; main() hands its arguments to the typer app untouched.
+    w = sub.add_parser("wizard", help="guided interactive run (needs the [tui] extra)")
+    w.set_defaults(func=lambda args: cmd_wizard([]))
     return p
 
 
 def main(argv=None) -> int:
+    argv = sys.argv[1:] if argv is None else list(argv)
+    if argv[:1] == ["wizard"]:
+        return cmd_wizard(argv[1:])
     args = build_parser().parse_args(argv)
     try:
         return args.func(args)

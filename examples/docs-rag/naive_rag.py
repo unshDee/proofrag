@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+from pathlib import Path
 
 from proofrag.corpus import load_corpus
 from proofrag.goldenset import read_jsonl
@@ -47,6 +48,18 @@ def answer(llm: LLM, question: str, contexts: list[str]) -> str:
     except Exception as e:  # noqa: BLE001
         text = f"(error: {e})"
     return text.strip()
+
+
+_state: dict = {}
+
+
+def ask(question: str) -> dict:
+    """Callable entry point, run from this folder: `proofrag run --callable naive_rag:ask`."""
+    if not _state:
+        _state["chunks"] = load_corpus(str(Path(__file__).parent / "corpus"))
+        _state["llm"] = LLM()
+    contexts = retrieve(question, _state["chunks"], k=3)
+    return {"answer": answer(_state["llm"], question, contexts), "retrieved_contexts": contexts}
 
 
 def main() -> None:

@@ -792,8 +792,8 @@ name = "httpcore2"
 version = "2.13.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "h11", marker = "python_full_version != '3.12.*' or sys_platform != 'emscripten'" },
-    { name = "truststore", marker = "python_full_version != '3.12.*' or sys_platform != 'emscripten'" },
+    { name = "h11", marker = "sys_platform != 'emscripten'" },
+    { name = "truststore", marker = "sys_platform != 'emscripten'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cb/f3/1db7aa2bc2524062192bb0e0323969492d1883152a232fe36eea65f4e35c/httpcore2-2.13.1.tar.gz", hash = "sha256:e0aa977abe17e69a3b820a24542a6fa88702676d83880b8d194dcd18408e5103", size = 68071, upload-time = "2026-09-23T07:47:22.372Z" }
 wheels = [
@@ -2179,6 +2179,10 @@ ragas = [
     { name = "langchain-community" },
     { name = "ragas" },
 ]
+tui = [
+    { name = "rich" },
+    { name = "typer" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -2196,8 +2200,10 @@ requires-dist = [
     { name = "openai", marker = "extra == 'openai'", specifier = ">=1.40" },
     { name = "pypdf", marker = "extra == 'pdf'", specifier = ">=6.13.2,<7" },
     { name = "ragas", marker = "extra == 'ragas'", specifier = ">=0.4.3,<0.5" },
+    { name = "rich", marker = "extra == 'tui'", specifier = ">=13.7" },
+    { name = "typer", marker = "extra == 'tui'", specifier = ">=0.12" },
 ]
-provides-extras = ["anthropic", "deepeval", "openai", "pdf", "ragas"]
+provides-extras = ["anthropic", "deepeval", "openai", "pdf", "ragas", "tui"]
 
 [package.metadata.requires-dev]
 dev = [
