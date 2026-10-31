@@ -6,6 +6,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+- The Anthropic judge no longer sends `temperature`. Anthropic API version
+  2026-10-21 and SDK 1.x reject sampling parameters, so fresh installs failed every
+  call. Claude now samples at its default and the judge fingerprint reads
+  `temperature=default`; rerun baselines judged by Anthropic before diffing.
+
 ## [0.9.0] - 2026-10-04
 
 ### Added

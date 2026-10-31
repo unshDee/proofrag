@@ -52,7 +52,9 @@ class LLM:
         endpoint_hash = (
             f":endpoint={hashlib.sha256(endpoint.encode()).hexdigest()[:8]}" if endpoint else ""
         )
-        return f"{self.provider}:{self.model}:temperature=0{endpoint_hash}"
+        # Anthropic API 2026-10-21 rejects sampling parameters, so Claude samples at its default
+        sampling = "temperature=0" if self.provider == "openai" else "temperature=default"
+        return f"{self.provider}:{self.model}:{sampling}{endpoint_hash}"
 
     def complete_json(self, system: str, prompt: str) -> dict[str, Any]:
         """Complete and parse the first JSON object out of the response."""
@@ -82,7 +84,6 @@ class LLM:
         msg = self._client.messages.create(
             model=self.model,
             max_tokens=2048,
-            temperature=0,
             system=system,
             messages=[{"role": "user", "content": prompt}],
         )
