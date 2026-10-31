@@ -71,13 +71,13 @@ def test_load_corpus_uses_unique_relative_chunk_ids(tmp_path):
     assert chunk_ids == ["api/index.md::0", "guide/index.md::0"]
 
 
-def test_load_corpus_skips_symlinks_and_ignores_only_relative_build_dirs(tmp_path):
+def test_load_corpus_skips_symlinks_and_ignores_only_relative_build_dirs(tmp_path, symlink_or_skip):
     docs = tmp_path / "build" / "docs"
     docs.mkdir(parents=True)
     outside = tmp_path / "secret.md"
     outside.write_text("secret", encoding="utf-8")
     (docs / "guide.md").write_text("public", encoding="utf-8")
-    (docs / "linked.md").symlink_to(outside)
+    symlink_or_skip(docs / "linked.md", outside)
 
     chunks = load_corpus(str(docs))
 
