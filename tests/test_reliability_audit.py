@@ -150,3 +150,20 @@ def test_anthropic_rejects_token_limited_responses(monkeypatch):
     llm._client = SimpleNamespace(messages=SimpleNamespace(create=lambda **kwargs: response))
     with pytest.raises(LLMError, match="truncated"):
         llm.complete_json("system", "prompt")
+
+
+def test_anthropic_sends_no_sampling_parameters(monkeypatch):
+    # API version 2026-10-21 rejects temperature/top_p/top_k on every model
+    monkeypatch.setitem(sys.modules, "anthropic", SimpleNamespace())
+    sent = {}
+    response = SimpleNamespace(
+        usage=None, stop_reason="end_turn", content=[SimpleNamespace(type="text", text="{}")]
+    )
+    llm = LLM(provider="anthropic", model="test")
+    llm._client = SimpleNamespace(
+        messages=SimpleNamespace(create=lambda **kwargs: sent.update(kwargs) or response)
+    )
+    llm.complete_json("system", "prompt")
+    assert sent["max_tokens"] == 2048
+    assert not {"temperature", "top_p", "top_k"} & sent.keys()
+    assert llm.fingerprint == "anthropic:test:temperature=default"
