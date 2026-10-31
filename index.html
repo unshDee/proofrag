@@ -1,175 +1,243 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RAG Eval Scorecard</title>
+<title>RAG Eval Scorecard · proofrag</title>
 <style>
   :root {
-    --background:hsl(0 0% 100%); --foreground:hsl(240 10% 3.9%);
-    --card:hsl(0 0% 100%); --muted:hsl(240 4.8% 95.9%);
-    --muted-foreground:hsl(240 3.8% 46.1%); --border:hsl(240 5.9% 90%);
-    --accent:hsl(240 4.8% 95.9%); --primary:hsl(240 5.9% 10%);
-    --good:hsl(142 71% 35%); --ok:hsl(38 92% 40%); --bad:hsl(0 72% 48%);
-    --radius:0.625rem;
-    --shadow:0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 3px 0 rgb(0 0 0 / 0.04);
+    color-scheme: light dark;
+    --bg:#f5f5f6; --paper:#fff; --fg:#111113; --muted:#6b6b76; --line:#e6e6ea;
+    --soft:#f0f0f3; --accent:#2563eb; --on-accent:#fff; --ink:#26262b;
+    --bad:#c8281c; --bad-bg:#fdeceb; --ok:#9a5b06; --ok-bg:#fdf3e1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0b0b0d; --paper:#141417; --fg:#ececf0; --muted:#9696a1; --line:#2a2a31;
+      --soft:#222228; --accent:#7aa5ff; --on-accent:#0b0b0d; --ink:#d9d9df;
+      --bad:#ff7b6e; --bad-bg:rgb(255 123 110 / .14); --ok:#f2b552; --ok-bg:rgb(242 181 82 / .12);
+    }
   }
   * { box-sizing:border-box; }
-  body { margin:0; background:var(--background); color:var(--foreground);
-    -webkit-font-smoothing:antialiased;
-    font:14.5px/1.55 ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }
-  .wrap { max-width:1040px; margin:0 auto; padding:48px 28px 72px; }
-  .mono { font-family:ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace; }
-  header { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:16px;
-    margin-bottom:32px; }
-  h1 { margin:0; font-size:19px; font-weight:600; letter-spacing:-.01em; }
-  h1 .kit { color:var(--muted-foreground); font-weight:400; }
-  .tagline { color:var(--muted-foreground); font-size:13px; margin-top:4px; }
-  .meta { color:var(--muted-foreground); font-size:12.5px; text-align:right; line-height:1.7; }
-  .meta code { color:var(--foreground); background:var(--muted); padding:2px 7px; border-radius:6px;
-    font-size:12px; }
-  .hero { display:flex; align-items:center; gap:28px; background:var(--card);
-    border:1px solid var(--border); border-radius:var(--radius); padding:28px 32px;
-    margin-bottom:20px; box-shadow:var(--shadow); }
-  .ring { font-size:52px; font-weight:680; line-height:1; letter-spacing:-.03em;
-    font-variant-numeric:tabular-nums; }
-  .ring small { font-size:20px; color:var(--muted-foreground); font-weight:500; margin-left:2px; }
-  .ring.bad { color:var(--bad); }
-  .hero .htitle { font-size:16px; font-weight:600; }
-  .hero .sub { color:var(--muted-foreground); font-size:13.5px; margin-top:3px; }
-  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
-  .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
-    padding:18px 16px; box-shadow:var(--shadow); }
-  .card-val { font-size:28px; font-weight:650; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
-  .card-val small { font-size:14px; color:var(--muted-foreground); font-weight:500; }
-  .card-label { color:var(--muted-foreground); font-size:12.5px; margin-top:6px;
-    display:flex; align-items:center; gap:6px; }
-  .dot { width:7px; height:7px; border-radius:999px; background:var(--good); flex:none; }
-  .ok .dot { background:var(--ok); } .bad .dot { background:var(--bad); }
-  .bad .card-val { color:var(--bad); }
-  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
-  .panel { background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
-    padding:24px 26px; box-shadow:var(--shadow); }
-  .panel.full { margin-bottom:20px; padding:24px 26px 12px; }
-  h2 { font-size:13px; font-weight:600; letter-spacing:-.005em; color:var(--foreground);
-    margin:0 0 20px; }
-  h2 small { color:var(--muted-foreground); font-weight:400; }
-  .metric { margin-bottom:16px; }
-  .metric:last-child { margin-bottom:0; }
-  .metric-head { display:flex; justify-content:space-between; font-size:13px; margin-bottom:7px; }
-  .metric-head b { font-variant-numeric:tabular-nums; font-weight:600; }
-  .metric-head .bad { color:var(--bad); }
-  .track { height:6px; background:var(--muted); border-radius:999px; overflow:hidden; }
-  .fill { height:100%; border-radius:999px; background:var(--primary); }
-  .fill.bad { background:var(--bad); }
+  body { margin:0; background:var(--bg); color:var(--fg); -webkit-font-smoothing:antialiased;
+    font:14px/1.55 ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }
+  .sheet { max-width:980px; margin:40px auto; background:var(--paper); border:1px solid var(--line);
+    border-radius:16px; padding:36px 44px 28px; }
+  code { font:12px ui-monospace,SFMono-Regular,'SF Mono',Menlo,Consolas,monospace; color:var(--fg);
+    background:var(--soft); padding:2px 7px; border-radius:6px; }
+  header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px 24px;
+    flex-wrap:wrap; padding-bottom:22px; border-bottom:1px solid var(--line); }
+  .brand { display:flex; align-items:center; gap:8px; font-size:15px; }
+  .mark { width:18px; height:18px; color:var(--accent); }
+  .name { font-weight:650; letter-spacing:-.01em; }
+  .sep { color:var(--line); font-size:18px; }
+  h1 { margin:0; font-size:15px; font-weight:500; color:var(--muted); }
+  .meta { color:var(--muted); font-size:12.5px; text-align:right; line-height:1.8; }
+  .alert { margin:20px 0 0; padding:12px 16px; border-radius:10px; font-size:13.5px;
+    background:var(--bad-bg); color:var(--bad); }
+  h2 { margin:0 0 14px; font-size:11.5px; font-weight:600; letter-spacing:.07em;
+    text-transform:uppercase; color:var(--muted); }
+  h2 small { font-size:inherit; font-weight:500; letter-spacing:.04em; text-transform:none; }
+  section { padding:26px 0; border-bottom:1px solid var(--line); }
+  section:last-of-type { border-bottom:none; }
   table { width:100%; border-collapse:collapse; font-size:13px; }
-  th { text-align:right; color:var(--muted-foreground); font-weight:500; padding:0 12px 10px;
-    border-bottom:1px solid var(--border); font-size:12px; }
+  th { text-align:right; color:var(--muted); font-weight:500; font-size:12px; padding:0 10px 8px;
+    border-bottom:1px solid var(--line); }
   th:first-child { text-align:left; }
-  td { padding:13px 12px; border-bottom:1px solid var(--border); vertical-align:top; }
+  td { padding:12px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
   tbody tr:last-child td { border-bottom:none; }
-  td.q { max-width:420px; font-weight:500; }
-  .why { color:var(--muted-foreground); font-size:12.5px; font-weight:400; margin-top:4px; }
-  td.num { text-align:right; font-variant-numeric:tabular-nums; font-weight:500; }
-  td.num.bad { color:var(--bad); font-weight:600; }
-  td.num.mut { color:var(--muted-foreground); }
-  .tag { background:var(--muted); color:var(--muted-foreground); font-weight:500;
-    font-size:11px; padding:2px 9px; border-radius:6px; white-space:nowrap; }
-  footer { color:var(--muted-foreground); font-size:12.5px; text-align:center; margin-top:36px; }
-  footer a { color:var(--foreground); text-decoration:none; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .why { color:var(--muted); font-size:12.5px; font-weight:400; margin-top:3px; }
+  footer { color:var(--muted); font-size:12px; text-align:center; padding-top:20px;
+    border-top:1px solid var(--line); }
+  footer a { color:var(--fg); text-decoration:none; font-weight:500; }
   footer a:hover { text-decoration:underline; }
-  @media (max-width:720px) { .grid2 { grid-template-columns:1fr; } }
+  @media (max-width:720px) {
+    .sheet { margin:0; border:none; border-radius:0; padding:24px 16px; }
+    .meta { text-align:left; }
+  }
+
+  .summary { display:flex; align-items:center; gap:28px; }
+  .score { font-size:68px; font-weight:650; line-height:1; letter-spacing:-.045em;
+    font-variant-numeric:tabular-nums; }
+  .score small { font-size:18px; font-weight:500; letter-spacing:0; color:var(--muted); margin-left:3px; }
+  .score.bad { color:var(--bad); }
+  .verdict { font-size:21px; font-weight:600; letter-spacing:-.015em; }
+  .detail { color:var(--muted); font-size:13.5px; margin-top:4px; max-width:560px; }
+  .metrics { display:grid; grid-template-columns:1fr 1fr; gap:12px 56px; }
+  .bar { display:grid; grid-template-columns:132px 1fr 30px; align-items:center; gap:14px;
+    padding:6px 0; font-size:13.5px; }
+  .bar b { text-align:right; font-weight:600; font-variant-numeric:tabular-nums; }
+  .track { height:6px; background:var(--soft); border-radius:99px; overflow:hidden; }
+  .track i { display:block; height:100%; background:var(--ink); border-radius:99px; }
+  .bar.bad b { color:var(--bad); }
+  .bar.bad i { background:var(--bad); }
+  .cases { --cols:5; }
+  .row { display:grid; grid-template-columns:minmax(0,1fr) repeat(var(--cols),52px);
+    align-items:start; gap:6px; }
+  .heads { padding:0 0 8px 22px; border-bottom:1px solid var(--line); color:var(--muted);
+    font-size:12px; font-weight:500; }
+  .heads span { text-align:center; }
+  .case { border-bottom:1px solid var(--line); }
+  .case:last-child { border-bottom:none; }
+  summary { list-style:none; cursor:pointer; padding:12px 0 12px 22px; position:relative; }
+  summary::-webkit-details-marker { display:none; }
+  summary::before { content:""; position:absolute; left:4px; top:19px; width:6px; height:6px;
+    border-right:1.6px solid var(--muted); border-bottom:1.6px solid var(--muted);
+    transform:rotate(-45deg); transition:transform .15s; }
+  details[open] > summary::before { transform:rotate(45deg); top:17px; }
+  summary:hover .qt { color:var(--accent); }
+  .qt { font-weight:500; }
+  .tag { display:inline-block; margin-left:6px; background:var(--soft); color:var(--muted);
+    font-size:11px; font-weight:500; padding:1px 8px; border-radius:99px; white-space:nowrap;
+    vertical-align:1px; }
+  .cell { display:block; text-align:center; font-variant-numeric:tabular-nums; font-size:13px;
+    font-weight:500; padding:3px 0; border-radius:6px; }
+  .cell.ok { background:var(--ok-bg); color:var(--ok); }
+  .cell.bad { background:var(--bad-bg); color:var(--bad); font-weight:600; }
+  .cell.na, .na { color:var(--muted); }
+  .more { display:grid; grid-template-columns:84px 1fr; gap:6px 12px; margin:0 0 16px 22px;
+    padding:12px 14px; background:var(--soft); border-radius:10px; font-size:13px; }
+  .more dt { color:var(--muted); font-weight:500; }
+  .more dd { margin:0; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .legend { display:flex; gap:16px; margin-top:14px; color:var(--muted); font-size:12px; }
+  .legend i { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px;
+    vertical-align:-1px; background:var(--soft); outline:1px solid var(--line); outline-offset:-1px; }
+  .legend .ok i { background:var(--ok-bg); outline:1px solid var(--ok); outline-offset:-1px; }
+  .legend .bad i { background:var(--bad-bg); outline:1px solid var(--bad); outline-offset:-1px; }
+  .empty { color:var(--muted); }
+  @media (max-width:720px) {
+    .summary { flex-direction:column; align-items:flex-start; gap:12px; }
+    .metrics { grid-template-columns:1fr; }
+    .bar { grid-template-columns:112px 1fr 30px; }
+    .row { grid-template-columns:repeat(var(--cols),1fr); }
+    .row .q, .heads > :first-child { grid-column:1 / -1; }
+    .heads > :first-child { display:none; }
+    .q { margin-bottom:6px; }
+  }
 </style></head>
-<body><div class="wrap">
+<body><main class="sheet">
   <header>
-    <div>
-      <h1>RAG Eval Scorecard <span class="kit">· proofrag</span></h1>
-      <div class="tagline">Generation quality &amp; retrieval, judged across 8 cases.</div>
-    </div>
-    <div class="meta">judge <code class="mono">anthropic:claude-haiku-4-5-20251001</code><br>2026-05-31T00:00:00+00:00 · 8 cases</div>
+    <div class="brand"><svg class="mark" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15 15l5.5 5.5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg><span class="name">proofrag</span><span class="sep">/</span>
+      <h1>RAG Eval Scorecard</h1></div>
+    <div class="meta">judge <code>anthropic:claude-haiku-4-5-20251001</code><br>31 May 2026, 00:00 UTC · 8 cases · k=5</div>
   </header>
   
 
-  <div class="hero">
-    <div class="ring ok">76<small>/100</small></div>
+  <section class="summary">
+    <div class="score ok">76<small>/100</small></div>
     <div>
-      <div class="htitle">Overall generation quality</div>
-      <div class="sub">Mean of groundedness, correctness, completeness, citation quality across 8 cases.</div>
+      <div class="verdict">3 of 8 cases need attention</div>
+      <div class="detail">Overall generation quality: mean of groundedness, correctness, completeness, citation quality. Weakest metric: Precision@5 (55).</div>
     </div>
-  </div>
+  </section>
 
-  <div class="cards">
-      <div class="card good">
-        <div class="card-val">86</div>
-        <div class="card-label"><span class="dot"></span>Groundedness</div>
-      </div>
-      <div class="card ok">
-        <div class="card-val">79</div>
-        <div class="card-label"><span class="dot"></span>Correctness</div>
-      </div>
-      <div class="card ok">
-        <div class="card-val">71</div>
-        <div class="card-label"><span class="dot"></span>Completeness</div>
-      </div>
-      <div class="card ok">
-        <div class="card-val">68</div>
-        <div class="card-label"><span class="dot"></span>Citation Quality</div>
-      </div>
-      <div class="card ok">
-        <div class="card-val">73</div>
-        <div class="card-label"><span class="dot"></span>NDCG@5</div>
-      </div></div>
+  <section class="metrics">
+    <div><h2>Generation <small>· proofrag</small></h2><div class="bar "><span>Groundedness</span><div class="track"><i style="width:86%"></i></div><b>86</b></div><div class="bar "><span>Correctness</span><div class="track"><i style="width:79%"></i></div><b>79</b></div><div class="bar "><span>Completeness</span><div class="track"><i style="width:71%"></i></div><b>71</b></div><div class="bar "><span>Citation Quality</span><div class="track"><i style="width:68%"></i></div><b>68</b></div></div>
+    <div><h2>Retrieval @5 <small>· rank-aware</small></h2><div class="bar "><span>Recall@5</span><div class="track"><i style="width:77%"></i></div><b>77</b></div><div class="bar bad"><span>Precision@5</span><div class="track"><i style="width:55%"></i></div><b>55</b></div><div class="bar "><span>NDCG@5</span><div class="track"><i style="width:73%"></i></div><b>73</b></div><div class="bar "><span>MRR</span><div class="track"><i style="width:81%"></i></div><b>81</b></div></div>
+  </section>
 
-  <div class="grid2">
-    <div class="panel">
-      <h2>Generation <small>— proofrag</small></h2>
-      
-      <div class="metric">
-        <div class="metric-head"><span>Groundedness</span><b class="good">86</b></div>
-        <div class="track"><div class="fill good" style="width:86%"></div></div>
-      </div>
-      <div class="metric">
-        <div class="metric-head"><span>Correctness</span><b class="ok">79</b></div>
-        <div class="track"><div class="fill ok" style="width:79%"></div></div>
-      </div>
-      <div class="metric">
-        <div class="metric-head"><span>Completeness</span><b class="ok">71</b></div>
-        <div class="track"><div class="fill ok" style="width:71%"></div></div>
-      </div>
-      <div class="metric">
-        <div class="metric-head"><span>Citation Quality</span><b class="ok">68</b></div>
-        <div class="track"><div class="fill ok" style="width:68%"></div></div>
-      </div>
-    </div>
-    <div class="panel">
-      <h2>Retrieval <small>— rank-aware</small></h2>
-      
-      <div class="metric">
-        <div class="metric-head"><span>Recall@5</span><b class="ok">77</b></div>
-        <div class="track"><div class="fill ok" style="width:77%"></div></div>
-      </div>
-      <div class="metric">
-        <div class="metric-head"><span>Precision@5</span><b class="bad">55</b></div>
-        <div class="track"><div class="fill bad" style="width:55%"></div></div>
-      </div>
-      <div class="metric">
-        <div class="metric-head"><span>NDCG@5</span><b class="ok">73</b></div>
-        <div class="track"><div class="fill ok" style="width:73%"></div></div>
-      </div>
-      <div class="metric">
-        <div class="metric-head"><span>MRR</span><b class="ok">81</b></div>
-        <div class="track"><div class="fill ok" style="width:81%"></div></div>
-      </div>
-    </div>
-  </div>
+  <section class="cases" style="--cols:5">
+    <h2>Cases <small>· worst first, click to expand</small></h2>
+    <div class="row heads"><span></span><span title="Groundedness">Grnd</span><span title="Correctness">Corr</span><span title="Completeness">Comp</span><span title="Citation Quality">Cite</span><span>NDCG@5</span></div>
+    
+      <details class="case">
+        <summary class="row">
+          <div class="q"><span class="qt">How long are audit logs retained on the enterprise plan?</span>
+            <span class="tag">single_doc</span>
+            <div class="why">Wrong (retention is 2 years) and no relevant context was retrieved.</div></div>
+          <span class="cell bad">20</span><span class="cell bad">15</span><span class="cell bad">30</span><span class="cell bad">20</span><span class="cell bad">0</span>
+        </summary>
+        <dl class="more">
+          <dt>Answer</dt><dd>Forever.</dd>
+          <dt>Retrieval</dt><dd>Recall@5 0 · Precision@5 0 · NDCG@5 0 · MRR 0</dd>
+        </dl>
+      </details>
+      <details class="case">
+        <summary class="row">
+          <div class="q"><span class="qt">Does the free plan include webhook retries and a dead-letter queue?</span>
+            <span class="tag">multi_doc</span>
+            <div class="why">Hallucinated: only retries are free; DLQ is paid. Retriever ranked the pricing doc low.</div></div>
+          <span class="cell bad">30</span><span class="cell bad">20</span><span class="cell bad">40</span><span class="cell bad">25</span><span class="cell bad">39</span>
+        </summary>
+        <dl class="more">
+          <dt>Answer</dt><dd>Yes, the free plan includes both.</dd>
+          <dt>Retrieval</dt><dd>Recall@5 50 · Precision@5 20 · NDCG@5 39 · MRR 33</dd>
+        </dl>
+      </details>
+      <details class="case">
+        <summary class="row">
+          <div class="q"><span class="qt">How does SSO group mapping interact with custom roles?</span>
+            <span class="tag">multi_doc</span>
+            <div class="why">Partially right; the precedence rule is stated backwards.</div></div>
+          <span class="cell bad">60</span><span class="cell bad">55</span><span class="cell bad">50</span><span class="cell bad">45</span><span class="cell bad">63</span>
+        </summary>
+        <dl class="more">
+          <dt>Answer</dt><dd>Groups map to roles automatically; custom roles override defaults.</dd>
+          <dt>Retrieval</dt><dd>Recall@5 50 · Precision@5 40 · NDCG@5 63 · MRR 50</dd>
+        </dl>
+      </details>
+      <details class="case">
+        <summary class="row">
+          <div class="q"><span class="qt">What regions support the EU data residency tier?</span>
+            <span class="tag">single_doc</span>
+            <div class="why">Correct but omits the Paris region the reference lists.</div></div>
+          <span class="cell good">90</span><span class="cell good">85</span><span class="cell bad">60</span><span class="cell ok">70</span><span class="cell good">92</span>
+        </summary>
+        <dl class="more">
+          <dt>Answer</dt><dd>Frankfurt and Dublin.</dd>
+          <dt>Retrieval</dt><dd>Recall@5 100 · Precision@5 40 · NDCG@5 92 · MRR 100</dd>
+        </dl>
+      </details>
+      <details class="case">
+        <summary class="row">
+          <div class="q"><span class="qt">What is the maximum payload size for the batch endpoint?</span>
+            <span class="tag">single_doc</span>
+            <div class="why">Accurate and grounded.</div></div>
+          <span class="cell good">88</span><span class="cell good">90</span><span class="cell ok">80</span><span class="cell ok">75</span><span class="cell good">100</span>
+        </summary>
+        <dl class="more">
+          <dt>Answer</dt><dd>10 MB per request.</dd>
+          <dt>Retrieval</dt><dd>Recall@5 100 · Precision@5 80 · NDCG@5 100 · MRR 100</dd>
+        </dl>
+      </details>
+      <details class="case">
+        <summary class="row">
+          <div class="q"><span class="qt">Which auth methods does the CLI support?</span>
+            <span class="tag">single_doc</span>
+            <div class="why">Grounded and complete.</div></div>
+          <span class="cell good">92</span><span class="cell good">88</span><span class="cell good">85</span><span class="cell ok">80</span><span class="cell good">100</span>
+        </summary>
+        <dl class="more">
+          <dt>Answer</dt><dd>API key and OAuth device flow.</dd>
+          <dt>Retrieval</dt><dd>Recall@5 100 · Precision@5 80 · NDCG@5 100 · MRR 100</dd>
+        </dl>
+      </details>
+      <details class="case">
+        <summary class="row">
+          <div class="q"><span class="qt">How do I rotate an API key without downtime?</span>
+            <span class="tag">single_doc</span>
+            <div class="why">Fully grounded and matches the reference.</div></div>
+          <span class="cell good">95</span><span class="cell good">92</span><span class="cell good">88</span><span class="cell good">85</span><span class="cell good">100</span>
+        </summary>
+        <dl class="more">
+          <dt>Answer</dt><dd>Create a new key, deploy it, then revoke the old one.</dd>
+          <dt>Retrieval</dt><dd>Recall@5 100 · Precision@5 60 · NDCG@5 100 · MRR 100</dd>
+        </dl>
+      </details>
+      <details class="case">
+        <summary class="row">
+          <div class="q"><span class="qt">What is the CEO&#x27;s home address?</span>
+            <span class="tag">unanswerable</span>
+            <div class="why">Correctly refused an unanswerable question.</div></div>
+          <span class="cell good">100</span><span class="cell good">100</span><span class="cell good">100</span><span class="cell good">90</span><span class="cell na">—</span>
+        </summary>
+        <dl class="more">
+          <dt>Answer</dt><dd>I don&#x27;t have that information in the provided context.</dd>
+          <dt>Retrieval</dt><dd>Recall@5 — · Precision@5 — · NDCG@5 — · MRR —</dd>
+        </dl>
+      </details>
+    <div class="legend"><span><i></i>85+ good</span><span class="ok"><i></i>65–84 fair</span>
+      <span class="bad"><i></i>under 65 needs attention</span></div>
+  </section>
 
-  <div class="panel full">
-    <h2>Weakest cases</h2>
-    <table>
-      <thead><tr>
-        <th>Question</th><th>Tier</th><th>Grnd</th><th>Corr</th><th>Comp</th><th>Cite</th><th>NDCG@5</th>
-      </tr></thead>
-      <tbody><tr><td class='q'>How long are audit logs retained on the enterprise plan?<div class='why'>Wrong (retention is 2 years) and no relevant context was retrieved.</div></td><td><span class='tag'>single_doc</span></td><td class="num bad">20</td><td class="num bad">15</td><td class="num bad">30</td><td class="num bad">20</td><td class="num bad">0</td></tr><tr><td class='q'>Does the free plan include webhook retries and a dead-letter queue?<div class='why'>Hallucinated: only retries are free; DLQ is paid. Retriever ranked the pricing doc low.</div></td><td><span class='tag'>multi_doc</span></td><td class="num bad">30</td><td class="num bad">20</td><td class="num bad">40</td><td class="num bad">25</td><td class="num bad">39</td></tr><tr><td class='q'>How does SSO group mapping interact with custom roles?<div class='why'>Partially right; the precedence rule is stated backwards.</div></td><td><span class='tag'>multi_doc</span></td><td class="num bad">60</td><td class="num bad">55</td><td class="num bad">50</td><td class="num bad">45</td><td class="num bad">63</td></tr><tr><td class='q'>What regions support the EU data residency tier?<div class='why'>Correct but omits the Paris region the reference lists.</div></td><td><span class='tag'>single_doc</span></td><td class="num good">90</td><td class="num good">85</td><td class="num bad">60</td><td class="num ok">70</td><td class="num good">92</td></tr><tr><td class='q'>What is the maximum payload size for the batch endpoint?<div class='why'>Accurate and grounded.</div></td><td><span class='tag'>single_doc</span></td><td class="num good">88</td><td class="num good">90</td><td class="num ok">80</td><td class="num ok">75</td><td class="num good">100</td></tr><tr><td class='q'>Which auth methods does the CLI support?<div class='why'>Grounded and complete.</div></td><td><span class='tag'>single_doc</span></td><td class="num good">92</td><td class="num good">88</td><td class="num good">85</td><td class="num ok">80</td><td class="num good">100</td></tr><tr><td class='q'>How do I rotate an API key without downtime?<div class='why'>Fully grounded and matches the reference.</div></td><td><span class='tag'>single_doc</span></td><td class="num good">95</td><td class="num good">92</td><td class="num good">88</td><td class="num good">85</td><td class="num good">100</td></tr><tr><td class='q'>What is the CEO&#x27;s home address?<div class='why'>Correctly refused an unanswerable question.</div></td><td><span class='tag'>unanswerable</span></td><td class="num good">100</td><td class="num good">100</td><td class="num good">100</td><td class="num good">90</td><td class="num mut">—</td></tr></tbody>
-    </table>
-  </div>
-
-  <footer>Generated by <a href="https://github.com/unshDee/proofrag">proofrag</a> — point your agent at your docs, get a golden set + scorecard in one command.</footer>
-</div></body></html>
+  <footer>Generated by <a href="https://github.com/unshDee/proofrag">proofrag</a> 0.10.0</footer>
+</main></body></html>
