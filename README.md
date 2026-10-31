@@ -43,6 +43,19 @@ proofrag demo --out scorecard.html && open scorecard.html
 > Use `[openai]` instead of `[anthropic]` for an OpenAI-compatible or local (Ollama) backend.
 > No install? Run it ad-hoc: `uvx "proofrag[anthropic]" demo`.
 
+## Guided wizard
+
+Prefer a walkthrough? The optional `tui` extra adds `proofrag wizard`, an interactive
+run of the whole loop with live progress bars: point it at your docs, pick how to call
+your app, and it writes the golden set, predictions, results, and scorecard. It calls the
+same functions as the commands below, and prints them at the end so you can rerun the
+loop in CI.
+
+```bash
+pipx install "proofrag[anthropic,tui]"
+proofrag wizard
+```
+
 ## Install as an Agent Skill
 
 `proofrag` also ships as a skill for the [agentskills.io](https://agentskills.io) open

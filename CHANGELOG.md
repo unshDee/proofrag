@@ -6,11 +6,25 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `proofrag wizard`, a guided interactive run of the whole loop, in the optional
+  `tui` extra (rich + typer). The core package stays dependency-free. Progress bars
+  stay one line tall and route the app's prints and earlier-configured logging above
+  the bar, so long output cannot make the display reprint itself.
+- `examples/docs-rag/naive_rag.py` exposes `ask(question)` for `--callable naive_rag:ask`.
+
+### Changed
+- Redesigned HTML scorecard and A/B report: a one-line verdict, compact metric bars,
+  a case-by-metric heatmap whose rows expand to the answer and retrieval detail, and
+  dark mode. README demo GIF and screenshots refreshed.
+
 ### Fixed
 - The Anthropic judge no longer sends `temperature`. Anthropic API version
   2026-10-21 and SDK 1.x reject sampling parameters, so fresh installs failed every
   call. Claude now samples at its default and the judge fingerprint reads
   `temperature=default`; rerun baselines judged by Anthropic before diffing.
+- `run --callable` finds project modules in the working directory when proofrag is
+  installed as a console script (uv tool, pipx).
 
 ## [0.9.0] - 2026-10-04
 

@@ -1,38 +1,47 @@
-# Render with:  vhs docs/demo.tape   (needs an API key in .env)
+# Render with:  vhs docs/demo.tape   (from the repo root; needs an API key in .env
+# and `uv sync --extra tui`). Runs the wizard on a fresh copy of examples/docs-rag.
 Output docs/demo.gif
 
 Set Shell "bash"
 Set FontSize 16
 Set Width 1280
-Set Height 760
-Set Padding 22
+Set Height 820
+Set Padding 24
+Set Margin 24
+Set MarginFill "#2563eb"
+Set WindowBar Colorful
+Set BorderRadius 10
 Set Theme "Catppuccin Mocha"
-Set TypingSpeed 32ms
-Set PlaybackSpeed 1.4
+Set TypingSpeed 45ms
+Set WaitTimeout 90s
 
 Hide
-Type "export VIRTUAL_ENV_DISABLE_PROMPT=1 && source .venv/bin/activate" Enter
-Type "export PS1='$ '" Enter
-Type "set -a && source .env && set +a && clear" Enter
+Type "export PATH=$PWD/.venv/bin:$PATH && set -a && source .env && set +a" Enter
+Type "D=$(mktemp -d)/docs-bot && cp -r examples/docs-rag $D && rm -rf $D/__pycache__ && cd $D" Enter
+Type "export PS1='\[\e[38;5;111m\]docs-bot\[\e[0m\] $ ' && clear" Enter
 Sleep 1s
 Show
 
-Type "# 1. generate a golden eval set from YOUR docs" Sleep 400ms Enter
+Type "ls" Sleep 300ms Enter
+Sleep 800ms
+Type "proofrag wizard" Sleep 400ms Enter
+
+Wait+Screen /Docs folder/
+Sleep 700ms
+Type "corpus" Sleep 300ms Enter
+
+Wait+Screen /How many test cases/
+Sleep 600ms
+Type "6" Sleep 300ms Enter
+
+Wait+Screen /Choose/
+Sleep 1200ms
+Type "callable" Sleep 300ms Enter
+Wait+Screen /Function/
 Sleep 400ms
-Type "proofrag generate --corpus examples/docs-rag/corpus --n 6 --chunk-chars 400 --out goldenset.jsonl" Sleep 400ms Enter
-Sleep 8s
+Type "naive_rag:ask" Sleep 400ms Enter
 
-Type "# 2. run your RAG over each question -> predictions.jsonl" Sleep 400ms Enter
-Sleep 300ms
-Type "python examples/docs-rag/naive_rag.py --goldenset goldenset.jsonl --corpus examples/docs-rag/corpus --out predictions.jsonl --k 3" Sleep 300ms Enter
-Sleep 8s
-
-Type "# 3. judge generation + score retrieval (pinned judge, CI gate)" Sleep 400ms Enter
-Sleep 300ms
-Type "proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --k 3 --fail-under 0.6" Sleep 400ms Enter
-Sleep 9s
-
-Type "# 4. shareable HTML scorecard" Sleep 400ms Enter
-Sleep 300ms
-Type "proofrag report --results results.json --out scorecard.html" Sleep 400ms Enter
-Sleep 3s
+Wait /Open the scorecard/
+Sleep 4s
+Type "n" Enter
+Sleep 2s
