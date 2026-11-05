@@ -8,7 +8,13 @@ from __future__ import annotations
 
 
 def _ret(recall, precision, ndcg, mrr):
-    return {"recall_at_k": recall, "precision_at_k": precision, "ndcg_at_k": ndcg, "mrr": mrr}
+    return {
+        "hit_rate_at_k": float(recall > 0),
+        "recall_at_k": recall,
+        "precision_at_k": precision,
+        "ndcg_at_k": ndcg,
+        "mrr": mrr,
+    }
 
 
 DEMO_RESULTS = {
@@ -22,6 +28,7 @@ DEMO_RESULTS = {
         "completeness": 0.71,
         "citation_quality": 0.68,
         "recall_at_k": 0.77,
+        "hit_rate_at_k": 0.86,
         "precision_at_k": 0.55,
         "ndcg_at_k": 0.73,
         "mrr": 0.81,

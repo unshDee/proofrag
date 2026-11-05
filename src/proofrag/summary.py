@@ -19,6 +19,7 @@ _LABELS = {
     "faithfulness": "Faithfulness",
     "answer_relevancy": "Answer relevancy",
     "relevancy": "Relevancy",
+    "hit_rate_at_k": "Hit rate@{k}",
     "recall_at_k": "Recall@{k}",
     "precision_at_k": "Precision@{k}",
     "ndcg_at_k": "NDCG@{k}",

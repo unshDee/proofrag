@@ -50,6 +50,7 @@ def _gen_metrics(results: dict) -> list[str]:
 
 def _ret_labels(k: int) -> dict:
     return {
+        "hit_rate_at_k": f"Hit rate@{k}",
         "recall_at_k": f"Recall@{k}",
         "precision_at_k": f"Precision@{k}",
         "ndcg_at_k": f"NDCG@{k}",
