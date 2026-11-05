@@ -105,11 +105,11 @@ def test_published_audit_keeps_q008_and_q019_evidence():
     assert "removing it when fetching" in evidence
 
 
-def test_downloader_atomic_write_refuses_symlink_destination(tmp_path):
+def test_downloader_atomic_write_refuses_symlink_destination(tmp_path, symlink_or_skip):
     target = tmp_path / "outside.txt"
     target.write_bytes(b"do not overwrite")
     destination = tmp_path / "document.rst"
-    destination.symlink_to(target)
+    symlink_or_skip(destination, target)
 
     with pytest.raises(ValueError, match="refusing to overwrite symlink"):
         download_corpus._atomic_write(destination, b"downloaded")
@@ -117,11 +117,11 @@ def test_downloader_atomic_write_refuses_symlink_destination(tmp_path):
     assert target.read_bytes() == b"do not overwrite"
 
 
-def test_downloader_atomic_write_does_not_use_predictable_temp_symlink(tmp_path):
+def test_downloader_atomic_write_does_not_use_predictable_temp_symlink(tmp_path, symlink_or_skip):
     target = tmp_path / "outside.txt"
     target.write_bytes(b"do not overwrite")
     destination = tmp_path / "document.rst"
-    destination.with_suffix(".rst.tmp").symlink_to(target)
+    symlink_or_skip(destination.with_suffix(".rst.tmp"), target)
 
     download_corpus._atomic_write(destination, b"downloaded")
 
