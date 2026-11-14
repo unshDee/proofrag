@@ -6,6 +6,17 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- `examples/llamaindex/`: a LlamaIndex adapter over the sample corpus for
+  `proofrag run --callable app:answer`. LlamaIndex stays an example-only dependency.
+- `examples/langchain/`: the same for a LangChain retrieval chain. LangChain stays an
+  example-only dependency.
+
+### Fixed
+- Symlink tests are skipped, instead of failing, on Windows machines that do not allow
+  creating symlinks (no Developer Mode or privilege). The security checks still run
+  everywhere symlinks can be created.
+
 ## [0.10.1] - 2026-10-31
 
 ### Fixed
