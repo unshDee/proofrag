@@ -125,10 +125,10 @@ def test_corpus_does_not_reinclude_files_inside_ignored_directory(tmp_path):
     assert [chunk["text"] for chunk in load_corpus(str(tmp_path))] == ["public"]
 
 
-def test_corpus_does_not_follow_symlinked_gitignore(tmp_path):
+def test_corpus_does_not_follow_symlinked_gitignore(tmp_path, symlink_or_skip):
     external = tmp_path.parent / (tmp_path.name + ".gitignore")
     external.write_text("*.md\n", encoding="utf-8")
-    (tmp_path / ".gitignore").symlink_to(external)
+    symlink_or_skip(tmp_path / ".gitignore", external)
     (tmp_path / "public.md").write_text("public", encoding="utf-8")
     assert [chunk["text"] for chunk in load_corpus(str(tmp_path))] == ["public"]
 
