@@ -193,7 +193,9 @@ def render(results: dict) -> str:
         k=k,
         gen_bars="".join(_bar(_gen_label(d), agg.get(d, 0.0)) for d in gen),
         ret_bars="".join(
-            _bar(ret_labels[m], agg[m]) for m in RETRIEVAL_METRICS if m in agg
+            _bar(ret_labels[m], agg[m])
+            for m in RETRIEVAL_METRICS
+            if m in agg
         ),
         cols=len(gen) + 1,
         heads=heads,
