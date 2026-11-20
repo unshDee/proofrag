@@ -191,9 +191,7 @@ def test_summary_renders_markdown_scorecard():
 
 def test_html_scorecard_omits_retrieval_metric_missing_from_older_results():
     aggregate = {
-        name: value
-        for name, value in DEMO_RESULTS["aggregate"].items()
-        if name != "hit_rate_at_k"
+        name: value for name, value in DEMO_RESULTS["aggregate"].items() if name != "hit_rate_at_k"
     }
     out = render({**DEMO_RESULTS, "aggregate": aggregate})
     assert "<span>Hit rate@5</span>" not in out
