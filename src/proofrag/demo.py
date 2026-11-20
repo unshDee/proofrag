@@ -8,7 +8,13 @@ from __future__ import annotations
 
 
 def _ret(recall, precision, ndcg, mrr):
-    return {"recall_at_k": recall, "precision_at_k": precision, "ndcg_at_k": ndcg, "mrr": mrr}
+    return {
+        "hit_rate_at_k": float(recall > 0),
+        "recall_at_k": recall,
+        "precision_at_k": precision,
+        "ndcg_at_k": ndcg,
+        "mrr": mrr,
+    }
 
 
 DEMO_RESULTS = {
@@ -22,6 +28,7 @@ DEMO_RESULTS = {
         "completeness": 0.71,
         "citation_quality": 0.68,
         "recall_at_k": 0.77,
+        "hit_rate_at_k": 0.86,
         "precision_at_k": 0.55,
         "ndcg_at_k": 0.73,
         "mrr": 0.81,
@@ -153,8 +160,20 @@ DEMO_COMPARISON = {
     "n": 6,
     "wins": {"a": 2, "b": 3, "tie": 1},
     "win_rate_a": 0.4,
-    "retrieval_a": {"recall_at_k": 0.78, "precision_at_k": 0.55, "ndcg_at_k": 0.71, "mrr": 0.74},
-    "retrieval_b": {"recall_at_k": 0.86, "precision_at_k": 0.62, "ndcg_at_k": 0.83, "mrr": 0.85},
+    "retrieval_a": {
+        "hit_rate_at_k": 1.0,
+        "recall_at_k": 0.78,
+        "precision_at_k": 0.55,
+        "ndcg_at_k": 0.71,
+        "mrr": 0.74,
+    },
+    "retrieval_b": {
+        "hit_rate_at_k": 1.0,
+        "recall_at_k": 0.86,
+        "precision_at_k": 0.62,
+        "ndcg_at_k": 0.83,
+        "mrr": 0.85,
+    },
     "records": [
         {
             "id": "q000",

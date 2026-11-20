@@ -19,7 +19,7 @@ from collections.abc import Callable
 _WORD = re.compile(r"[a-z0-9]+")
 
 Matcher = Callable[[str, str], bool]
-RETRIEVAL_METRICS = ["recall_at_k", "precision_at_k", "ndcg_at_k", "mrr"]
+RETRIEVAL_METRICS = ["hit_rate_at_k", "recall_at_k", "precision_at_k", "ndcg_at_k", "mrr"]
 
 
 def _tokens(text: str) -> set[str]:
@@ -69,6 +69,13 @@ def recall_at_k(gold_contexts, retrieved, k, matcher) -> float:
     topk = retrieved[:k]
     hits = sum(1 for g in gold_contexts if any(matcher(g, c) for c in topk))
     return hits / len(gold_contexts)
+
+
+def hit_rate_at_k(gold_contexts, retrieved, k, matcher) -> float:
+    """Return 1.0 if any gold context matches a top-k result, else 0.0."""
+    if not gold_contexts:
+        return 1.0  # nothing to retrieve (e.g. an unanswerable case)
+    return float(any(_relevance(gold_contexts, chunk, matcher) for chunk in retrieved[:k]))
 
 
 def precision_at_k(gold_contexts, retrieved, k, matcher) -> float:
@@ -128,6 +135,7 @@ def retrieval_metrics(
     """All retrieval metrics for one (gold_contexts, retrieved) pair."""
     matcher = matcher or lexical_matcher()
     return {
+        "hit_rate_at_k": round(hit_rate_at_k(gold_contexts, retrieved, k, matcher), 3),
         "recall_at_k": round(recall_at_k(gold_contexts, retrieved, k, matcher), 3),
         "precision_at_k": round(precision_at_k(gold_contexts, retrieved, k, matcher), 3),
         "ndcg_at_k": round(ndcg_at_k(gold_contexts, retrieved, k, matcher), 3),

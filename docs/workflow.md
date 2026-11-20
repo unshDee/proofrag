@@ -85,8 +85,8 @@ For a fully custom driver, see
 
 ## 4. Metrics
 
-- **Retrieval:** Recall@k, Precision@k, NDCG@k and MRR show whether the right evidence
-  arrived and ranked well. Matching is Jaccard overlap by default. Use `--exact` when
+- **Retrieval:** Hit rate@k, Recall@k, Precision@k, NDCG@k and MRR show whether the
+  right evidence arrived and ranked well. Matching is Jaccard overlap by default. Use `--exact` when
   your app returns the original chunks, or `--semantic` for embedding match
   (see [judges.md](judges.md#embeddings)).
 - **Generation:** groundedness, correctness, completeness and context attribution,

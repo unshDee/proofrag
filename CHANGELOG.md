@@ -7,6 +7,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Added
+- Hit rate@k is included in retrieval metrics and scorecards.
 - `examples/llamaindex/`: a LlamaIndex adapter over the sample corpus for
   `proofrag run --callable app:answer`. LlamaIndex stays an example-only dependency.
 - `examples/langchain/`: the same for a LangChain retrieval chain. LangChain stays an

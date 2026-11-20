@@ -71,8 +71,9 @@ Gate it in CI with the GitHub Action:
 
 - **Golden sets grounded in your docs.** Single-document, multi-document and
   *unanswerable* cases, validated before they become a baseline.
-- **Retrieval and generation are scored separately.** Recall@k, NDCG@k and MRR show
-  whether the evidence arrived. Answer metrics show what the model did with it.
+- **Retrieval and generation are scored separately.** Hit rate@k, Recall@k, NDCG@k
+  and MRR show whether the evidence arrived. Answer metrics show what the model did
+  with it.
 - **Reproducible runs.** Every run records the judge, prompt version, matcher and
   dataset fingerprint, and `diff` refuses to compare mismatched runs.
 - **Blind A/B.** Compare two variants on the same cases, with answer order randomized.
