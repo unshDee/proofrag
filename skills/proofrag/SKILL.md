@@ -83,8 +83,9 @@ to override. Proofrag does not auto-load `.env`, so source it first.
    proofrag evaluate --goldenset goldenset.jsonl --predictions predictions.jsonl --out results.json
    ```
    Scores groundedness, correctness, completeness, citation_quality (LLM-as-judge,
-   pinned + fingerprinted) and rank-aware retrieval metrics — Recall@k, Precision@k,
-   NDCG@k, MRR (`--k` sets the cutoff; Jaccard by default, `--exact` for original
+   pinned + fingerprinted) and rank-aware retrieval metrics — Hit rate@k, Recall@k,
+   Precision@k, NDCG@k, MRR (`--k` sets the cutoff; Jaccard by default, `--exact`
+   for original
    chunks, or `--semantic` for embeddings). Evaluation fails if prediction IDs do not
    exactly cover the golden set or any judge call fails.
    To score generation with DeepEval instead, add `--backend deepeval` (needs the

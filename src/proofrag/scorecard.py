@@ -192,7 +192,9 @@ def render(results: dict) -> str:
         backend=html.escape(str(results.get("backend", "proofrag"))),
         k=k,
         gen_bars="".join(_bar(_gen_label(d), agg.get(d, 0.0)) for d in gen),
-        ret_bars="".join(_bar(ret_labels[m], agg.get(m, 0.0)) for m in RETRIEVAL_METRICS),
+        ret_bars="".join(
+            _bar(ret_labels[m], agg[m]) for m in RETRIEVAL_METRICS if m in agg
+        ),
         cols=len(gen) + 1,
         heads=heads,
         ndcg_head=html.escape(ret_labels["ndcg_at_k"]),

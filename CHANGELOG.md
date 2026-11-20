@@ -6,6 +6,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- Hit rate@k is included in retrieval metrics and scorecards.
+
 ## [0.10.1] - 2026-10-31
 
 ### Fixed

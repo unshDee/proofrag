@@ -160,8 +160,20 @@ DEMO_COMPARISON = {
     "n": 6,
     "wins": {"a": 2, "b": 3, "tie": 1},
     "win_rate_a": 0.4,
-    "retrieval_a": {"recall_at_k": 0.78, "precision_at_k": 0.55, "ndcg_at_k": 0.71, "mrr": 0.74},
-    "retrieval_b": {"recall_at_k": 0.86, "precision_at_k": 0.62, "ndcg_at_k": 0.83, "mrr": 0.85},
+    "retrieval_a": {
+        "hit_rate_at_k": 1.0,
+        "recall_at_k": 0.78,
+        "precision_at_k": 0.55,
+        "ndcg_at_k": 0.71,
+        "mrr": 0.74,
+    },
+    "retrieval_b": {
+        "hit_rate_at_k": 1.0,
+        "recall_at_k": 0.86,
+        "precision_at_k": 0.62,
+        "ndcg_at_k": 0.83,
+        "mrr": 0.85,
+    },
     "records": [
         {
             "id": "q000",
